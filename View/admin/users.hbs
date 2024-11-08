@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>users</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            padding-top: 30px;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #09253d;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .block-button {
+            background-color: #700811;
+            /* Red for block */
+            color: white;
+        }
+
+        .unblock-button {
+            background-color: #074424;
+            /* Green for unblock */
+            color: white;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: center;
+            /* Centers the navigation items */
+            align-items: center;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+
+        .navbar ul {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+            /* Removes the dot/bullet points */
+            padding: 0;
+            margin: 0;
+        }
+
+        .navbar ul li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .navbar ul li a#same {
+            color: #9e7317;
+            /* Solid color for the Dashboard link */
+            font-weight: 800;
+        }
+
+        .icons {
+            display: flex;
+            gap: 10px;
+            position: absolute;
+            right: 20px;
+        }
+         .header {
+            position: fixed;
+            top: 0;
+            /* Keeps the header at the top of the viewport */
+            width: 100%;
+            /* Makes the header full width */
+            z-index: 1000;
+            /* Ensures it stays on top of other elements */
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="header">
+    <nav class="navbar">
+        <ul>
+            <li><a href="/admin/dashboard">Dashboard</a></li>
+            <li><a id="same" href="#">Users</a></li>
+            <li><a href="/admin/products">Products</a></li>
+            <li><a href="#">Orders</a></li>
+            <li><a href="#">Coupon</a></li>
+            <li><a href="#">Offers</a></li>
+            <li><a href="#">Brand</a></li>
+            <li><a href="/admin/categories">Categories</a></li>
+            <li><a href="#">Sales Report</a></li>
+        </ul>
+        <div class="icons">
+            <span>🔔</span>
+            <a href="/admin/profile"><span>👤</span></a>
+        </div>
+    </nav>
+    </div>
+    <div class="container">
+        <h1>User Management</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each users}}
+                <tr>
+                    <td>{{this._id}}</td>
+                    <td>{{this.username}}</td>
+                    <td>{{this.email}}</td>
+                    <td>{{#if this.status}}Active{{else}}Blocked{{/if}}</td>
+                    <td>
+                        {{#if this.status}}
+                        <form action="/admin/users/block/{{this._id}}" method="POST">
+                            <button type="submit" class="block-button">Block</button>
+                        </form>
+                        {{else}}
+                        <form action="/admin/users/unblock/{{this._id}}" method="POST">
+                            <button type="submit" class="unblock-button">Unblock</button>
+                        </form>
+                        {{/if}}
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

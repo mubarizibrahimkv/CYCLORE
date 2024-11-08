@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f2f2f2;
+        }
+
+        .container {
+            display: flex;
+            width: 800px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .left-side {
+            background-image: url('https://i.pinimg.com/236x/7e/53/a1/7e53a1ac2a7e0921e8fc2ddf35dd032f.jpg');
+            /* Replace with actual image path */
+            background-size: cover;
+            background-position: center;
+            width: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .left-side .content {
+            text-align: center;
+        }
+
+        .left-side h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .left-side p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .left-side button {
+            background-color: #ff6a00;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .right-side {
+            width: 50%;
+            background-color: white;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .right-side h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .floating-label {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .floating-label input[type="text"],
+        .floating-label input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-bottom: 1px solid #ccc;
+            outline: none;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .floating-label input[type="text"]:focus,
+        .floating-label input[type="password"]:focus {
+            border-bottom: 1px solid #ff6a00;
+        }
+
+        .floating-label label {
+            position: absolute;
+            left: 0;
+            top: 15px;
+            font-size: 16px;
+            color: #666;
+            transition: all 0.3s;
+            pointer-events: none;
+        }
+
+        .floating-label input[type="text"]:focus+label,
+        .floating-label input[type="text"]:not(:placeholder-shown)+label,
+        .floating-label input[type="password"]:focus+label,
+        .floating-label input[type="password"]:not(:placeholder-shown)+label {
+            top: -10px;
+            font-size: 12px;
+            color: #ff6a00;
+        }
+
+        .checkbox {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .checkbox input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        .right-side button {
+            width: 100%;
+            background-image: linear-gradient(to right, #ff6a00, #ff9900);
+            border: none;
+            color: white;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .right-side a {
+            display: block;
+            text-align: center;
+            color: #666;
+            text-decoration: none;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .right-side a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="left-side">
+            <div class="content">
+                <h2>New to our website?</h2>
+                <p>"Pedal forward with purpose – your journey begins here.</p>
+            </div>
+        </div>
+        <div class="right-side">
+            <h2>Log in to Enter</h2>
+            <form action="/admin/login" method="post">
+                <input type="text" id="message" value="{{{message}}}" name="message" hidden>
+                <div class="floating-label">
+                    <input type="text" id="email" name="email" placeholder=" " required>
+                    <label for="email">Email</label>
+                </div>
+                <div class="floating-label">
+                    <input type="password" id="password" name="password" placeholder=" " required>
+                    <label for="password">Password</label>
+                </div>
+                <button type="submit">Log In</button>
+                <a href="#">Forgot Password?</a>
+            </form>
+        </div>
+    </div>
+</body>
+<script>
+    const message = document.getElementById("message").value;
+
+    if (message) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: message,
+            confirmButtonText: 'OK'
+        });
+
+        document.getElementById("message").value = "";
+    }
+</script>
+
+</html>

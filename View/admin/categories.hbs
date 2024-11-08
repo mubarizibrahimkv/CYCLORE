@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Management</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* General styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            padding-top: 50px;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        /* Additional styles for other elements remain unchanged */
+        /* Add Category Button */
+        .add-category-button-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .add-category-button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+        }
+
+        .add-category-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Table styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #0d2c4d;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Button styling */
+        button,
+        .button-link {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .list-button {
+            background-color: #0a4218;
+            /* Green for list */
+        }
+
+        .unlist-button {
+            background-color: #991524;
+            /* Red for unlist */
+        }
+
+        .edit-button {
+            background-color: #574716;
+            /* Yellow for edit */
+        }
+
+        /* Button hover effects */
+        .list-button:hover {
+            background-color: #0c2b13;
+        }
+
+        .unlist-button:hover {
+            background-color: #6e0c16;
+        }
+
+        .edit-button:hover {
+            background-color: #e0a800;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            /* Keeps the header at the top of the viewport */
+            width: 100%;
+            /* Makes the header full width */
+            z-index: 1000;
+            /* Ensures it stays on top of other elements */
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: center;
+            /* Centers the navigation items */
+            align-items: center;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+
+        .navbar ul {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+            /* Removes the dot/bullet points */
+            padding: 0;
+            margin: 0;
+        }
+
+        .navbar ul li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .navbar ul li a#same {
+            color: #9e7317;
+            /* Solid color for the Dashboard link */
+            font-weight: 800;
+            /* Make the text bold */
+
+        }
+
+        .icons {
+            display: flex;
+            gap: 10px;
+            position: absolute;
+            right: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <ul>
+                <li><a href="/admin/dashboard">Dashboard</a></li>
+                <li><a href="/admin/users">Users</a></li>
+                <li><a href="/admin/products">Products</a></li>
+                <li><a href="#">Orders</a></li>
+                <li><a href="#">Coupon</a></li>
+                <li><a href="#">Offers</a></li>
+                <li><a href="#">Brand</a></li>
+                <li><a id="same" href="#">Categories</a></li>
+                <li><a href="#">Sales Report</a></li>
+            </ul>
+            <div class="icons">
+                <span>🔔</span>
+                <a href="/admin/profile"><span>👤</span></a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>Category Management</h1>
+
+        <!-- Add Category Button -->
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addCategoryModal">
+            Add Category
+        </button>
+
+        <!-- Category Table -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Category Name</th>
+                    <th>Variant</th>
+                    <th>Status</th>
+                    <th>Edit</th>
+                    <th>List/Unlist</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each categories}}
+                <tr>
+                    <td>{{this.name}}</td>
+                    <td>{{this.variant}}</td>
+                    <td>{{#if this.isListed}}Listed{{else}}Unlisted{{/if}}</td>
+                    <td>
+                        <button class="btn btn-warning"
+                            onclick="openEditModal('{{this._id}}', '{{this.name}}', '{{this.variant}}')">
+                            Edit
+                        </button>
+                    </td>
+                    <td>
+                        <form action="/admin/categories/toggle-status/{{this._id}}" method="POST">
+                            {{#if this.isListed}}
+                            <button type="submit" class="unlist-button">Unlist</button>
+                            {{else}}
+                            <button type="submit" class="list-button">List</button>
+                            {{/if}}
+                        </form>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add Category Modal -->
+    <div class="modal fade" id="addCategoryModal" tabindex="-1" role="dialog" aria-labelledby="addCategoryModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCategoryModalLabel">Add Category</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="/admin/categories/add" method="POST">
+                        <!-- Category Dropdown -->
+                        <div class="form-group">
+                            <label for="categoryName">Category</label>
+                            <select class="form-control" id="categoryName" name="name" required>
+                                <option value="">Select Category</option>
+                                <option value="Sports">Sports</option>
+                                <option value="Mountain">Mountain</option>
+                                <option value="City">City</option>
+                                <option value="E-bikes">E-bikes</option>
+                            </select>
+                        </div>
+
+                        <!-- Variant Input -->
+                        <div class="form-group">
+                            <label for="categoryVariant">Variant</label>
+                            <input type="text" class="form-control" id="categoryVariant" name="variant" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Add Category</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Category Modal -->
+    <div class="modal fade" id="editCategoryModal" tabindex="-1" role="dialog" aria-labelledby="editCategoryModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editCategoryModalLabel">Edit Category</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="/admin/categories/edit" method="POST" id="editCategoryForm">
+                        <input type="hidden" name="id" id="editCategoryId">
+
+                        <!-- Category Dropdown -->
+                        <div class="form-group">
+                            <label for="editCategoryName">Category Name</label>
+                            <select class="form-control" id="editCategoryName" name="name" required>
+                                <option value="">Select Category</option>
+                                <option value="Sports">Sports</option>
+                                <option value="Mountain">Mountain</option>
+                                <option value="City">City</option>
+                                <option value="E-bikes">E-bikes</option>
+                            </select>
+                            <small id="nameError" style="color: red; display: none;">Please select a category
+                                name.</small>
+                        </div>
+
+                        <!-- Variant Input -->
+                        <div class="form-group">
+                            <label for="editCategoryVariant">Variant</label>
+                            <input type="text" class="form-control" id="editCategoryVariant" name="variant" required>
+                            <small id="variantError" style="color: red; display: none;">Please enter a variant.</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Update Category</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function openEditModal(id, name, variant) {
+            $('#editCategoryId').val(id);
+            $('#editCategoryName').val(name);
+            $('#editCategoryVariant').val(variant);
+            $('#editCategoryModal').modal('show');
+        }
+    </script>
+</body>
+
+</html>
