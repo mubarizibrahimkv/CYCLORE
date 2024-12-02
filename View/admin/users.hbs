@@ -60,20 +60,17 @@
 
         .block-button {
             background-color: #700811;
-            /* Red for block */
             color: white;
         }
 
         .unblock-button {
             background-color: #074424;
-            /* Green for unblock */
             color: white;
         }
 
         .navbar {
             display: flex;
             justify-content: center;
-            /* Centers the navigation items */
             align-items: center;
             padding: 20px;
             background-color: #fff;
@@ -86,7 +83,6 @@
             display: flex;
             gap: 25px;
             list-style: none;
-            /* Removes the dot/bullet points */
             padding: 0;
             margin: 0;
         }
@@ -99,7 +95,6 @@
 
         .navbar ul li a#same {
             color: #9e7317;
-            /* Solid color for the Dashboard link */
             font-weight: 800;
         }
 
@@ -109,45 +104,41 @@
             position: absolute;
             right: 20px;
         }
-         .header {
+
+        .header {
             position: fixed;
             top: 0;
-            /* Keeps the header at the top of the viewport */
             width: 100%;
-            /* Makes the header full width */
             z-index: 1000;
-            /* Ensures it stays on top of other elements */
         }
-
     </style>
 </head>
 
 <body>
     <div class="header">
-    <nav class="navbar">
-        <ul>
-            <li><a href="/admin/dashboard">Dashboard</a></li>
-            <li><a id="same" href="#">Users</a></li>
-            <li><a href="/admin/products">Products</a></li>
-            <li><a href="#">Orders</a></li>
-            <li><a href="#">Coupon</a></li>
-            <li><a href="#">Offers</a></li>
-            <li><a href="#">Brand</a></li>
-            <li><a href="/admin/categories">Categories</a></li>
-            <li><a href="#">Sales Report</a></li>
-        </ul>
-        <div class="icons">
-            <span>🔔</span>
-            <a href="/admin/profile"><span>👤</span></a>
-        </div>
-    </nav>
+        <nav class="navbar">
+            <ul>
+                <li><a href="/admin/dashboard">Dashboard</a></li>
+                <li><a id="same" href="#">Users</a></li>
+                <li><a href="/admin/products">Products</a></li>
+                <li><a href="/admin/orders">Orders</a></li>
+                <li><a href="/admin/coupon">Coupon</a></li>
+                <li><a href="/admin/offer">Offers</a></li>
+                <li><a href="/admin/inventory">Inventory</a></li>
+                <li><a href="/admin/categories">Categories</a></li>
+                <li><a href="/admin/salesReport">Sales Report</a></li>
+            </ul>
+            <div class="icons">
+                <span>🔔</span>
+                <a href="/admin/profile"><span>👤</span></a>
+            </div>
+        </nav>
     </div>
     <div class="container">
         <h1>User Management</h1>
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Username</th>
                     <th>Email</th>
                     <th>Status</th>
@@ -157,7 +148,6 @@
             <tbody>
                 {{#each users}}
                 <tr>
-                    <td>{{this._id}}</td>
                     <td>{{this.username}}</td>
                     <td>{{this.email}}</td>
                     <td>{{#if this.status}}Active{{else}}Blocked{{/if}}</td>

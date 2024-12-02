@@ -3,10 +3,15 @@ const router=express.Router()
 const adminController=require("../controller/adminController")
 const upload=require("../controller/imageController")
 const adminAuth=require("../middlewares/adminAuth")
+const dashboardController=require("../controller/dashboardController")
 
 router.get('/login',adminAuth.isLogin,adminController.loadLogin)
 router.post("/login",adminController.login)
-router.get("/dashboard",adminAuth.checkSession,adminController.loadDashboard)
+
+
+router.get("/dashboard",dashboardController.loadDashboard)
+router.get("/sales-data",dashboardController.getSalesData)
+
 router.get("/users",adminAuth.checkSession,adminController.loadUserManagement);
 router.post("/users/block/:id", adminAuth.checkSession, adminController.blockUser); 
 router.post("/users/unblock/:id", adminAuth.checkSession, adminController.unblockUser); 

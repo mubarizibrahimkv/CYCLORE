@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet</title>
+    <link rel="stylesheet" href="wallet.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .navbar-2 {
+            position: sticky;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+        }
+
+        .navbar-2-nav {
+            list-style-type: none;
+            display: flex;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .navbar-2-nav li {
+            margin: 0 15px;
+        }
+
+        .navbar-2-link {
+            text-decoration: none;
+            color: rgb(136, 26, 26);
+            font-size: 1rem;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar-1-link {
+            text-decoration: none;
+            color: rgb(24, 1, 1);
+            font-size: 1rem;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        h4 {
+            color: #333;
+            font-size: 1.3rem;
+        }
+
+        p {
+            font-size: 1rem;
+            color: #555;
+        }
+
+        @media (max-width: 768px) {
+            .navbar-2-link {
+                font-size: 0.9rem;
+                padding: 8px 12px;
+            }
+        }
+
+
+        .back-button {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            background: #3b82f6;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            transition: background 0.3s ease;
+        }
+
+        .back-btn i {
+            margin-right: 8px;
+        }
+
+        .back-btn:hover {
+            background: #2563eb;
+        }
+
+        .wallet-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .wallet-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .wallet-header h1 {
+            font-size: 36px;
+            color: #4CAF50;
+        }
+
+        .wallet-header p {
+            font-size: 18px;
+            color: #777;
+        }
+
+        .wallet-balance {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .wallet-balance h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .balance {
+            font-size: 48px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        .wallet-transactions table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .wallet-transactions th,
+        .wallet-transactions td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .wallet-transactions th {
+            background-color: #f1f1f1;
+        }
+
+        .wallet-transactions td {
+            background-color: #fafafa;
+        }
+
+        .wallet-transactions tr:nth-child(even) td {
+            background-color: #f9f9f9;
+        }
+
+        .wallet-transactions tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .wallet-transactions td span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar-2">
+        <div class="navbar-2-container">
+            <ul class="navbar-2-nav">
+                <li><a href="/profile" class="navbar-2-link">MY ACCOUNT</a></li>
+                <li><a href="/profile/order" class="navbar-2-link">MY ORDERS</a></li>
+                <li><a href="#" class="navbar-1-link">MY WALLET</a></li>
+            </ul>
+        </div>
+    </div>
+
+
+    <div class="wallet-container">
+        <header class="wallet-header">
+            <h1>User Wallet</h1>
+            <p>Manage your balance and transactions</p>
+        </header>
+
+        <section class="wallet-balance">
+            <h2>Balance</h2>
+            <div class="balance">
+                <span>₹</span><span>{{balance}}</span>
+            </div>
+        </section>
+
+        <section class="wallet-transactions">
+            <h2>Transactions</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Transaction Type</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="transaction-list">
+                    {{#each transactions}}
+                    <tr>
+                        <td>{{this.type}}</td>
+                        <td>₹{{this.amount}}</td>
+                        <td>{{this.description}}</td>
+                        <td>{{formatDate this.date}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+
+</body>
+
+</html>

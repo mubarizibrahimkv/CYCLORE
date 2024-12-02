@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Success</title>
+    <link rel="stylesheet" href="/css/success.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body,
+        html {
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f8ff;
+        }
+
+        .success-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .success-card {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .success-icon {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 1rem;
+        }
+
+        .success-card h1 {
+            color: #28a745;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .success-card p {
+            color: #555555;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .order-summary {
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .order-summary h2 {
+            font-size: 1.2rem;
+            color: #333333;
+            margin-bottom: 0.5rem;
+        }
+
+        .order-summary p {
+            color: #666666;
+            font-size: 0.9rem;
+        }
+
+        .home-button {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background-color: #28a745;
+            color: #ffffff;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .home-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="success-container">
+        <div class="success-card">
+            <img src="/img/request-submit-success.png" alt="Success" class="success-icon">
+            <h1>Thank You for Your Order!</h1>
+            <p>Your order has been successfully placed.</p>
+            <a href="/profile/order" class="home-button" class="orders-button">View Your Orders</a>
+            <br><br>
+            <a href="/" class="home-button">Return to Homepage</a>
+        </div>
+    </div>
+</body>
+
+</html>

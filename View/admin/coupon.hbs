@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coupon Management</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .card {
+            margin: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .table thead {
+            background-color: #343a40;
+            color: white;
+        }
+
+        .btn-add {
+            background-color: #106123;
+            color: white;
+        }
+
+        .btn-add:hover {
+            background-color: #218838;
+        }
+
+        .btn-danger,
+        .btn-success {
+            margin-right: 5px;
+        }
+
+        .form-label {
+            font-weight: bold;
+        }
+
+
+        @media (max-width: 768px) {
+            .navbar ul {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .table {
+                font-size: 12px;
+            }
+
+            .table th,
+            .table td {
+                padding: 10px;
+            }
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+
+        .navbar ul {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .navbar ul li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .navbar ul li a#same {
+            color: #9e7317;
+            font-weight: 800;
+
+        }
+
+        .icons {
+            display: flex;
+            gap: 10px;
+            position: absolute;
+            right: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <ul>
+            <li><a href="/admin/dashboard">Dashboard</a></li>
+            <li><a href="/admin/Users">Users</a></li>
+            <li><a href="/admin/products">Products</a></li>
+            <li><a href="/admin/orders">Orders</a></li>
+            <li><a id="same" href="#">Coupon</a></li>
+            <li><a href="/admin/offer">Offers</a></li>
+            <li><a href="/admin/inventory">Inventory</a></li>
+            <li><a href="/admin/categories">Categories</a></li>
+            <li><a href="/admin/salesReport">Sales Report</a></li>
+        </ul>
+        <div class="icons">
+            <span>🔔</span>
+            <a href="/admin/profile"><span>👤</span></a>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3>Coupon Management</h3>
+                <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addCouponModal">
+                    Add Coupon
+                </button>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Coupon Code</th>
+                            <th>Type</th>
+                            <th>Discount</th>
+                            <th>Min Purchase</th>
+                            <th>Max Discount</th>
+                            <th>Expiry Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each coupons}}
+                        <tr>
+                            <td>{{this.code}}</td>
+                            <td>{{this.discountType}}</td>
+                            <td>{{this.discountValue}}</td>
+                            <td>{{this.minPurchase}}</td>
+                            <td>{{this.maxDiscount}}</td>
+                            <td>{{formatDate this.expiryDate}}</td>
+                            <td>
+                                <form action="/admin/coupons/delete/{{this._id}}" method="POST"
+                                    style="display:inline-block;">
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                                <button class="btn btn-success btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#editCouponModal-{{this._id}}">
+                                    Edit
+                                </button>
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Coupon Modal -->
+    <div class="modal fade" id="addCouponModal" tabindex="-1" aria-labelledby="addCouponModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="/admin/coupons/add" method="POST">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addCouponModalLabel">Add Coupon</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="code" class="form-label">Coupon Code</label>
+                            <input type="text" class="form-control" name="code" id="code" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="discountType" class="form-label">Discount Type</label>
+                            <select class="form-select" name="discountType" id="discountType" required>
+                                <option value="percentage">Percentage</option>
+                                <option value="fixed">Fixed</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="discountValue" class="form-label">Discount Value</label>
+                            <input type="number" class="form-control" name="discountValue" id="discountValue" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="minPurchase" class="form-label">Minimum Purchase</label>
+                            <input type="number" class="form-control" name="minPurchase" id="minPurchase">
+                        </div>
+                        <div class="mb-3">
+                            <label for="maxDiscount" class="form-label">Maximum Discount</label>
+                            <input type="number" class="form-control" name="maxDiscount" id="maxDiscount">
+                        </div>
+                        <div class="mb-3">
+                            <label for="expiryDate" class="form-label">Expiry Date</label>
+                            <input type="date" class="form-control" name="expiryDate" id="expiryDate" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Add Coupon</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Coupon Modal -->
+    {{#each coupons}}
+    <div class="modal fade" id="editCouponModal-{{this._id}}" tabindex="-1"
+        aria-labelledby="editCouponModalLabel-{{this._id}}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="/admin/coupons/edit/{{this._id}}" method="POST">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editCouponModalLabel-{{this._id}}">Edit Coupon</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="code-{{this._id}}" class="form-label">Coupon Code</label>
+                            <input type="text" class="form-control" name="code" id="code-{{this._id}}"
+                                value="{{this.code}}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="discountType-{{this._id}}" class="form-label">Discount Type</label>
+                            <select class="form-select" name="discountType" id="discountType-{{this._id}}" required>
+                                <option value="percentage" {{#if (eq this.discountType 'percentage' )}}selected{{/if}}>
+                                    Percentage</option>
+                                <option value="fixed" {{#if (eq this.discountType 'fixed' )}}selected{{/if}}>Fixed
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="discountValue-{{this._id}}" class="form-label">Discount Value</label>
+                            <input type="number" class="form-control" name="discountValue"
+                                id="discountValue-{{this._id}}" value="{{this.discountValue}}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="minPurchase-{{this._id}}" class="form-label">Minimum Purchase</label>
+                            <input type="number" class="form-control" name="minPurchase" id="minPurchase-{{this._id}}"
+                                value="{{this.minPurchase}}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="maxDiscount-{{this._id}}" class="form-label">Maximum Discount</label>
+                            <input type="number" class="form-control" name="maxDiscount" id="maxDiscount-{{this._id}}"
+                                value="{{this.maxDiscount}}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="expiryDate-{{this._id}}" class="form-label">Expiry Date</label>
+                            <input type="date" class="form-control" name="expiryDate" id="expiryDate-{{this._id}}"
+                                value="{{formatDateForInput this.expiryDate}}" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Update Coupon</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {{/each}}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

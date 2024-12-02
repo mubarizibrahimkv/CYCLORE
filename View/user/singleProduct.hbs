@@ -116,12 +116,18 @@
                             <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
                         </ul>
                         <ul class="nav navbar-nav navbar-right">
-                            <li class="nav-item"><a href="#" class="cart"><span class="ti-bag"></span></a></li>
+                            <li class="nav-item"><a href="/cart" class="cart"><span class="ti-bag"></span></a></li>
                             <li class="nav-item">
                                 <button class="search"><span class="lnr lnr-magnifier" id="search"></span></button>
                             </li>
                             <li class="nav-item">
                                 <span>👤</span></button>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/wishlist" class="wishlist">
+                                    <button class="search">
+                                        <span class="ti-heart"></span></button>
+                                </a>
                             </li>
                         </ul>
                     </div>
@@ -178,10 +184,21 @@
                 <div class="col-lg-5 offset-lg-1">
                     <div class="s_product_text">
                         <h3>{{product.name}}</h3>
-                        <h2>${{product.price}}</h2>
+                        {{#if product.offer}}
+                        <h4 style="text-decoration: line-through;"><s>₹{{product.price}}</s></h4>
+                        <h2>Price : ₹{{product.discountedPrice}}</h2>
+                        <p><strong>Offer: {{product.offer.offerName}}</strong></p>
+                        {{#if (eq product.offer.discountType "percentage")}}
+                        <p>Discount: {{product.offer.discountValue}}% off</p>
+                        {{else if (eq product.offer.discountType "fixed")}}
+                        <p>Discount: ₹{{product.offer.discountValue}} off</p>
+                        {{/if}}
+                        {{else}}
+                        <h2> ₹{{product.price}}</h2>
+                        {{/if}}
                         <ul class="list">
                             <li><a class="active" href="#"><span>Category</span> : {{product.category}}</a></li>
-                            <li><a href="#"><span>Availibility</span> :  {{product.Stock}}</a></li>
+                            <li><a href="#"><span>Availibility</span> : {{product.stock}}</a></li>
                         </ul>
                         <p>{{product.description}}</p>
                         <div class="product_count">
@@ -196,7 +213,7 @@
                                 class="reduced items-count" type="button"><i class="lnr lnr-chevron-down"></i></button>
                         </div>
                         <div class="card_area d-flex align-items-center">
-                            <a class="primary-btn" href="#">Add to Cart</a>
+                            <a class="primary-btn" href="/cart/add/{{product._id}}">Add to Cart</a>
                             <a class="icon_btn" href="#"><i class="lnr lnr lnr-diamond"></i></a>
                             <a class="icon_btn" href="#"><i class="lnr lnr lnr-heart"></i></a>
                         </div>

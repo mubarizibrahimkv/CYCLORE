@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Sales Report Page</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .sales-report-container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .sales-report-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #sales-report-form {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        #sales-report-form input,
+        #sales-report-form select,
+        #sales-report-form button {
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .report-download-buttons {
+            display: flex;
+            justify-content: end;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .sales-report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .sales-report-table th,
+        .sales-report-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .sales-report-table th {
+            background-color: #103257;
+            color: white;
+        }
+
+        .sales-summary {
+            background-color: #e9f7ef;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .navbar ul {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .table {
+                font-size: 12px;
+            }
+
+            .table th,
+            .table td {
+                padding: 10px;
+            }
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .navbar ul {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .navbar ul li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .navbar ul li a#same {
+            color: #9e7317;
+            font-weight: 800;
+        }
+
+        .icons {
+            display: flex;
+            gap: 10px;
+            position: absolute;
+            right: 20px;
+        }
+
+        .sales-summary {
+            margin-top: 50px;
+            margin: auto;
+            max-width: 500px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-item strong {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .summary-item span {
+            font-size: 16px;
+            color: #555;
+        }
+        .main{
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <ul>
+            <li><a href="/admin/dashboard">Dashboard</a></li>
+            <li><a href="/admin/Users">Users</a></li>
+            <li><a href="/admin/products">Products</a></li>
+            <li><a href="/admin/orders">Orders</a></li>
+            <li><a href="/admin/coupon">Coupon</a></li>
+            <li><a href="/admin/offer">Offers</a></li>
+            <li><a href="/admin/inventory">Inventory</a></li>
+            <li><a href="/admin/categories">Categories</a></li>
+            <li><a id="same" href="#">Sales Report</a></li>
+        </ul>
+        <div class="icons">
+            <span>🔔</span>
+            <a href="/admin/profile"><span>👤</span></a>
+        </div>
+    </nav>
+
+    <div class="sales-report-container">
+        <h2>Sales Report</h2>
+
+        <!-- Filter Options -->
+        <div id="filters">
+            <label for="singleDay"></label>
+            <input type="date" name="singleDay" id="singleDay">
+            <br>
+
+            <label for="quickRange"></label>
+            <select name="quickRange" id="quickRange">
+                <option value="">Select</option>
+                <option value="1day">Last Day</option>
+                <option value="1week">Last Week</option>
+                <option value="1month">Last Month</option>
+            </select>
+            <br>
+        </div>
+
+
+        <!-- Download Buttons -->
+        <div class="report-download-buttons">
+            <a id="downloadPDFBtn" class="btn btn-primary">Download PDF</a>
+            <a id="downloadExcelBtn" class="btn btn-success">Download Excel</a>
+        </div>
+
+        <!-- Sales Report Table -->
+        <table class="sales-report-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Order Count</th>
+                    <th>Total Sales (₹)</th>
+                    <th>Total Discount (₹)</th>
+                    <th>Net Sales (₹)</th>
+                </tr>
+            </thead>
+            <tbody id="salesReportBody">
+                {{#each dailyReport}}
+                <tr>
+                    <td>{{this.date}}</td>
+                    <td>{{this.totalOrders}}</td>
+                    <td>{{this.totalAmount}}</td>
+                    <td>{{formatNumber this.totalDiscount}}</td>
+                    <td>{{formatNumber this.netSales}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+    <div class="main">
+        <div class="sales-summary">
+            <div class="summary-item">
+                <strong>Overall Order Count:</strong>
+                <span>{{overallOrderCount}}</span>
+            </div>
+            <div class="summary-item">
+                <strong>Overall Sales Amount (₹):</strong>
+                <span>{{formatNumber overallTotalSales}}</span>
+            </div>
+            <div class="summary-item">
+                <strong>Overall Discount (₹):</strong>
+                <span>{{formatNumber overallTotalDiscount}}</span>
+            </div>
+            <div class="summary-item">
+                <strong>Overall Net Sales (₹):</strong>
+                <span>{{formatNumber overallNetSales}}</span>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const salesReportBody = document.getElementById('salesReportBody');
+
+            const updateSalesReport = (filter) => {
+                fetch('/admin/salesReport', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(filter),
+                })
+                    .then((response) => {
+                        if (!response.ok) throw new Error('Failed to fetch sales report data');
+                        return response.json();
+                    })
+                    .then((data) => {
+                        salesReportBody.innerHTML = '';
+                        if (data.dailyReport && data.dailyReport.length > 0) {
+                            data.dailyReport.forEach((report) => {
+                                const row = `
+                            <tr>
+                                <td>${new Date(report.date).toLocaleDateString("en-US", {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric"
+                                })}
+                                </td>
+                                <td>${report.totalOrders}</td>
+                                <td>${formatNumber(report.totalAmount)}</td>
+                                <td>${formatNumber(report.totalDiscount)}</td>
+                                <td>${formatNumber(report.netSales)}</td>
+                            </tr>
+                        `;
+                                salesReportBody.insertAdjacentHTML('beforeend', row);
+                            });
+                        } else {
+                            salesReportBody.innerHTML = '<tr><td colspan="5">No data available for the selected range.</td></tr>';
+                        }
+                    })
+                    .catch((error) => console.error('Error:', error));
+            };
+
+            document.getElementById('singleDay').addEventListener('change', (event) => {
+                const singleDay = event.target.value;
+                updateSalesReport({ specificDay: singleDay });
+            });
+
+            document.getElementById('quickRange').addEventListener('change', (event) => {
+                const quickRange = event.target.value;
+                updateSalesReport({ quickRange });
+            });
+
+            const formatNumber = (num) => {
+                return new Intl.NumberFormat().format(num);
+            };
+        });
+
+    </script>
+
+    <script>
+        document.getElementById('downloadPDFBtn').addEventListener('click', function () {
+            const tableData = captureTableData();
+
+            fetch('/admin/sales-report/download/pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ salesData: tableData })
+            })
+                .then(response => response.blob())
+                .then(blob => {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'sales_report.pdf';
+                    link.click();
+                })
+                .catch(error => {
+                    console.error('Error generating PDF:', error);
+                });
+        });
+
+        document.getElementById('downloadExcelBtn').addEventListener('click', function () {
+            const tableData = captureTableData();
+
+            fetch('/admin/sales-report/download/excel', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ salesData: tableData })
+            })
+                .then(response => response.blob())
+                .then(blob => {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'sales_report.xlsx';
+                    link.click();
+                })
+                .catch(error => {
+                    console.error('Error generating Excel:', error);
+                });
+        });
+
+        function captureTableData() {
+            const rows = document.querySelectorAll('.sales-report-table tbody tr');
+            const data = [];
+            rows.forEach(row => {
+                const columns = row.querySelectorAll('td');
+                const rowData = {
+                    date: columns[0].textContent.trim(),
+                    orderCount: columns[1].textContent.trim(),
+                    totalSales: columns[2].textContent.trim(),
+                    discount: columns[3].textContent.trim(),
+                    netSales: columns[4].textContent.trim(),
+                };
+                data.push(rowData);
+            });
+            return data;
+        }
+
+    </script>

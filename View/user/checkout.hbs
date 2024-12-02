@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="zxx" class="no-js">
+
+<head>
+    <!-- Mobile Specific Meta -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Favicon-->
+    <link rel="shortcut icon" href="/img/fav.png">
+    <!-- Author Meta -->
+    <meta name="author" content="CodePixar">
+    <!-- Meta Description -->
+    <meta name="description" content="">
+    <!-- Meta Keyword -->
+    <meta name="keywords" content="">
+    <!-- meta character set -->
+    <meta charset="UTF-8">
+    <!-- Site Title -->
+    <title>Checkout</title>
+
+    <!--
+            CSS
+            ============================================= -->
+    <link rel="stylesheet" href="/css/linearicons.css">
+    <link rel="stylesheet" href="/css/owl.carousel.css">
+    <link rel="stylesheet" href="/css/themify-icons.css">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/nice-select.css">
+    <link rel="stylesheet" href="/css/nouislider.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <style>
+        .section {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .address-item {
+            margin-top: 30px;
+            margin-left: 80px;
+            flex: 1 1 45%;
+            max-width: 25%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f9f9f9;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .address-item div {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .address-item p {
+            color: #555;
+        }
+
+        .h4 {
+            margin-left: 100px;
+            margin-top: 50px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333030;
+            margin-bottom: 15px;
+        }
+
+        .edit-icon,
+        .delete-icon {
+            margin-top: 150px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            max-width: 100%;
+        }
+
+        .address-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .edit-icon {
+            border: 1px solid #b07b36;
+            color: #b07b36;
+            background-color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .delete-icon {
+            border: 1px solid #b07b36;
+            color: #b07b36;
+            background-color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .edit-icon:hover {
+            background-color: #b07b36;
+            color: white;
+        }
+
+        .delete-icon:hover {
+            background-color: #b07b36;
+            color: white;
+        }
+
+        input[type="radio"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid #c00f0f;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        input[type="radio"]:checked {
+            background-color: #d10707;
+            border-color: #cf0b0b;
+        }
+
+        input[type="radio"]:checked::before {
+            content: "";
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 8px;
+            height: 8px;
+            background-color: #fff;
+            border-radius: 50%;
+        }
+
+        .address-item {
+            border: 2px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            transition: border 0.3s ease;
+        }
+
+        .address-item.selected {
+            border-color: #d81721;
+        }
+
+        .address-radio:checked {
+            accent-color: #b61a1a;
+        }
+
+        .btn1 {
+            border: 1px solid #b07b36;
+            color: #b07b36;
+            background-color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn1:hover {
+            background-color: #b07b36;
+            color: white;
+        }
+
+        .coupon_cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: start;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .btn-danger {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Start Header Area -->
+    <header class="header_area sticky-header">
+        <div class="main_menu">
+            <nav class="navbar navbar-expand-lg navbar-light main_box">
+                <div class="container">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <a class="navbar-brand logo_h" href="index.html"><img src="img/logo.png" alt=""></a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse"
+                        data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <!-- Collect the nav links, forms, and other content for toggling -->
+                    <div class="collapse navbar-collapse offset" id="navbarSupportedContent">
+                        <ul class="nav navbar-nav menu_nav ml-auto">
+                            <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                            <li class="nav-item submenu dropdown active">
+                                <a href="/shop" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
+                                    aria-haspopup="true" aria-expanded="false">Shop</a>
+                            </li>
+                            <li class="nav-item submenu dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
+                                    aria-haspopup="true" aria-expanded="false">Blog</a>
+                                <ul class="dropdown-menu">
+                                    <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="single-blog.html">Blog Details</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item submenu dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
+                                    aria-haspopup="true" aria-expanded="false">Pages</a>
+                                <ul class="dropdown-menu">
+                                    <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="/register">Signup</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="nav-item"><a href="/cart" class="cart"><span class="ti-bag"></span></a></li>
+                            <li class="nav-item">
+                                <a href="/profile"><button class="search"><span>👤</span></a>
+                            </li>
+                            <li class="nav-item">
+								<a href="/wishlist" class="wishlist">
+									<button class="search">
+										<span class="ti-heart"></span></button>
+								</a>
+							</li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="search_input" id="search_input_box">
+            <div class="container">
+                <form class="d-flex justify-content-between">
+                    <input type="text" class="form-control" id="search_input" placeholder="Search Here">
+                    <button type="submit" class="btn"></button>
+                    <span class="lnr lnr-cross" id="close_search" title="Close Search"></span>
+                </form>
+            </div>
+        </div>
+    </header>
+    <!-- End Header Area -->
+
+    <!-- Start Banner Area -->
+    <section class="banner-area organic-breadcrumb">
+        <div class="container">
+            <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+                <div class="col-first">
+                    <h1>Checkout</h1>
+                    <nav class="d-flex align-items-center">
+                        <a href="index.html">Home<span class="lnr lnr-arrow-right"></span></a>
+                        <a href="single-product.html">Checkout</a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- End Banner Area -->
+
+
+    <h3 class="h4">SAVED ADDRESS</h3>
+    <div class="section">
+        {{#each addresses}}
+        <div class="address-item">
+            <div>
+                <input type="radio" name="selectedAddress" value="{{this._id}}" {{#if this.isDefault}}checked{{/if}}
+                    class="address-radio">
+                <p>{{this.firstName}} {{this.lastName}}</p>
+                <p>{{this.mobile}}</p>
+                <p>{{this.email}}</p>
+                <p>{{this.address}}, {{this.country}}, {{this.state}}, {{this.city}}, {{this.pinCode}}</p>
+            </div>
+            <button class="edit-icon"
+                onclick="openEditModal('{{this.id}}','{{this.firstName}}','{{this.lastName}}','{{this.mobile}}','{{this.email}}',
+                      '{{this.address}}','{{this.city}}','{{this.state}}','{{this.country}}','{{this.pinCode}}')">edit</button>
+        </div>
+        {{/each}}
+    </div>
+
+
+    <!-- Edit Address Modal -->
+    <div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAddressModalLabel">Edit Address</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editAddressForm" action="/checkout/updateAddress" method="POST">
+                        <input type="hidden" id="addressId" name="id">
+                        <div class="mb-3">
+                            <label for="editFirstName" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="editFirstName" name="firstName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editLastName" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="editLastName" name="lastName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editMobile" class="form-label">Mobile</label>
+                            <input type="tel" class="form-control" id="editMobile" name="mobile" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="editEmail" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editAddress" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="editAddress" name="address" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCity" class="form-label">City</label>
+                            <input type="text" class="form-control" id="editCity" name="city" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editState" class="form-label">State</label>
+                            <input type="text" class="form-control" id="editState" name="state" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCountry" class="form-label">Country</label>
+                            <input type="text" class="form-control" id="editCountry" name="country" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPinCode" class="form-label">Pin Code</label>
+                            <input type="text" class="form-control" id="editPinCode" name="pinCode" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!--================Checkout Area =================-->
+    <section class="checkout_area section_gap">
+        <div class="container">
+            <div class="returning_customer">
+                {{#if coupons}}
+                <div class="cupon_area">
+                    <div class="check_title">
+                        <h2>Have a coupon?</h2>
+                    </div>
+                    <input id="couponCodeInput" type="text" placeholder="Enter coupon code">
+                    <a class="tp_btn" onclick="applyCoupon()">Apply Coupon</a>
+                    <a class="tp_btn" onclick="removeCoupon()">Remove Coupon</a>
+                </div>
+                <div class="coupon_cards">
+                    {{#each coupons}}
+                    <div class="card mb-3" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Coupon Code: {{this.code}}</h5>
+                            <p class="card-text">Discount: {{this.discountValue}}% </p>
+                            <p class="card-text">Expiry: {{formatDate this.expiryDate}}</p>
+                            <form action="/remove-coupon/{{this._id}}" method="POST">
+                            </form>
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+                {{else}}
+                <div class="no_coupon">
+                    <p>No coupon applied.</p>
+                </div>
+                {{/if}}
+
+                <!---=========billing=============-->
+                <div class="billing_details">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <h3>New Address</h3>
+                            <form class="row contact_form" action="/checkout/addAddress" method="post"
+                                novalidate="novalidate">
+                                <div class="col-md-6 form-group p_star">
+                                    <input type="text" class="form-control" id="first" name="firstName"
+                                        placeholder="First name">
+                                </div>
+                                <div class="col-md-6 form-group p_star">
+                                    <input type="text" class="form-control" id="last" name="lastName"
+                                        placeholder="Last name">
+
+                                </div>
+                                <div class="col-md-6 form-group p_star">
+                                    <input type="text" class="form-control" id="number" name="mobile"
+                                        placeholder="Phone number">
+                                </div>
+                                <div class="col-md-6 form-group p_star">
+                                    <input type="text" class="form-control" id="email" name="email"
+                                        placeholder="Email Address">
+                                </div>
+                                <div class="col-md-12 form-group p_star">
+                                    <input type="text" class="form-control" id="address" name="address"
+                                        placeholder="Address">
+                                </div>
+                                <div class="col-md-12 form-group p_star">
+                                    <input type="text" class="form-control" id="country" name="country"
+                                        placeholder="country">
+                                </div>
+                                <div class="col-md-12 form-group p_star">
+                                    <input type="text" class="form-control" id="state" name="state" placeholder="State">
+                                </div>
+                                <div class="col-md-12 form-group p_star">
+                                    <input type="text" class="form-control" id="city" name="city" placeholder="City">
+                                </div>
+                                <div class="col-md-12 form-group">
+                                    <input type="text" class="form-control" id="zip" name="pinCode"
+                                        placeholder="Pincode">
+                                </div>
+                                <div class="profile-buttons">
+                                    <button class="btn1" type="submit">ADD ADDRESS</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="order_box">
+                                <h2>Your Order</h2>
+                                <ul class="list">
+                                    <li><a href="#">Product <span>Total</span></a></li>
+                                    {{#each cart.products}}
+                                    <li>
+                                        <a href="#">
+                                            {{this.productId.name}}
+                                            <span class="middle">x {{this.quantity}}</span>
+                                            <span class="last">
+                                                ₹{{#if this.discountedPrice}}
+                                                    {{toFixed (multiply this.discountedPrice this.quantity) 2}}
+                                                {{else}}
+                                                    {{toFixed (multiply this.price this.quantity) 2}}
+                                                {{/if}}
+                                            </span>
+                                        </a>
+                                    </li>
+                                    {{/each}}
+                                </ul>
+                                <ul class="list list_2">
+                                    <li><a>Subtotal <span id="subtotal">₹{{subtotal}}</span></a></li>
+                                    <li><a>Shipping <span>Flat rate: ₹{{shippingCost}}</span></a></li>
+                                    <li><a>Total <span id="total">₹{{total}}</span></a></li>
+                                    <li id="discountRow" style="display:none;">
+                                        <a>Discount <span id="discount">₹0.00</span></a>
+                                    </li>
+                                    <li id="totalAfterDiscountRow" style="display:none;">
+                                        <a>Total after Discount <span id="totalAfterDiscount">₹0.00</span></a>
+                                    </li>                
+                                </ul>
+                                <div id="messageContainer" style="color: red; display: none; font-size: 14px;">
+                                <strong>Note:</strong> The order total is less than ₹1000, and Cash on Delivery is not available.
+                                </div>
+                                <div class="payment_item">
+                                    <div class="radion_btn">
+                                        <input type="radio" id="f-option5" name="paymentMethod" value="CashOnDelivery">
+                                        <label for="f-option5">Cash on Delivery</label>
+                                        <div class="check"></div>
+                                    </div>
+                                </div>
+                                <div class="payment_item active">
+                                    <div class="radion_btn">
+                                        <input type="radio" id="f-option6" name="paymentMethod" value="Razorpay">
+                                        <label for="f-option6">Razorpay </label>
+                                        <div class="check"></div>
+                                    </div>
+                                </div>
+                                <button class="primary-btn" id="proceedbutton" onclick="submitOrder()">PROCEED</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </section>
+    <!--================End Checkout Area =================-->
+
+    <!-- start footer Area -->
+    <footer class="footer-area section_gap">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3  col-md-6 col-sm-6">
+                    <div class="single-footer-widget">
+                        <h6>About Us</h6>
+                        <p>
+                            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt
+                            ut labore dolore
+                            magna aliqua.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4  col-md-6 col-sm-6">
+                    <div class="single-footer-widget">
+                        <h6>Newsletter</h6>
+                        <p>Stay update with our latest</p>
+                        <div class="" id="mc_embed_signup">
+
+                            <form target="_blank" novalidate="true"
+                                action="https://spondonit.us12.list-manage.com/subscribe/post?u=1462626880ade1ac87bd9c93a&amp;id=92a4423d01"
+                                method="get" class="form-inline">
+
+                                <div class="d-flex flex-row">
+
+                                    <input class="form-control" name="EMAIL" placeholder="Enter Email"
+                                        onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter Email '"
+                                        required="" type="email">
+
+
+                                    <button class="click-btn btn btn-default"><i class="fa fa-long-arrow-right"
+                                            aria-hidden="true"></i></button>
+                                    <div style="position: absolute; left: -5000px;">
+                                        <input name="b_36c4fd991d266f23781ded980_aefe40901a" tabindex="-1" value=""
+                                            type="text">
+                                    </div>
+
+                                    <!-- <div class="col-lg-4 col-md-4">
+													<button class="bb-btn btn"><span class="lnr lnr-arrow-right"></span></button>
+												</div>  -->
+                                </div>
+                                <div class="info"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3  col-md-6 col-sm-6">
+                </div>
+                <div class="col-lg-2 col-md-6 col-sm-6">
+                    <div class="single-footer-widget">
+                        <h6>Follow Us</h6>
+                        <p>Let us be social</p>
+                        <div class="footer-social d-flex align-items-center">
+                            <a href="#"><i class="fa fa-facebook"></i></a>
+                            <a href="#"><i class="fa fa-twitter"></i></a>
+                            <a href="#"><i class="fa fa-dribbble"></i></a>
+                            <a href="#"><i class="fa fa-behance"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom d-flex justify-content-center align-items-center flex-wrap">
+                <p class="footer-text m-0">
+                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                    Copyright &copy;
+                    <script>document.write(new Date().getFullYear());</script> All rights reserved | This template is
+                    made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com"
+                        target="_blank">Colorlib</a>
+                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                </p>
+            </div>
+        </div>
+    </footer>
+    <!-- End footer Area -->
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/vendor/jquery-2.2.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"
+        integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
+        crossorigin="anonymous"></script>
+    <script src="/js/vendor/bootstrap.min.js"></script>
+    <script src="/js/jquery.ajaxchimp.min.js"></script>
+    <script src="/js/jquery.nice-select.min.js"></script>
+    <script src="/js/jquery.sticky.js"></script>
+    <script src="/js/nouislider.min.js"></script>
+    <script src="/js/jquery.magnific-popup.min.js"></script>
+    <script src="/js/owl.carousel.min.js"></script>
+    <!--gmaps Js-->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCjCGmQ0Uq4exrzdcL6rvxywDDOvfAu6eE"></script>
+    <script src="/js/gmaps.min.js"></script>
+    <script src="/js/main.js"></script>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+
+    <!--==============check cod les than 10000 ==============-->
+    <script>
+        const subtotalAmount={{subtotal}}
+        const codRadioButton = document.getElementById("f-option5");
+        const messageContainer=document.getElementById("messageContainer")
+        function checkSubtotal(){
+            if(subtotalAmount <=10000){
+                codRadioButton.disabled=true,
+                messageContainer.style.display="block"
+            }else{
+                codRadioButton.disabled=false,
+                messageContainer.style.display="none"
+            }
+        }
+        document.addEventListener("DOMContentLoaded",checkSubtotal)
+    </script>
+
+    <!---=======edit modal=======--->
+    <script>
+        function openEditModal(id, firstName, lastName, mobile, email, address, city, state, country, pinCode) {
+            document.getElementById('addressId').value = id;
+            document.getElementById('editFirstName').value = firstName;
+            document.getElementById('editLastName').value = lastName;
+            document.getElementById('editMobile').value = mobile;
+            document.getElementById('editEmail').value = email;
+            document.getElementById('editAddress').value = address;
+            document.getElementById('editCity').value = city;
+            document.getElementById('editState').value = state;
+            document.getElementById('editCountry').value = country;
+            document.getElementById('editPinCode').value = pinCode;
+
+            const editAddressModal = new bootstrap.Modal(document.getElementById('editAddressModal'));
+            editAddressModal.show();
+        }
+    </script>
+
+
+
+    <!---alert for select address--->
+    <script>
+        document.getElementById('proceedbutton').addEventListener('click', function () {
+            console.log("Working radio check");
+
+            const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+            if (!selectedAddress) {
+                Swal.fire({
+                    title: 'Please select an address to continue.',
+                    confirmButtonText: 'Okay'
+                });
+                return;
+            }
+            const addressId = selectedAddress.value;
+        });
+    </script>
+
+
+    <!---change color of div-->
+    <script>
+        const radioButtons = document.querySelectorAll('.address-radio');
+
+        radioButtons.forEach(button => {
+            button.addEventListener('change', function () {
+                document.querySelectorAll('.address-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+
+                const parentDiv = this.closest('.address-item');
+                parentDiv.classList.add('selected');
+            });
+        });
+    </script>
+
+
+
+    <!--======send data to backend======--->
+    <script>
+        function submitOrder() {
+            const selectedAddressElement = document.querySelector('input[name="selectedAddress"]:checked');
+            const paymentMethodElement = document.querySelector('input[name="paymentMethod"]:checked');
+            const couponCodeElement = document.querySelector('#couponCodeInput');
+
+
+            if (!paymentMethodElement) {
+                 Swal.fire({
+            title: 'Error!',
+            text: 'Please select a payment method.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+                return;
+            }
+
+            const selectedAddress = selectedAddressElement.value;
+            const paymentMethod = paymentMethodElement.value;
+            const couponCode = couponCodeElement ? couponCodeElement.value.trim() : '';
+
+
+            const cartItems = [];
+            {{#each cart.products}}
+            cartItems.push({
+                productId: "{{this.productId._id}}",
+                quantity: {{this.quantity}},
+                price: {{this.productId.price}},
+                name: "{{this.productId.name}}",
+                status: "Pending",
+                discountedPrice:"{{this.discountedPrice}}"
+         });
+        {{/each}}
+        
+        const totalAfterDiscount = parseFloat(
+        document.getElementById("totalAfterDiscount").textContent.replace('₹', '').trim()
+        );
+        const orderData = {
+            userId: "{{user._id}}",
+            addressId: selectedAddress,
+            cartItems: cartItems,
+            subtotal: {{subtotal}},
+            shippingCost: {{shippingCost}},
+            total: {{total}},
+            totalAfterDiscount:totalAfterDiscount,
+            paymentMethod: paymentMethod,
+            couponCode: couponCode
+        };
+
+        if (paymentMethod === "Razorpay") {
+            createRazorpayOrder(orderData);
+        } else if (paymentMethod === "CashOnDelivery") {
+            submitOrderToBackend(orderData);
+        }
+}
+
+
+        //------------------razorpay-------------------
+        function createRazorpayOrder(orderData) {
+    fetch('/createRazorpayOrder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.orderId && data.amount) {
+            const options = {
+                key: 'rzp_test_4rzZQ0EHL6muv5',
+                amount: data.amount,
+                currency: "INR",
+                name: "Cyclore",
+                description: "Order Payment",
+                order_id: data.orderId,
+                handler: function(response) {
+                    handlePaymentSuccess(response, orderData);
+                },
+                prefill: {
+                    name: "{{user.name}}",
+                    email: "{{user.email}}",
+                    contact: "{{user.mobile}}"
+                },
+                theme: {
+                    color: "#F37254"
+                },
+                modal: {
+                    ondismiss: function () {
+                        handlePaymentFailure(orderData, 'Failed');
+                    }
+                }
+            };
+            const rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (response) {
+                console.log("Payment failed:", response.error);
+                handlePaymentFailure(orderData, 'Failed');
+            });
+            rzp.open();
+        } else {            
+            Swal.fire({
+                title: 'Error!',
+                text: 'Failed to create Razorpay order. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error creating Razorpay order:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'Failed to create Razorpay order. Please try again.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    });
+}
+
+function handlePaymentSuccess(response, orderData) {
+    orderData.paymentDetails = {
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_signature: response.razorpay_signature
+    };
+
+    fetch('/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            window.location.href = '/orderSuccess';
+        } else {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Failed to place order. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error submitting order:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'Failed to submit order. Please try again.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    });
+}
+
+function handlePaymentFailure(orderData, paymentStatus) {
+    orderData.paymentStatus = paymentStatus || 'Failed';
+    fetch('/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            window.location.href = '/profile/order';
+        } else {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Failed to place order. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error submitting order:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'Failed to submit order. Please try again.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    });
+}
+
+
+
+        function submitOrderToBackend(orderData) {
+        fetch('/checkout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(orderData)
+       })
+       .then(response => response.json())
+       .then(data => {
+        if (data.message) {
+            window.location.href = '/orderSuccess';
+        } else {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Failed to place order. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+       })
+       .catch(error => {
+        console.error('Error submitting order:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'Failed to submit order. Please try again.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+                });
+            });
+        }
+    </script>
+
+
+
+<!--=======apply coupon & remove coupon===========-->
+<script>
+   function applyCoupon() {
+    const couponCode = document.getElementById("couponCodeInput").value;
+    const subtotal = parseFloat(document.getElementById("subtotal").textContent.replace("₹", ""));
+    const total=parseFloat(document.getElementById("total").textContent.replace("₹",""))
+
+     if (!couponCode) {
+        Swal.fire({
+            title: 'Error!',
+            text: 'Please enter a valid coupon code.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+    
+    fetch('/applyCoupon', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ couponCode, subtotal }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log("working success")
+            const discount = parseFloat(data.discount);
+            const newTotal = parseFloat(data.newTotal)
+
+            if (isNaN(newTotal)) {
+                 Swal.fire({
+                    title: 'Error!',
+                    text: 'Error calculating the total.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+            
+            document.getElementById("discountRow").style.display = 'block';
+            document.getElementById("discount").textContent = "₹" + discount.toFixed(2);
+
+            document.getElementById("totalAfterDiscountRow").style.display = 'block';
+            document.getElementById("totalAfterDiscount").textContent = "₹" + (total - discount).toFixed(2);
+
+           Swal.fire({
+                title: 'Success!',
+                text: `Coupon applied: ₹${discount} discount`,
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        } else {
+            Swal.fire({
+                title: 'Error!',
+                text: data.message,
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'Error applying coupon.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    });
+}
+
+function removeCoupon() {
+    document.getElementById("discountRow").style.display = 'none';
+    document.getElementById("totalAfterDiscountRow").style.display = 'none';
+
+    const subtotal = parseFloat(document.getElementById("subtotal").textContent.replace("₹", ""));
+    const total = parseFloat(document.getElementById("total").textContent.replace("₹", ""));
+    
+    document.getElementById("total").textContent = "₹" + total.toFixed(2); 
+    
+    Swal.fire({
+        title: 'Success!',
+        text: 'Coupon removed. No discount applied.',
+        icon: 'success',
+        confirmButtonText: 'OK'
+    });
+}
+
+
+
+</script>
+
+
+</body>
+
+</html>

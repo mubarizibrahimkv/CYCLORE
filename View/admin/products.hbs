@@ -165,12 +165,12 @@
                 <li><a href="/admin/dashboard">Dashboard</a></li>
                 <li><a href="/admin/users">Users</a></li>
                 <li><a id="same" href="#">Products</a></li>
-                <li><a href="#">Orders</a></li>
-                <li><a href="#">Coupon</a></li>
-                <li><a href="#">Offers</a></li>
-                <li><a href="#">Brand</a></li>
+                <li><a href="/admin/orders">Orders</a></li>
+                <li><a href="/admin/coupon">Coupon</a></li>
+                <li><a href="/admin/offer">Offers</a></li>
+              <li><a href="/admin/inventory">Inventory</a></li>
                 <li><a href="/admin/categories">Categories</a></li>
-                <li><a href="#">Sales Report</a></li>
+                <li><a href="/admin/salesReport">Sales Report</a></li>
             </ul>
             <div class="icons">
                 <span>🔔</span>
@@ -199,7 +199,7 @@
                 <tr>
                     <td>{{this.name}}</td>
                     <td>{{this.category}}</td>
-                    <td>${{this.price}}</td>
+                    <td>₹{{this.price}}</td>
                     <td>{{this.stock}}</td>
                     <td>
                         <button class="btn btn-warning"
@@ -217,10 +217,7 @@
                         </form>
                     </td>
                     <td class="product-images">
-                        {{!-- {{#each this.images}}
-                        <img src="{{this.images.[0]}}" alt="{{this.name}}"> --}}
                         <img src="/{{this.images.[0]}}" alt="{{this.name}}" />
-                        {{!-- {{/each}} --}}
                     </td>
                 </tr>
                 {{/each}}
@@ -242,11 +239,11 @@
                     <form action="/admin/products/add" method="POST" enctype="multipart/form-data">
                         <div class="form-group">
                             <label for="productName">Product Name</label>
-                            <input type="text" class="form-control" id="productName" name="name" required>
+                            <input type="text" class="form-control" id="productName" name="name" >
                         </div>
                         <div class="form-group">
                             <label for="productCategory">Category</label>
-                            <select class="form-control" id="productCategory" name="category" required>
+                            <select class="form-control" id="productCategory" name="category" >
                                 <option value="">Select Category</option>
                                 <option value="Sports">Sports</option>
                                 <option value="Mountain">Mountain</option>
@@ -256,16 +253,16 @@
                         </div>
                         <div class="form-group">
                             <label for="productPrice">Price</label>
-                            <input type="number" class="form-control" id="productPrice" name="price" required>
+                            <input type="number" class="form-control" id="productPrice" name="price" >
                         </div>
                         <div class="form-group">
                             <label for="productStock">Stock</label>
-                            <input type="number" class="form-control" id="productStock" name="stock" required>
+                            <input type="number" class="form-control" id="productStock" name="stock" >
                         </div>
                         <div class="form-group">
                             <label for="productDescription">Description</label>
                             <textarea class="form-control" id="productDescription" name="description" rows="3"
-                                required></textarea>
+                                ></textarea>
                         </div>
                         <label for="productImage" class="file-upload-label">Choose Images:</label>
                         <input type="file" id="productImage" name="images" accept="image/*" multiple />
@@ -417,7 +414,6 @@
                     });
 
                     imageContainer.appendChild(image);
-                    imageContainer.appendChild(changeImageBtn);
                     imageContainer.appendChild(deleteImageBtn);
                     previewContainer.appendChild(imageContainer);
 
@@ -479,7 +475,6 @@
         let cropper, currentReplaceInput;
 
         function openEditModal(id, name, category, price, stock, description, imagesJson) {
-            // Fill product details
             document.getElementById('editProductId').value = id;
             document.getElementById('editProductName').value = name;
             document.getElementById('editProductCategory').value = category;
@@ -487,7 +482,6 @@
             document.getElementById('editProductStock').value = stock;
             document.getElementById('editProductDescription').value = description;
 
-            // Parse and display images
             imagesJson = imagesJson.replace(/\\/g, '/');
             let images = [];
             try {
@@ -497,7 +491,7 @@
             }
 
             const existingImagesContainer = document.getElementById('existingImages');
-            existingImagesContainer.innerHTML = ''; // Clear previous images
+            existingImagesContainer.innerHTML = ''; 
 
             if (images && images.length > 0) {
                 images.forEach((image, index) => {
@@ -575,7 +569,6 @@
                     const previewImage = document.getElementById(`preview-image-${Array.from(document.querySelectorAll(".replace-image-input")).indexOf(currentReplaceInput)}`);
                     previewImage.src = url;
 
-                    // Replace the file input's file with the cropped image
                     const dataTransfer = new DataTransfer();
                     dataTransfer.items.add(new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' }));
                     currentReplaceInput.files = dataTransfer.files;

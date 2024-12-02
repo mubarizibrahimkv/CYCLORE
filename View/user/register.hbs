@@ -145,7 +145,6 @@
 
         .google-signup img {
             width: 20px;
-            /* Reduced size for Google logo */
             margin-right: 10px;
         }
 
@@ -261,11 +260,11 @@
             const emailpattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
             if (!emailpattern.test(emailval)) {
                 error2.innerHTML = "Invalid email format.";
-                error2.style.display = "block"; // Show error message
+                error2.style.display = "block";
                 return false;
             } else {
                 error2.innerHTML = "";
-                error2.style.display = "none"; // Hide error message
+                error2.style.display = "none";
                 return true;
             }
         }
@@ -275,11 +274,11 @@
             const phonepattern = /^[0-9]{10}$/;
             if (!phonepattern.test(phoneval)) {
                 error3.innerHTML = "Phone number must be 10 digits.";
-                error3.style.display = "block"; // Show error message
+                error3.style.display = "block"; 
                 return false;
             } else {
                 error3.innerHTML = "";
-                error3.style.display = "none"; // Hide error message
+                error3.style.display = "none";
                 return true;
             }
         }
@@ -288,37 +287,35 @@
             const passwordval = passwordId.value;
             if (passwordval.length < 8) {
                 error4.innerHTML = "Password must be at least 8 characters long.";
-                error4.style.display = "block"; // Show error message
+                error4.style.display = "block";
                 return false;
             } else {
                 error4.innerHTML = "";
-                error4.style.display = "none"; // Hide error message
+                error4.style.display = "none";
                 return true;
             }
         }
         function confirmPasswordValidateChecking() {
             if (passwordId.value !== confirmPassword.value) {
                 error5.innerHTML = "Passwords do not match.";
-                error5.style.display = "block"; // Show error message
+                error5.style.display = "block";
                 return false;
             } else {
                 error5.innerHTML = "";
-                error5.style.display = "none"; // Hide error message
+                error5.style.display = "none";
                 return true;
             }
         }
 
         signform.addEventListener("submit", (event) => {
-            // Perform all validations
             const isNameValid = nameValidateChecking();
             const isEmailValid = emailValidateChecking();
             const isPhoneValid = phoneValidateChecking();
             const isPasswordValid = passwordValidateChecking();
             const isConfirmPasswordValid = confirmPasswordValidateChecking();
 
-            // Prevent form submission if any validation fails
             if (!isNameValid || !isEmailValid || !isPhoneValid || !isPasswordValid || !isConfirmPasswordValid) {
-                event.preventDefault(); // Stop form from submitting
+                event.preventDefault()
             }
         });
     </script>

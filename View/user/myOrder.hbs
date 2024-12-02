@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="zxx" class="no-js">
+
+<head>
+    <!-- Mobile Specific Meta -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Favicon-->
+    <link rel="shortcut icon" href="/public/img/favicon.png">
+    <!-- Author Meta -->
+    <meta name="author" content="CodePixar">
+    <!-- Meta Description -->
+    <meta name="description" content="">
+    <!-- Meta Keyword -->
+    <meta name="keywords" content="">
+    <!-- meta character set -->
+    <meta charset="UTF-8">
+    <!-- Site Title -->
+    <title>CYCLORE</title>
+    <!--
+		CSS
+		============================================= -->
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/themify-icons.css">
+    <link rel="stylesheet" href="/css/bootstrap.css">
+    <link rel="stylesheet" href="/css/owl.carousel.css">
+    <link rel="stylesheet" href="/css/nice-select.css">
+    <link rel="stylesheet" href="/css/nouislider.min.css">
+    <link rel="stylesheet" href="/css/ion.rangeSlider.css" />
+    <link rel="stylesheet" href="/css/ion.rangeSlider.skinFlat.css" />
+    <link rel="stylesheet" href="/css/magnific-popup.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .header-3 {
+            margin: 150px;
+            font-size: large;
+            font-weight: bold;
+        }
+
+        .account-container {
+            margin-top: -100px;
+            margin-left: 200px;
+            width: 1000px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .signout-btn {
+            margin-left: 870px;
+            background-color: #8d0d14;
+            color: #fff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #555;
+            margin: 20px 0;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+
+        .profile-info {
+            margin-top: 50px;
+            margin-left: 80px;
+        }
+
+        .address-info {
+            margin-top: 80px;
+            display: flex;
+            gap: 50px;
+        }
+
+        .profile-info input {
+            margin-left: 70px;
+            width: 80%;
+            max-width: 350px;
+            padding: 8px;
+            border: none;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+
+        .profile-buttons {
+            margin-top: 50px;
+            margin-left: 70px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            border: 1px solid #b07b36;
+            color: #b07b36;
+            background-color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .profile-buttons .btn {
+            border: 1px solid #b07b36;
+            color: #b07b36;
+            background-color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: #b07b36;
+            color: #fff;
+        }
+
+
+
+        .add-address-btn {
+            display: flex;
+            justify-content: flex-end;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .add-address-btn .btn {
+            border: 1px solid #b07b36;
+            color: #b07b36;
+            background-color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .add-address-btn .btn:hover {
+            background-color: #b07b36;
+            color: #fff;
+        }
+
+        .section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .address-item {
+            margin-top: 30px;
+            margin-left: 60px;
+            flex: 1 1 45%;
+            max-width: 40%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f9f9f9;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .address-item div {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .address-item p {
+            margin: 0;
+            color: #555;
+        }
+
+        .h4 {
+            margin-top: 50px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #5c0505;
+            margin-bottom: 15px;
+        }
+
+        .edit-icon,
+        .delete-icon {
+            margin-top: 150px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            max-width: 100%;
+        }
+
+        .address-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .edit-icon {
+            border: 1px solid #b07b36;
+            color: #b07b36;
+            background-color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .delete-icon {
+            border: 1px solid #b07b36;
+            color: #b07b36;
+            background-color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .edit-icon:hover {
+            background-color: #b07b36;
+            color: white;
+        }
+
+        .delete-icon:hover {
+            background-color: #b07b36;
+            color: white;
+        }
+
+        .profile-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #690808;
+            margin-bottom: 15px;
+        }
+
+        .profile-card {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-info {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .profile-info p {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .profile-info strong {
+            color: #333;
+        }
+
+
+
+        /* Navbar 2 Styles */
+        .navbar-2 {
+            padding: 10px 15px;
+            margin-top: 135px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+        }
+
+        .navbar-2-nav {
+            list-style-type: none;
+            display: flex;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .navbar-2-nav li {
+            margin: 0 15px;
+        }
+
+        .navbar-2-link {
+            text-decoration: none;
+            color: rgb(136, 26, 26);
+            font-size: 1rem;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar-1-link {
+            text-decoration: none;
+            color: rgb(24, 1, 1);
+            font-size: 1rem;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        h4 {
+            color: #333;
+            font-size: 1.3rem;
+        }
+
+        p {
+            font-size: 1rem;
+            color: #555;
+        }
+
+        h6 {
+            color: rgb(255, 68, 12);
+        }
+
+        @media (max-width: 768px) {
+            .navbar-2-link {
+                font-size: 0.9rem;
+                padding: 8px 12px;
+            }
+        }
+
+
+        .orders-section {
+            padding: 20px;
+            max-width: 1200px;
+            margin-left: 70px;
+            font-family: Arial, sans-serif;
+            margin-bottom: 100px;
+        }
+
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .orders-table th,
+        .orders-table td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .orders-table th {
+            background-color: #f5f5f5;
+        }
+
+        .order-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 5px;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .status.pending {
+            background-color: #ff9800;
+        }
+
+        .status.delivered {
+            background-color: #4caf50;
+        }
+
+        .view-details-btn,
+        .cancel-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 0 3px;
+        }
+
+        .view-details-btn {
+            background-color: #2196f3;
+            color: white;
+        }
+
+        .cancel-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .orders-section p {
+            font-size: 18px;
+            color: #b5b5b5;
+            text-align: center;
+            padding: 20px;
+            background-color: #f7f7f7;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .orders-section p a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .orders-section a:hover {
+            color: #0d4a8b;
+        }
+
+        .invoice {
+            margin-right: 90px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Start Header Area -->
+    <header class="header_area sticky-header">
+        <div class="main_menu">
+            <nav class="navbar navbar-expand-lg navbar-light main_box">
+                <div class="container">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <a class="navbar-brand logo_h" href="#"><img src="/img/logo.png" alt=""></a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse"
+                        data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <!-- Collect the nav links, forms, and other content for toggling -->
+                    <div class="collapse navbar-collapse offset" id="navbarSupportedContent">
+                        <ul class="nav navbar-nav menu_nav ml-auto">
+                            <li class="nav-item active"><a class="nav-link" href="/">Home</a></li>
+                            <li class="nav-item ">
+                                <a href="/shop" class="nav-link dropdown-toggle" role="button">Shop</a>
+                            </li>
+                            <li class="nav-item submenu dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
+                                    aria-haspopup="true" aria-expanded="false">Blog</a>
+                                <ul class="dropdown-menu">
+                                    <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="single-blog.html">Blog Details</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item submenu dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
+                                    aria-haspopup="true" aria-expanded="false">Login/Register</a>
+                                <ul class="dropdown-menu">
+                                    <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="/register">signUp</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="nav-item"><a href="/cart" class="cart"><span class="ti-bag"></span></a></li>
+                            <li class="nav-item">
+                                <button class="search"><span class="lnr lnr-magnifier" id="search"></span></button>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#"><button class="search"><span>👤</span></button></a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/wishlist" class="wishlist">
+                                    <button class="search">
+                                        <span class="ti-heart"></span></button>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="search_input" id="search_input_box">
+            <div class="container">
+                <form class="d-flex justify-content-between">
+                    <input type="text" class="form-control" id="search_input" placeholder="Search Here">
+                    <button type="submit" class="btn"></button>
+                    <span class="lnr lnr-cross" id="close_search" title="Close Search"></span>
+                </form>
+            </div>
+        </div>
+    </header>
+    <!-- End Header Area -->
+
+    <div class="navbar-2">
+        <div class="navbar-2-container">
+            <ul class="navbar-2-nav">
+                <li><a href="/profile" class="navbar-2-link">MY ACCOUNT</a></li>
+                <li><a href="#" class="navbar-1-link">MY ORDERS</a></li>
+                <li><a href="/profile/wallet" class="navbar-2-link">MY WALLET</a></li>
+            </ul>
+        </div>
+    </div>
+
+
+    
+    <div class="orders-section">
+        <h2>Your Orders</h2>
+        {{#if order}}
+        <table class="orders-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>quantity</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Cancel Order</th>
+                    <th>View</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each order}}
+                {{#each products}}
+                <tr>
+                    <td>{{this.productId.name}}</td>
+                    <td>{{this.productId.price}}</td>
+                    <td>{{this.quantity}}</td>
+                    <td>₹{{multiply this.productId.price this.quantity}}</td>
+                    <td><span class="status pending">{{this.status}}</span></td>
+                    <td>
+                        <form action="/order/cancel/{{../_id}}/{{this.productId._id}}" method="POST">
+                            <button type="submit" class="btn btn-danger btn-sm" {{#if (eq this.status "Cancelled" )}}
+                                disabled {{/if}}>
+                                Cancel
+                            </button>
+                        </form>
+                    </td>
+                    <td>
+                        <form action="/profile/order/viewDetails/{{../_id}}/{{this.productId._id}}" method="GET"><button
+                                type="submit" class="btn btn-danger btn-sm">View details</button></form>
+                    </td>
+                    {{#if (eq ../paymentStatus "Failed")}}
+                    <td>
+                        <h6>Payment Failed!</h6>
+                        <button onclick="handleRetryPayment('{{../_id}}')" class="btn btn-primary btn-sm">Retry</button>
+                    </td>
+
+                    {{/if}}
+                </tr>
+                {{/each}}
+                <tr>
+                    <td colspan="6" style="text-align: right; font-weight: bold;  color: rgb(44, 97, 44);">ORDER TOTAL:
+                        ₹{{total}}</td>
+                    <td class="invoice">
+                        {{#if (eq status 'Cancelled')}}
+                        <button class="btn btn-sm" disabled>Download Invoice</button>
+                        {{else}}
+                        <button onclick="downloadInvoice('{{this._id}}')" class="btn btn-success btn-sm">Download
+                            Invoice</button>
+                        {{/if}}
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+        {{else}}
+        <p>No orders found.<a href="/shop">Start shopping now!</a></p>
+        {{/if}}
+    </div>
+
+    <!-- start footer Area -->
+    <footer class="footer-area section_gap">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3  col-md-6 col-sm-6">
+                    <div class="single-footer-widget">
+                        <h6>About Us</h6>
+                        <p>
+                            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt
+                            ut labore dolore
+                            magna aliqua.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4  col-md-6 col-sm-6">
+                    <div class="single-footer-widget">
+                        <h6>Newsletter</h6>
+                        <p>Stay update with our latest</p>
+                        <div class="" id="mc_embed_signup">
+
+                            <form target="_blank" novalidate="true"
+                                action="https://spondonit.us12.list-manage.com/subscribe/post?u=1462626880ade1ac87bd9c93a&amp;id=92a4423d01"
+                                method="get" class="form-inline">
+
+                                <div class="d-flex flex-row">
+
+                                    <input class="form-control" name="EMAIL" placeholder="Enter Email"
+                                        onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter Email '"
+                                        required="" type="email">
+
+
+                                    <button class="click-btn btn btn-default"><i class="fa fa-long-arrow-right"
+                                            aria-hidden="true"></i></button>
+                                    <div style="position: absolute; left: -5000px;">
+                                        <input name="b_36c4fd991d266f23781ded980_aefe40901a" tabindex="-1" value=""
+                                            type="text">
+                                    </div>
+                                </div>
+                                <div class="info"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3  col-md-6 col-sm-6">
+                    <div class="single-footer-widget mail-chimp">
+                        <h6 class="mb-20">Instragram Feed</h6>
+                        <ul class="instafeed d-flex flex-wrap">
+                            <li><img src="/img/i1.jpg" alt=""></li>
+                            <li><img src="/public/img/i2.jpg" alt=""></li>
+                            <li><img src="/public/img/i3.jpg" alt=""></li>
+                            <li><img src="/public/img/i4.jpg" alt=""></li>
+                            <li><img src="/public/img/i5.jpg" alt=""></li>
+                            <li><img src="/public/img/i6.jpg" alt=""></li>
+                            <li><img src="/public/img/i7.jpg" alt=""></li>
+                            <li><img src="/public/img/i8.jpg" alt=""></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 col-sm-6">
+                    <div class="single-footer-widget">
+                        <h6>Follow Us</h6>
+                        <p>Let us be social</p>
+                        <div class="footer-social d-flex align-items-center">
+                            <a href="#"><i class="fa fa-facebook"></i></a>
+                            <a href="#"><i class="fa fa-twitter"></i></a>
+                            <a href="#"><i class="fa fa-dribbble"></i></a>
+                            <a href="#"><i class="fa fa-behance"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom d-flex justify-content-center align-items-center flex-wrap">
+                <p class="footer-text m-0">
+                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                    Copyright &copy;
+                    <script>document.write(new Date().getFullYear());</script> All rights reserved | This template is
+                    made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com"
+                        target="_blank">Colorlib</a>
+                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                </p>
+            </div>
+        </div>
+    </footer>
+    <!-- End footer Area -->
+
+    <script src="/js/vendor/jquery-2.2.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"
+        integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
+        crossorigin="anonymous"></script>
+    <script src="/js/vendor/bootstrap.min.js"></script>
+    <script src="/js/jquery.ajaxchimp.min.js"></script>
+    <script src="/js/jquery.nice-select.min.js"></script>
+    <script src="/js/jquery.sticky.js"></script>
+    <script src="/js/nouislider.min.js"></script>
+    <script src="/js/countdown.js"></script>
+    <script src="/js/jquery.magnific-popup.min.js"></script>
+    <script src="/js/owl.carousel.min.js"></script>
+    <!--gmaps Js-->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCjCGmQ0Uq4exrzdcL6rvxywDDOvfAu6eE"></script>
+    <script src="/js/gmaps.min.js"></script>
+    <script src="/js/main.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+</body>
+
+<!--============invoice download===============-->
+<script>
+    function downloadInvoice(orderId) {
+        window.location.href = `/downloadInvoice/${orderId}`;
+    }
+</script>
+
+<!--=================retry payment in razorpay==================-->
+<script>
+    function handleRetryPayment(orderId) {
+        fetch(`/order/retry/${orderId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+
+                if (data.orderId && data.amount) {
+                    const options = {
+                        key: 'rzp_test_4rzZQ0EHL6muv5',
+                        amount: data.amount,
+                        currency: "INR",
+                        name: "Cyclore",
+                        description: "Order Payment Retry",
+                        order_id: data.orderId,
+                        handler: function (response) {
+                            handlePaymentSuccess(response);
+                        },
+                        prefill: {
+                            name: "{{user.name}}",
+                            email: "{{user.email}}",
+                            contact: "{{user.mobile}}"
+                        },
+                        theme: {
+                            color: "#F37254"
+                        }
+                    };
+                    console.log('Razorpay Options:', options);
+                    const rzp = new Razorpay(options);
+                    rzp.open();
+
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to retry payment. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error retrying payment:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Failed to retry payment. Please try again.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            });
+    }
+
+
+    function handlePaymentSuccess(response) {
+        const paymentDetails = {
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_signature: response.razorpay_signature
+        };
+
+        fetch('/profile/order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                orderId: response.razorpay_order_id,
+                paymentDetails: paymentDetails,
+                paymentStatus: 'Completed',
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    window.location.href = '/orderSuccess';
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to place order. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting order:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Failed to submit order. Please try again.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            });
+    }
+
+</script>
+
+<script>
+    function cancelOrder(orderId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, cancel it!',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = `/order/cancel/${orderId}`;
+            }
+        });
+    }
+</script>
+
+
+
+
+<!-----cancel order---->
+<script>
+    async function cancelProduct(orderId, productId) {
+        try {
+            const response = await fetch(`/order/cancel/${orderId}/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                document.querySelector(`.status[data-product-id="${productId}"]`).textContent = 'Cancelled';
+            } else {
+                alert('Failed to cancel the product');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+</script>
+
+
+</html>

@@ -29,14 +29,12 @@
     <link rel="stylesheet" href="/css/ion.rangeSlider.skinFlat.css" />
     <link rel="stylesheet" href="/css/magnific-popup.css">
     <link rel="stylesheet" href="/css/main.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
     <style>
-        .header-3{
-            margin: 150px ;
-            font-size: large;
-            font-weight: bold;
-        }
         .account-container {
-            margin-top: -100px;
             margin-left: 200px;
             width: 1000px;
             background-color: #fff;
@@ -47,7 +45,7 @@
 
         .signout-btn {
             margin-left: 870px;
-            background-color: #b07b36;
+            background-color: #8d0d14;
             color: #fff;
             padding: 8px 16px;
             border: none;
@@ -65,26 +63,22 @@
             padding-bottom: 10px;
         }
 
-        .section {
-            padding: 20px 0;
-            border-bottom: 1px solid #ddd;
+
+        .profile-info {
+            margin-top: 50px;
+            margin-left: 80px;
         }
 
-        .section h3 {
-            margin-bottom: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .profile-info,
         .address-info {
+            margin-top: 80px;
             display: flex;
-            gap: 20px;
+            gap: 50px;
         }
 
         .profile-info input {
-            width: 100%;
+            margin-left: 70px;
+            width: 80%;
+            max-width: 350px;
             padding: 8px;
             border: none;
             border-bottom: 1px solid #ccc;
@@ -92,13 +86,25 @@
         }
 
         .profile-buttons {
+            margin-top: 50px;
+            margin-left: 70px;
             display: flex;
             flex-direction: column;
             gap: 10px;
+            align-items: flex-end;
         }
 
         .btn {
             padding: 8px 12px;
+            border: 1px solid #b07b36;
+            color: #b07b36;
+            background-color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .profile-buttons .btn {
             border: 1px solid #b07b36;
             color: #b07b36;
             background-color: #fff;
@@ -112,22 +118,220 @@
             color: #fff;
         }
 
-        .address-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
+
 
         .add-address-btn {
             display: flex;
             justify-content: flex-end;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .add-address-btn .btn {
+            border: 1px solid #b07b36;
+            color: #b07b36;
+            background-color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .add-address-btn .btn:hover {
+            background-color: #b07b36;
+            color: #fff;
+        }
+
+        .section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .address-item {
+            margin-top: 30px;
+            margin-left: 60px;
+            flex: 1 1 45%;
+            max-width: 40%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f9f9f9;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .address-item div {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .address-item p {
+            margin: 0;
+            color: #555;
+        }
+
+        .h4 {
+            margin-top: 50px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #5c0505;
+            margin-bottom: 15px;
+        }
+
+        .edit-icon,
+        .delete-icon {
+            margin-top: 150px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            max-width: 100%;
+        }
+
+        .address-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .edit-icon {
+            border: 1px solid #b07b36;
+            color: #b07b36;
+            background-color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .delete-icon {
+            border: 1px solid #b07b36;
+            color: #b07b36;
+            background-color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .edit-icon:hover {
+            background-color: #b07b36;
+            color: white;
+        }
+
+        .delete-icon:hover {
+            background-color: #b07b36;
+            color: white;
+        }
+
+        .profile-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #690808;
+            margin-bottom: 15px;
+        }
+
+        .profile-card {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-info {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .profile-info p {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .profile-info strong {
+            color: #333;
+        }
+
+        .navbar-2 {
+            padding: 10px 15px;
+            margin-top: 135px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+        }
+
+        .navbar-2-nav {
+            list-style-type: none;
+            display: flex;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .navbar-2-nav li {
+            margin: 0 15px;
+        }
+
+        .navbar-2-link {
+            text-decoration: none;
+            color: rgb(136, 26, 26);
+            font-size: 1rem;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar-1-link {
+            text-decoration: none;
+            color: rgb(24, 1, 1);
+            font-size: 1rem;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        h4 {
+            color: #333;
+            font-size: 1.3rem;
+        }
+
+        p {
+            font-size: 1rem;
+            color: #555;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar-2-link {
+                font-size: 0.9rem;
+                padding: 8px 12px;
+            }
+        }
+
+        .changepassword {
+            border: 1px solid #b07b36;
+            color: #b07b36;
+            background-color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            width: 150px;
+            height: 40px;
+            padding-top: 6px;
+        }
+
+        .changepassword:hover {
+            background-color: #b07b36;
+            color: white;
         }
     </style>
 </head>
 
 <body>
-
     <!-- Start Header Area -->
     <header class="header_area sticky-header">
         <div class="main_menu">
@@ -169,13 +373,16 @@
                             <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
                         </ul>
                         <ul class="nav navbar-nav navbar-right">
-                            <li class="nav-item"><a href="#" class="cart"><span class="ti-bag"></span></a></li>
-                            <li class="nav-item">
-                                <button class="search"><span class="lnr lnr-magnifier" id="search"></span></button>
-                            </li>
+                            <li class="nav-item"><a href="/cart" class="cart"><span class="ti-bag"></span></a></li>
                             <li class="nav-item">
                                 <a href="#"><button class="search"><span>👤</span></button></a>
                             </li>
+                            <li class="nav-item">
+								<a href="/wishlist" class="wishlist">
+									<button class="search">
+										<span class="ti-heart"></span></button>
+								</a>
+							</li>
                         </ul>
                     </div>
                 </div>
@@ -193,8 +400,14 @@
     </header>
     <!-- End Header Area -->
 
-    <div class="header-3">
-        <h1>MY ACCOUNT</h1>
+    <div class="navbar-2">
+        <div class="navbar-2-container">
+            <ul class="navbar-2-nav">
+                <li><a href="#" class="navbar-1-link">MY ACCOUNT</a></li>
+                <li><a href="/profile/order" class="navbar-2-link">MY ORDERS</a></li>
+                <li><a href="/profile/wallet" class="navbar-2-link">MY WALLET</a></li>
+            </ul>
+        </div>
     </div>
 
     <div class="account-container">
@@ -202,44 +415,164 @@
             <form action="/profile" method="POST"><button class="signout-btn">Logout</button></form>
         </div>
 
-        <div class="section">
-            <h3>MY PROFILE</h3>
+        <h3 class="profile-title">MY PROFILE</h3>
+        <div class="profile-card">
             <div class="profile-info">
+                <p><strong>Name:</strong> <span>{{user.username}}</span></p>
+                <p><strong>Email:</strong><span>{{user.email}}</span></p>
+                <p><strong>Phone:</strong><span>{{user.phone}}</span></p>
                 <div>
-                    <input type="text" placeholder="Dani">
-                    <input type="text" placeholder="Alves">
-                    <input type="email" placeholder="danialves@gmail.com">
-                </div>
-                <div class="profile-buttons">
-                    <button class="btn">CHANGE PASSWORD</button>
-                    <button class="btn">CHANGE PHONE NUMBER</button>
+                    <button class="btn btn-warning" data-toggle="modal" data-target="#changePasswordModal">Change
+                        Password</button>
                 </div>
             </div>
         </div>
 
+
+        <!-- Modal HTML -->
+        <div class="modal fade {{#if showModal}}show{{/if}}" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{#if message}}
+                        <div class="alert alert-info" role="alert">
+                            {{message}}
+                        </div>
+                        {{/if}}
+                        <form id="changePasswordForm" action="/profile/change-Password" method="post">
+                            <div class="mb-3">
+                                <label for="currentPassword" class="form-label">Current Password</label>
+                                <input type="password" class="form-control" id="currentPassword" name="currentPassword"
+                                    required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="newPassword" class="form-label">New Password</label>
+                                <input type="password" class="form-control" id="newPassword" name="newPassword"
+                                    required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
+                                    required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Change Password</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <h3 class="h4">MY ADDRESS BOOK</h3>
         <div class="section">
-            <h3>MY ADDRESS</h3>
+            {{#each addresses}}
             <div class="address-item">
                 <div>
-                    <p>Dani Alves</p>
-                    <p>8947564642</p>
-                    <p>danialves@gmail.com</p>
+                    <p>{{this.firstName}} {{this.lastName}}</p>
+                    <p>{{this.mobile}}</p>
+                    <p>{{this.email}}</p>
+                    <p>{{this.address}}, {{this.country}}, {{this.state}}, {{this.city}}, {{this.pinCode}}</p>
                 </div>
-                <span>✏️</span>
+                <button class="edit-icon"
+                    onclick="openEditModal('{{this.id}}','{{this.firstName}}','{{this.lastName}}','{{this.mobile}}','{{this.email}}',
+                      '{{this.address}}','{{this.city}}','{{this.state}}','{{this.country}}','{{this.pinCode}}')">edit</button>
+                <form action="/profile/deleteAddress/{{this._id}}?_method=DELETE" method="POST"><button
+                        class="delete-icon">Delete</button></form>
             </div>
-            <div class="address-item">
-                <div>
-                    <p>Dani Alves</p>
-                    <p>8947564642</p>
-                    <p>danialves@gmail.com</p>
+            {{/each}}
+        </div>
+        <br>
+        <hr>
+
+
+        <div class="section">
+            <h3 class="h4">ADD ADDRESS</h3>
+            <form action="/profile/saveAddress" method="post">
+                <div class="profile-info">
+                    <div class="profile-details">
+                        <input type="text" placeholder="First Name" name="firstName">
+                        <input type="text" placeholder="Last Name" name="lastName">
+                        <input type="email" placeholder="Email" name="email">
+                        <input type="tel" placeholder="Phone Number" name="mobile">
+                        <input type="text" placeholder="Address" name="address">
+                        <input type="text" placeholder="City" name="city">
+                        <input type="text" placeholder="State" name="state">
+                        <input type="text" placeholder="Country" name="country">
+                        <input type="text" placeholder="Pin Code" name="pinCode">
+                    </div>
                 </div>
-                <span>✏️</span>
-            </div>
-            <div class="add-address-btn">
-                <button class="btn">ADD ADDRESS</button>
+                <div class="profile-buttons">
+                    <button class="btn" type="submit">ADD ADDRESS</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+
+    <!-- Edit Address Modal -->
+    <div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAddressModalLabel">Edit Address</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editAddressForm" action="/profile/updateAddress" method="POST">
+                        <input type="hidden" id="addressId" name="id">
+                        <div class="mb-3">
+                            <label for="editFirstName" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="editFirstName" name="firstName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editLastName" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="editLastName" name="lastName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editMobile" class="form-label">Mobile</label>
+                            <input type="tel" class="form-control" id="editMobile" name="mobile" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="editEmail" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editAddress" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="editAddress" name="address" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCity" class="form-label">City</label>
+                            <input type="text" class="form-control" id="editCity" name="city" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editState" class="form-label">State</label>
+                            <input type="text" class="form-control" id="editState" name="state" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCountry" class="form-label">Country</label>
+                            <input type="text" class="form-control" id="editCountry" name="country" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPinCode" class="form-label">Pin Code</label>
+                            <input type="text" class="form-control" id="editPinCode" name="pinCode" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
+
 
 
 
@@ -281,10 +614,6 @@
                                         <input name="b_36c4fd991d266f23781ded980_aefe40901a" tabindex="-1" value=""
                                             type="text">
                                     </div>
-
-                                    <!-- <div class="col-lg-4 col-md-4">
-												<button class="bb-btn btn"><span class="lnr lnr-arrow-right"></span></button>
-											</div>  -->
                                 </div>
                                 <div class="info"></div>
                             </form>
@@ -295,7 +624,7 @@
                     <div class="single-footer-widget mail-chimp">
                         <h6 class="mb-20">Instragram Feed</h6>
                         <ul class="instafeed d-flex flex-wrap">
-                            <li><img src="/public/img/i1.jpg" alt=""></li>
+                            <li><img src="/img/i1.jpg" alt=""></li>
                             <li><img src="/public/img/i2.jpg" alt=""></li>
                             <li><img src="/public/img/i3.jpg" alt=""></li>
                             <li><img src="/public/img/i4.jpg" alt=""></li>
@@ -349,6 +678,28 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCjCGmQ0Uq4exrzdcL6rvxywDDOvfAu6eE"></script>
     <script src="/js/gmaps.min.js"></script>
     <script src="/js/main.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+
+    <script>
+        function openEditModal(id, firstName, lastName, mobile, email, address, city, state, country, pinCode) {
+            document.getElementById('addressId').value = id;
+            document.getElementById('editFirstName').value = firstName;
+            document.getElementById('editLastName').value = lastName;
+            document.getElementById('editMobile').value = mobile;
+            document.getElementById('editEmail').value = email;
+            document.getElementById('editAddress').value = address;
+            document.getElementById('editCity').value = city;
+            document.getElementById('editState').value = state;
+            document.getElementById('editCountry').value = country;
+            document.getElementById('editPinCode').value = pinCode;
+
+            const editAddressModal = new bootstrap.Modal(document.getElementById('editAddressModal'));
+            editAddressModal.show();
+        }
+    </script>
 </body>
 
 </html>

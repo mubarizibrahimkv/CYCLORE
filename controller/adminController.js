@@ -42,21 +42,10 @@ const login = async (req, res) => {
     }
 };
 
-//----------dashboard---------//
-const loadDashboard = async (req, res) => {
-    try {
-        const admin = req.session.admin
-        if (!admin) return res.redirect("/admin/login");
-        res.render("admin/dashboard")
-    } catch (error) {
-        res.send(error)
-    }
-}
-
 //----------user management----------//
 const loadUserManagement = async (req, res) => {
     try {
-        const users = await userModel.find({});  // Fetch all users from the database
+        const users = await userModel.find({}); 
         res.render("admin/users", { users });
     } catch (error) {
         console.error(error);
@@ -106,7 +95,7 @@ const addCategory = async (req, res) => {
             return res.status(400).send('Category already exists');
         }
 
-        const newCategory = new categoryModel({ name, variant, isListed: true }); // Default to listed
+        const newCategory = new categoryModel({ name, variant, isListed: true }); 
         await newCategory.save();
         res.redirect('/admin/categories');
     } catch (error) {
@@ -136,9 +125,9 @@ const toggleCategoryStatus = async (req, res) => {
     const categoryId = req.params.id;
     try {
         const category = await categoryModel.findById(categoryId);
-        const newStatus = !category.isListed; // Toggle the status
+        const newStatus = !category.isListed;
         await categoryModel.findByIdAndUpdate(categoryId, { isListed: newStatus });
-        res.redirect("/admin/categories"); // Redirect after updating
+        res.redirect("/admin/categories"); 
     } catch (error) {
         console.error('Error toggling category status:', error);
         res.status(500).send('Internal Server Error');
@@ -203,9 +192,8 @@ const addProduct = async (req, res) => {
 
 const editProduct = async (req, res) => {
     const { id, name, category, price, stock, description } = req.body;
-    const images = req.files; // Get the uploaded images from the request
+    const images = req.files; 
 
-    // Convert stock and price to proper formats
     const numericStock = parseInt(stock, 10);
     if (isNaN(numericStock) || numericStock < 0) {
         return res.status(400).send('Stock must be a non-negative integer.');
@@ -223,29 +211,22 @@ const editProduct = async (req, res) => {
     let updateData = { name, category, price, stock, description };
 
     try {
-        // Fetch the existing product from the database
         const product = await productModel.findById(id);
 
         if (!product) {
             return res.status(404).send('Product not found');
         }
 
-        // If new images are uploaded, update the images field
         if (images && images.length > 0) {
-            // Create a list of new image URLs
             const newImages = images.map(file => `uploads/${file.filename}`);
 
-            // Assign the new images to the updateData object
             updateData.images = newImages;
         } else {
-            // If no new images are uploaded, keep the existing images
-            updateData.images = product.images; // Retain the existing images
+            updateData.images = product.images; 
         }
 
-        // Update the product in the database
         await productModel.findByIdAndUpdate(id, updateData, { new: true });
 
-        // Redirect to the product listing page
         res.redirect('/admin/products');
     } catch (error) {
         console.log('Error updating product:', error);
@@ -291,7 +272,6 @@ const logout = async (req, res) => {
 module.exports = {
     loadLogin,
     login,
-    loadDashboard,
     loadUserManagement,
     unblockUser,
     blockUser,

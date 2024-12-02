@@ -30,6 +30,11 @@ const productSchema = new mongoose.Schema({
          type: [String],
          required: false
     },
+    offer: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Offer',
+        required: false
+    },
     createdAt: {
         type: Date,
         default: Date.now

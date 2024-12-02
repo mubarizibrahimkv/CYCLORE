@@ -140,6 +140,21 @@
             font-size: 16px;
             cursor: pointer;
             border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .right-side .signup-button {
+            width: 100%;
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: none;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .right-side a {
@@ -162,7 +177,7 @@
         <div class="left-side">
             <div class="content">
                 <h2>New to our website?</h2>
-                <p>"Pedal forward with purpose – your journey begins here.</p>
+                <p>"Pedal forward with purpose – your journey begins here."</p>
             </div>
         </div>
         <div class="right-side">
@@ -176,13 +191,14 @@
                 <div class="floating-label">
                     <input type="password" id="password" name="password" placeholder=" " required>
                     <label for="password">Password</label>
-                    {{#if message}} <!-- Check if message exists -->
+                    {{#if message}}
                     <div class="alert alert-danger">{{message}}</div>
                     {{/if}}
                 </div>
                 <button type="submit">Log In</button>
-                <a href="#">Forgot Password?</a>
+                <a href="/forgot-password">Forgot Password?</a>
             </form>
+            <a href="/register" class="signup-button">Sign Up</a>
         </div>
     </div>
 </body>

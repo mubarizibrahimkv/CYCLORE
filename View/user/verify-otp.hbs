@@ -128,13 +128,11 @@
     </div>
 
     <script>
-        // Countdown Script
         let timer = 60;
         let countdownInterval;
 
-        // Start Timer Function
         function startTimer() {
-            timer = 60; // Reset timer each time startTimer is called
+            timer = 60; 
             document.getElementById("countdown").textContent = `00:${timer < 10 ? '0' : ''}${timer}`;
 
             countdownInterval = setInterval(() => {
@@ -151,14 +149,12 @@
 
         startTimer();
 
-        // Resend OTP Function
         function resendOTP() {
             clearInterval(countdownInterval);
             timer = 60;
             document.getElementById("otp").disabled = false;
-            startTimer(); // Start the timer again
+            startTimer(); 
 
-            // AJAX call to resend the OTP
             $.ajax({
                 type: "POST",
                 url: "/resend-otp",
@@ -189,7 +185,6 @@
             return false;
         }
 
-        // OTP Validation Function
         function validationOtpForm() {
             const otpInput = document.getElementById("otp").value;
 
@@ -226,7 +221,7 @@
                     });
                 }
             });
-            return false; // Prevent default form submission
+            return false; 
         }
     </script>
 
