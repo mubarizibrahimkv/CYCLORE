@@ -168,7 +168,7 @@
                 <li><a href="/admin/orders">Orders</a></li>
                 <li><a href="/admin/coupon">Coupon</a></li>
                 <li><a href="/admin/offer">Offers</a></li>
-              <li><a href="/admin/inventory">Inventory</a></li>
+                <li><a href="/admin/inventory">Inventory</a></li>
                 <li><a href="/admin/categories">Categories</a></li>
                 <li><a href="/admin/salesReport">Sales Report</a></li>
             </ul>
@@ -236,36 +236,42 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="/admin/products/add" method="POST" enctype="multipart/form-data">
+                    <form action="/admin/products/add" method="POST" enctype="multipart/form-data" id="addProductForm">
                         <div class="form-group">
                             <label for="productName">Product Name</label>
-                            <input type="text" class="form-control" id="productName" name="name" >
+                            <input type="text" class="form-control" id="productName" name="name">
+                            <small class="text-danger" id="productNameError"></small>
                         </div>
                         <div class="form-group">
                             <label for="productCategory">Category</label>
-                            <select class="form-control" id="productCategory" name="category" >
+                            <select class="form-control" id="productCategory" name="category">
                                 <option value="">Select Category</option>
                                 <option value="Sports">Sports</option>
                                 <option value="Mountain">Mountain</option>
                                 <option value="City">City</option>
                                 <option value="E-bikes">E-bikes</option>
                             </select>
+                            <small class="text-danger" id="productCategoryError"></small>
                         </div>
                         <div class="form-group">
                             <label for="productPrice">Price</label>
-                            <input type="number" class="form-control" id="productPrice" name="price" >
+                            <input type="number" class="form-control" id="productPrice" name="price">
+                            <small class="text-danger" id="productPriceError"></small>
                         </div>
                         <div class="form-group">
                             <label for="productStock">Stock</label>
-                            <input type="number" class="form-control" id="productStock" name="stock" >
+                            <input type="number" class="form-control" id="productStock" name="stock">
+                            <small class="text-danger" id="productStockError"></small>
                         </div>
                         <div class="form-group">
                             <label for="productDescription">Description</label>
-                            <textarea class="form-control" id="productDescription" name="description" rows="3"
-                                ></textarea>
+                            <textarea class="form-control" id="productDescription" name="description"
+                                rows="3"></textarea>
+                            <small class="text-danger" id="productDescriptionError"></small>
                         </div>
                         <label for="productImage" class="file-upload-label">Choose Images:</label>
                         <input type="file" id="productImage" name="images" accept="image/*" multiple />
+                        <small class="text-danger" id="productImageError"></small>
                         <div id="image-preview-container"></div>
 
                         <div class="modal" id="imageCropperModal" style="display:none;">
@@ -298,35 +304,39 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="/admin/products/edit" method="POST"  enctype="multipart/form-data"
+                    <form action="/admin/products/edit" method="POST" enctype="multipart/form-data"
                         id="editProductForm">
                         <input type="hidden" name="id" id="editProductId">
                         <div class="form-group">
                             <label for="editProductName">Product Name</label>
-                            <input type="text" class="form-control" id="editProductName" name="name" required>
+                            <input type="text" class="form-control" id="editProductName" name="name">
+                            <small class="text-danger" id="editProductNameError"></small>
                         </div>
                         <div class="form-group">
                             <label for="editProductCategory">Category</label>
-                            <select class="form-control" id="editProductCategory" name="category" required>
+                            <select class="form-control" id="editProductCategory" name="category">
                                 <option value="">Select Category</option>
                                 <option value="Sports">Sports</option>
                                 <option value="Mountain">Mountain</option>
                                 <option value="City">City</option>
                                 <option value="E-bikes">E-bikes</option>
                             </select>
+                            <small class="text-danger" id="editProductCategoryError"></small>
                         </div>
                         <div class="form-group">
                             <label for="editProductPrice">Price</label>
-                            <input type="number" class="form-control" id="editProductPrice" name="price" required>
+                            <input type="number" class="form-control" id="editProductPrice" name="price">
+                            <small class="text-danger" id="editProductPriceError"></small>
                         </div>
                         <div class="form-group">
                             <label for="editProductStock">Stock</label>
-                            <input type="number" class="form-control" id="editProductStock" name="stock" required>
+                            <input type="number" class="form-control" id="editProductStock" name="stock">
+                            <small class="text-danger" id="editProductStockError"></small>
                         </div>
                         <div class="form-group">
                             <label for="editProductDescription">Description</label>
-                            <textarea class="form-control" id="editProductDescription" name="description" rows="3"
-                                required></textarea>
+                            <textarea class="form-control" id="editProductDescription" name="description" rows="3"></textarea>
+                            <small class="text-danger" id="editProductDescriptionError"></small>
                         </div>
                         <input type="file" id="editProductImage" name="images" accept="image/*" multiple />
                         <label for="editProductImage" class="file-upload-label">Update Images:</label>
@@ -355,8 +365,170 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 
+    <!--========form validation add product======-->
     <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const form = document.getElementById("addProductForm");
 
+            form.addEventListener("submit", (e) => {
+                let isValid = true;
+
+                const productName = document.getElementById("productName");
+                const productNameError = document.getElementById("productNameError");
+                if (!productName.value.trim()) {
+                    productNameError.textContent = "Product name is required.";
+                    isValid = false;
+                } else {
+                    productNameError.textContent = "";
+                }
+
+                const productCategory = document.getElementById("productCategory");
+                const productCategoryError = document.getElementById("productCategoryError");
+                if (!productCategory.value) {
+                    productCategoryError.textContent = "Please select a category.";
+                    isValid = false;
+                } else {
+                    productCategoryError.textContent = "";
+                }
+
+                const productPrice = document.getElementById("productPrice");
+                const productPriceError = document.getElementById("productPriceError");
+                if (!productPrice.value || productPrice.value <= 0) {
+                    productPriceError.textContent = "Enter a valid price.";
+                    isValid = false;
+                } else {
+                    productPriceError.textContent = "";
+                }
+
+                const productStock = document.getElementById("productStock");
+                const productStockError = document.getElementById("productStockError");
+                if (!productStock.value || productStock.value <= 0) {
+                    productStockError.textContent = "Enter a valid stock quantity.";
+                    isValid = false;
+                } else {
+                    productStockError.textContent = "";
+                }
+
+                const productDescription = document.getElementById("productDescription");
+                const productDescriptionError = document.getElementById("productDescriptionError");
+                if (!productDescription.value.trim()) {
+                    productDescriptionError.textContent = "Description is required.";
+                    isValid = false;
+                } else {
+                    productDescriptionError.textContent = "";
+                }
+
+                const productImage = document.getElementById("productImage");
+                const productImageError = document.getElementById("productImageError");
+                if (!productImage.files.length) {
+                    productImageError.textContent = "At least one image is required.";
+                    isValid = false;
+                } else {
+                    productImageError.textContent = "";
+                }
+
+                if (!isValid) {
+                    e.preventDefault();
+                }
+            });
+
+            document.querySelectorAll("input, textarea, select").forEach((field) => {
+                field.addEventListener("input", () => {
+                    const errorField = document.getElementById(`${field.id}Error`);
+                    if (field.value.trim()) {
+                        errorField.textContent = "";
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const form = document.getElementById("editProductForm");
+
+            form.addEventListener("submit", (e) => {
+                let isValid = true;
+
+                // Product Name Validation
+                const productName = document.getElementById("editProductName");
+                const productNameError = document.getElementById("editProductNameError");
+                if (!productName.value.trim()) {
+                    productNameError.textContent = "Product name is required.";
+                    isValid = false;
+                } else {
+                    productNameError.textContent = "";
+                }
+
+                // Product Category Validation
+                const productCategory = document.getElementById("editProductCategory");
+                const productCategoryError = document.getElementById("editProductCategoryError");
+                if (!productCategory.value) {
+                    productCategoryError.textContent = "Please select a category.";
+                    isValid = false;
+                } else {
+                    productCategoryError.textContent = "";
+                }
+
+                // Product Price Validation
+                const productPrice = document.getElementById("editProductPrice");
+                const productPriceError = document.getElementById("editProductPriceError");
+                if (!productPrice.value || productPrice.value <= 0) {
+                    productPriceError.textContent = "Enter a valid price.";
+                    isValid = false;
+                } else {
+                    productPriceError.textContent = "";
+                }
+
+                // Product Stock Validation
+                const productStock = document.getElementById("editProductStock");
+                const productStockError = document.getElementById("editProductStockError");
+                if (!productStock.value || productStock.value <= 0) {
+                    productStockError.textContent = "Enter a valid stock quantity.";
+                    isValid = false;
+                } else {
+                    productStockError.textContent = "";
+                }
+
+                // Product Description Validation
+                const productDescription = document.getElementById("editProductDescription");
+                const productDescriptionError = document.getElementById("editProductDescriptionError");
+                if (!productDescription.value.trim()) {
+                    productDescriptionError.textContent = "Description is required.";
+                    isValid = false;
+                } else {
+                    productDescriptionError.textContent = "";
+                }
+
+                // Product Images Validation
+                const productImage = document.getElementById("editProductImage");
+                const productImageError = document.getElementById("editProductImageError");
+                if (!productImage.files.length) {
+                    productImageError.textContent = "At least one image is required.";
+                    isValid = false;
+                } else {
+                    productImageError.textContent = "";
+                }
+
+                // Prevent form submission if validation fails
+                if (!isValid) {
+                    e.preventDefault();
+                }
+            });
+
+            // Clear error message on user input
+            document.querySelectorAll("input, textarea, select").forEach((field) => {
+                field.addEventListener("input", () => {
+                    const errorField = document.getElementById(`${field.id}Error`);
+                    if (field.value.trim()) {
+                        errorField.textContent = "";
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
         document.getElementById('productImage').addEventListener('change', function (event) {
             const files = event.target.files;
             const previewContainer = document.getElementById('image-preview-container');
@@ -491,7 +663,7 @@
             }
 
             const existingImagesContainer = document.getElementById('existingImages');
-            existingImagesContainer.innerHTML = ''; 
+            existingImagesContainer.innerHTML = '';
 
             if (images && images.length > 0) {
                 images.forEach((image, index) => {
@@ -588,6 +760,3 @@
 </body>
 
 </html>
-
-
-

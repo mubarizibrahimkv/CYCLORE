@@ -501,7 +501,7 @@
     </div>
 
 
-    
+
     <div class="orders-section">
         <h2>Your Orders</h2>
         {{#if order}}
@@ -685,100 +685,118 @@
 <!--=================retry payment in razorpay==================-->
 <script>
     function handleRetryPayment(orderId) {
-        fetch(`/order/retry/${orderId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-
-                if (data.orderId && data.amount) {
-                    const options = {
-                        key: 'rzp_test_4rzZQ0EHL6muv5',
-                        amount: data.amount,
-                        currency: "INR",
-                        name: "Cyclore",
-                        description: "Order Payment Retry",
-                        order_id: data.orderId,
-                        handler: function (response) {
-                            handlePaymentSuccess(response);
-                        },
-                        prefill: {
-                            name: "{{user.name}}",
-                            email: "{{user.email}}",
-                            contact: "{{user.mobile}}"
-                        },
-                        theme: {
-                            color: "#F37254"
+    fetch(`/order/retry/${orderId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.orderId && data.amount) {
+                const options = {
+                    key: 'rzp_test_4rzZQ0EHL6muv5',
+                    amount: data.amount,
+                    currency: 'INR',
+                    name: 'Cyclore',
+                    description: 'Order Payment Retry',
+                    order_id: data.orderId,
+                    handler: function (response) {
+                        handlePaymentSuccess(response, orderId);
+                    },
+                    prefill: {
+                        name: "{{user.name}}",
+                        email: "{{user.email}}",
+                        contact: "{{user.mobile}}"
+                    },
+                    theme: {
+                        color: '#F37254'
+                    },
+                    modal: {
+                        ondismiss: function () {
+                            fetch(`/order/fail/${orderId}`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                            })
+                                .then(() => {
+                                    Swal.fire({
+                                        title: 'Payment Cancelled',
+                                        text: 'You closed the payment window. Redirecting to your orders page.',
+                                        icon: 'warning',
+                                        confirmButtonText: 'OK'
+                                    }).then(() => {
+                                        window.location.href = '/profile/order';
+                                    });
+                                })
+                                .catch(error => {
+                                    console.error('Failed to update payment status:', error);
+                                });
                         }
-                    };
-                    console.log('Razorpay Options:', options);
-                    const rzp = new Razorpay(options);
-                    rzp.open();
+                    }
+                };
 
-                } else {
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Failed to retry payment. Please try again.',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error retrying payment:', error);
+                const rzp = new Razorpay(options);
+                rzp.open();
+            } else {
                 Swal.fire({
                     title: 'Error!',
                     text: 'Failed to retry payment. Please try again.',
                     icon: 'error',
                     confirmButtonText: 'OK'
                 });
-            });
-    }
-
-
-    function handlePaymentSuccess(response) {
-        const paymentDetails = {
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_signature: response.razorpay_signature
-        };
-
-        fetch('/profile/order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                orderId: response.razorpay_order_id,
-                paymentDetails: paymentDetails,
-                paymentStatus: 'Completed',
-            })
+            }
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    window.location.href = '/orderSuccess';
-                } else {
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Failed to place order. Please try again.',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error submitting order:', error);
+        .catch(error => {
+            console.error('Error retrying payment:', error);
+            Swal.fire({
+                title: 'Error!',
+                text: 'Failed to retry payment. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        });
+}
+
+function handlePaymentSuccess(response, orderId) {
+    const paymentDetails = {
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_signature: response.razorpay_signature
+    };
+
+    fetch('/profile/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            orderId: orderId,
+            paymentDetails: paymentDetails,
+            paymentStatus: 'Completed',
+        })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                window.location.href = '/profile/order';
+            } else {
                 Swal.fire({
                     title: 'Error!',
-                    text: 'Failed to submit order. Please try again.',
+                    text: 'Failed to place order. Please try again.',
                     icon: 'error',
                     confirmButtonText: 'OK'
                 });
+            }
+        })
+        .catch(error => {
+            console.error('Error submitting order:', error);
+            Swal.fire({
+                title: 'Error!',
+                text: 'Failed to submit order. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'OK'
             });
-    }
-
+        });
+}
 </script>
+
+
 
 <script>
     function cancelOrder(orderId) {

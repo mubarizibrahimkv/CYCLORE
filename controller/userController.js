@@ -150,6 +150,7 @@ const googleAuth = async (req, res) => {
         if (user.status === "false") {
             return res.render("user/register", { message: "User is blocked by admin" });
         }
+        req.session.user=user
         res.redirect("/");
     } catch (error) {
         console.error("Google authentication error:", error);
@@ -284,7 +285,7 @@ const loadShop = async (req, res) => {
             sortQuery.createdAt = -1;
         }
 
-        const products = await productModel.find(filterQuery).populate("offer").sort(sortQuery);        
+        const products = await productModel.find(filterQuery).populate("offer").sort(sortQuery);                
         products.forEach((product) => {
             product.discountedPrice = product.price;
 
@@ -319,28 +320,6 @@ const loadShop = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
-
-const search = async (req, res) => {
-    try {
-        const query = req.query.q;
-
-        if (!query) {
-            return res.json([]);
-        }
-
-        const products = await productModel.find({
-            $or: [
-                { name: { $regex: query, $options: 'i' } },
-                { description: { $regex: query, $options: 'i' } }
-            ]
-        });
-
-        res.json(products);
-    } catch (error) {
-        console.error('Error searching products:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
-}
 
 //--------------single product-------------
 const loadSingleProduct = async (req, res) => {
@@ -492,7 +471,6 @@ module.exports = {
     loadShop,
     loadSingleProduct,
     checkBlockStatus,
-    search,
     forgotPasswordPage,
     forgotEmailValid,
     verifyForgotPassOtp,

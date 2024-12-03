@@ -2,6 +2,8 @@ const couponModel = require("../Model/couponModel")
 const offerModel = require("../Model/offerModel")
 const productModel = require("../Model/productModel")
 const categoryModel = require("../Model/categoryModel")
+const mongoose = require("mongoose")
+
 
 
 const loadCoupon = async (req, res) => {
@@ -63,10 +65,10 @@ const loadOffer = async (req, res) => {
         const products = await productModel.find()
         const categories = await categoryModel.find()
         const offerss = await offerModel
-        .find()
-        .populate('products', 'name _id') 
-        .populate('categories', 'name _id');
-        res.render("admin/offer", { offers, products, categories,offerss })
+            .find()
+            .populate('products', 'name _id')
+            .populate('categories', 'name _id');
+        res.render("admin/offer", { offers, products, categories, offerss })
     } catch (error) {
         res.status(500).send("Failed to render page.Please try again")
     }
@@ -81,43 +83,34 @@ const addOffer = async (req, res) => {
         categories,
         discountType,
         discountValue,
-        expiryDate
+        expiryDate,
     } = req.body;
 
     try {
         if (!offerName || offerName.trim() === '') {
             return res.status(400).send('Offer name is required.');
         }
-
         if (!['Product', 'Category'].includes(applicableTo)) {
             return res.status(400).send('ApplicableTo must be either "Product" or "Category".');
         }
-
         if (applicableTo === 'Product' && (!products || products.length === 0)) {
             return res.status(400).send('At least one product must be selected for a product-specific offer.');
         }
-
         if (applicableTo === 'Category' && (!categories || categories.length === 0)) {
             return res.status(400).send('At least one category must be selected for a category-specific offer.');
         }
-
         if (!['percentage', 'fixed'].includes(discountType)) {
             return res.status(400).send('Discount type must be either "percentage" or "fixed".');
         }
-
         if (!discountValue || discountValue <= 0) {
             return res.status(400).send('Discount value must be a positive number.');
         }
-
         if (!expiryDate || isNaN(new Date(expiryDate).getTime())) {
             return res.status(400).send('A valid expiry date is required.');
         }
-
-        const currentDate = new Date();
-        if (new Date(expiryDate) <= currentDate) {
+        if (new Date(expiryDate) <= new Date()) {
             return res.status(400).send('Expiry date must be in the future.');
         }
-
 
         const newOffer = new offerModel({
             offerName,
@@ -126,54 +119,46 @@ const addOffer = async (req, res) => {
             discountType,
             discountValue,
             expiryDate,
+            products: applicableTo === 'Product' ? products || [] : [],
+            categories: applicableTo === 'Category' ? categories || [] : [],
         });
-
-        if (applicableTo === 'Product') {
-            newOffer.products = products || [];
-        } else if (applicableTo === 'Category') {
-            newOffer.categories = categories || [];
-        }
 
         await newOffer.save();
 
-        if (applicableTo === 'Product' && Array.isArray(products) && products.length > 0) {
+        console.log('New offer created:', newOffer);
+
+        if (applicableTo === 'Product') {
             await productModel.updateMany(
                 { _id: { $in: products } },
                 { $set: { offer: newOffer._id } }
             );
         }
+
+        if (applicableTo === 'Category') {
+            const categoryIds = categories.map(id => new mongoose.Types.ObjectId(id));
         
-        if (applicableTo === 'Category' && Array.isArray(categories) && categories.length > 0) {
-            const existingOffer = await offerModel.findOne({
-                applicableTo: 'Category',
-                categories: { $in: categories },
-                isActive: true,
-            });
+            const productsInCategories = await productModel.find({ categories: { $in: categoryIds } });
         
-            if (existingOffer) {
-                throw new Error('An active offer already exists for the specified category.');
+            if (!productsInCategories.length) {
+                console.log(`No products found for categories: ${categories}`);
+                return res.status(404).send('No products associated with the selected categories.');
             }
         
-            const productsInCategories = await productModel.find({
-                category: { $in: categories },
-            });
+            console.log('Products found:', productsInCategories);
         
-            const productIds = productsInCategories.map((product) => product._id);
+            await productModel.updateMany(
+                { _id: { $in: productsInCategories.map(product => product._id) } },
+                { $set: { offer: newOffer._id } }
+            );
         
-            if (productIds.length > 0) {
-                await productModel.updateMany(
-                    {_id:{$in:productIds}},
-                    {$set:{offer:newOffer._id}}
-                );
-            }
-        
-            newOffer.products = productIds;
+            newOffer.products = productsInCategories.map(product => product._id);
             await newOffer.save();
         }
         
+
         res.redirect('/admin/offer');
     } catch (error) {
-        console.error('Error saving offer:', error);
+        console.error('Error saving offer:', error.message);
         res.status(500).send('Error saving offer. Please try again later.');
     }
 }
@@ -293,13 +278,13 @@ const editOffer = async (req, res) => {
     }
 };
 
-const deleteOffer=async(req,res)=>{
-    const offerId=req.params.id
+const deleteOffer = async (req, res) => {
+    const offerId = req.params.id
     try {
         await offerModel.findByIdAndDelete(offerId)
         res.redirect("/admin/offer")
     } catch (error) {
-       res.send(error)
+        res.send(error)
     }
 }
 

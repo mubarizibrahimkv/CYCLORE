@@ -2,30 +2,38 @@ const orderModel = require("../Model/orderModel")
 
 
 const loadOrder = async (req, res) => {
-    const { page = 1, limit = 10 } = req.query;
+    const { page = 1, limit = 10 } = req.query; 
 
     try {
         const orders = await orderModel.find()
-            .sort({ createdAt: -1 }).populate("userId")
-            .populate("products.productId")
-            .skip((page - 1) * limit)
-            .limit(Number(limit)).exec();
+            .sort({ createdAt: -1 }) 
+            .populate("userId")
+            .populate("products.productId") 
+            .skip((page - 1) * limit) 
+            .limit(Number(limit))
+            .exec();
 
         const totalOrders = await orderModel.countDocuments();
 
+        const totalPages = Math.ceil(totalOrders / limit);
+        const currentPage = Number(page);
+        const previousPage = currentPage > 1 ? currentPage - 1 : null;
+        const nextPage = currentPage < totalPages ? currentPage + 1 : null;
+
         res.render("admin/orders", {
             orders,
-            currentPage: Number(page),
-            totalPages: Math.ceil(totalOrders / limit),
-            totalOrders
-        })
-        
+            currentPage,
+            totalPages,
+            totalOrders,
+            previousPage,
+            nextPage
+        });
+
     } catch (error) {
         console.error(error);
-        res.send("Error fetching order");
+        res.send("Error fetching orders");
     }
 }
-
 
 
 const cancelOrder = async (req, res) => {
@@ -66,7 +74,6 @@ const cancelOrder = async (req, res) => {
 };
 
 
-
 const updateProductStatus = async (req, res) => {
     const { orderId, productId } = req.params;
     const { status } = req.body;
@@ -105,9 +112,7 @@ const updateProductStatus = async (req, res) => {
         console.error("Error updating product status:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
-};
-
-
+}
 
 
 module.exports = {

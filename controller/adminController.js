@@ -5,6 +5,8 @@ const categoryModel = require("../Model/categoryModel");
 const mongoose = require("mongoose")
 const bcrypt = require("bcrypt");
 const upload=require("../controller/imageController")
+const path = require('path');
+
 
 //---------login--------//
 const loadLogin = async (req, res) => {
@@ -140,30 +142,11 @@ const loadProducts = async (req, res) => {
     res.render("admin/products", { products })
 };
 
-
-const path = require('path');
-
 const addProduct = async (req, res) => {
     try {
         const { name, description, stock, category, price } = req.body;
 
-        if (!name || name.trim() === "") {
-            return res.status(400).send('Product name is required.');
-        }
-
-        const numericStock = parseInt(stock, 10);
-        if (isNaN(numericStock) || numericStock < 0) {
-            return res.status(400).send('Stock must be a non-negative integer.');
-        }
-
-        const numericPrice = parseFloat(price);
-        if (isNaN(numericPrice) || numericPrice <= 0) {
-            return res.status(400).send('Price must be a number greater than 0.');
-        }
-
-        if (!category || category.trim() === "") {
-            return res.status(400).send('Category is required.');
-        }
+       
 
         const images = req.files && Array.isArray(req.files)
             ? req.files.map(file => path.join('uploads', path.basename(file.path)))
@@ -186,9 +169,6 @@ const addProduct = async (req, res) => {
         res.status(400).send('Error adding product: ' + error.message);
     }
 };
-
-
-
 
 const editProduct = async (req, res) => {
     const { id, name, category, price, stock, description } = req.body;

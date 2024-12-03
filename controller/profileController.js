@@ -120,9 +120,7 @@ const retryPayment = async (req, res) => {
     const { orderId } = req.params;
 
     try {
-
         const order = await orderModel.findById(orderId);
-
         if (!order) {
             return res.status(404).json({ error: 'Order not found' });
         }
@@ -142,7 +140,6 @@ const retryPayment = async (req, res) => {
             orderId: razorpayOrder.id,
             amount: razorpayOrder.amount,
         });
-
     } catch (error) {
         console.error('Error retrying payment:', error.message || error);
         res.status(500).json({
@@ -165,6 +162,29 @@ const retryPaymentSuccess = async (req, res) => {
     } catch (error) {
         console.error('Error handling order:', error);
         res.status(500).json({ message: 'Failed to place order. Please try again.' });
+    }
+};
+
+const updatePaymentFailure = async (req, res) => {
+    const { orderId } = req.params;
+
+    try {
+        const order = await orderModel.findById(orderId);
+        
+        if (!order) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+
+        order.paymentStatus = 'Failed';        
+        await order.save();
+
+        res.status(200).json({ message: 'Payment status updated to Failed' });
+    } catch (error) {
+        console.error('Error updating payment status:', error.message || error);
+        res.status(500).json({
+            error: 'Failed to update payment status',
+            message: error.message,
+        });
     }
 };
 
@@ -416,5 +436,6 @@ module.exports = {
     loadWallet,
     addWishlist,
     removeWishlist,
-    retryPaymentSuccess
+    retryPaymentSuccess,
+    updatePaymentFailure
 }

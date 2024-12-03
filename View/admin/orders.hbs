@@ -137,6 +137,9 @@
             position: absolute;
             right: 20px;
         }
+        .pagination{
+            justify-content: center;
+        }
     </style>
 </head>
 
@@ -194,7 +197,7 @@
                         </td>
                         <td>
                             {{#if this.discountedPrice}}
-                            {{multiply this.discountedPrice this.quantity}} 
+                            {{multiply this.discountedPrice this.quantity}}
                             {{else}}
                             {{multiply this.productId.price this.quantity}}
                             {{/if}}
@@ -259,16 +262,6 @@
             </div>
         </div>
     </div>
-
-
-
-    <nav aria-label="Order pagination">
-        <ul class="pagination justify-content-center">
-            <li class="page-item"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">Next</a></li>
-        </ul>
-    </nav>
     </div>
     </div>
 </body>

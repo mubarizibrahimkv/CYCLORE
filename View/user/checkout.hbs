@@ -639,7 +639,6 @@
     </script>
 
 
-
     <!---alert for select address--->
     <script>
         document.getElementById('proceedbutton').addEventListener('click', function () {
@@ -675,7 +674,6 @@
     </script>
 
 
-
     <!--======send data to backend======--->
     <script>
         function submitOrder() {
@@ -685,12 +683,12 @@
 
 
             if (!paymentMethodElement) {
-                 Swal.fire({
-            title: 'Error!',
-            text: 'Please select a payment method.',
-            icon: 'error',
-            confirmButtonText: 'OK'
-        });
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Please select a payment method.',
+                    icon: 'error',
+                    confirmButtonText:"OK"
+                });
                 return;
             }
 

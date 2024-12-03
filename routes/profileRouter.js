@@ -14,6 +14,7 @@ router.post("/profile/order",profileCotroller.retryPaymentSuccess)
 router.post('/order/retry/:orderId',profileCotroller.retryPayment)
 router.post('/order/cancel/:orderId/:productId', profileCotroller.cancelOrder);
 router.post("/profile/change-password",profileCotroller.changePassword)
+router.post("/order/fail/:orderId",profileCotroller.updatePaymentFailure)
 router.get("/profile/order/viewDetails/:orderId/:productId",userAuth.checkSession,profileCotroller.loadViewDetails)
 router.get("/downloadInvoice/:id",invoiceController.invoiceDownload)
 router.get("/wishlist",userAuth.checkSession,profileCotroller.loadWishlist)

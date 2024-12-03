@@ -177,7 +177,6 @@ const getSalesData = async (req, res) => {
                 totalPrices.push(order.totalPrice);
             });
         }
-
         res.json({ labels, totalPrices });
     } catch (error) {
         console.error('Error fetching sales data:', error);

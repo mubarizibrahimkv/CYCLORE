@@ -39,6 +39,11 @@ const productSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
+    categories: { 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+        required: true
+    },
     isListed: {
         type: Boolean,
         default: true, 
