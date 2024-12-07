@@ -169,6 +169,25 @@
         .right-side a:hover {
             text-decoration: underline;
         }
+        .google-signup {
+            width: 100%;
+            background-color: white;
+            border: 1px solid #ccc;
+            color: #333;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .google-signup img {
+            width: 20px;
+            margin-right: 10px;
+        }
     </style>
 </head>
 
@@ -198,6 +217,12 @@
                 <button type="submit">Log In</button>
                 <a href="/forgot-password">Forgot Password?</a>
             </form>
+            <a href="/auth/google">
+            <div class="google-signup">
+                <img src="https://i.pinimg.com/236x/39/21/6d/39216d73519bca962bd4a01f3e8f4a4b.jpg" alt="Google Logo">
+                Sign Up with Google
+            </div>
+            </a>
             <a href="/register" class="signup-button">Sign Up</a>
         </div>
     </div>

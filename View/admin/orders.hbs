@@ -137,7 +137,8 @@
             position: absolute;
             right: 20px;
         }
-        .pagination{
+
+        .pagination {
             justify-content: center;
         }
     </style>
@@ -231,6 +232,12 @@
                         </td>
                     </tr>
                     {{/each}}
+                    <td></td><td></td><td></td><td></td><td></td><td></td>
+                    <form action="/admin/order/orderDetails/{{this._id}}" method="GET">
+                    <td >
+                        <button class="btn btn-success">View Details</button>
+                    </td>
+                    </form>
                     {{/each}}
                 </tbody>
             </table>

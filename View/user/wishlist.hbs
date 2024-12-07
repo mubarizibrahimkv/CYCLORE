@@ -82,7 +82,7 @@
         }
 
         .product-image {
-            width:auto;
+            width: auto;
             height: 230px;
             object-fit: cover;
         }
@@ -202,23 +202,6 @@
                                     aria-haspopup="true" aria-expanded="false">Shop</a>
 
                             </li>
-                            <li class="nav-item submenu dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
-                                    aria-haspopup="true" aria-expanded="false">Blog</a>
-                                <ul class="dropdown-menu">
-                                    <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
-                                    <li class="nav-item"><a class="nav-link" href="single-blog.html">Blog Details</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="nav-item submenu dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
-                                    aria-haspopup="true" aria-expanded="false">Login/Register</a>
-                                <ul class="dropdown-menu">
-                                    <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
-                                    <li class="nav-item"><a class="nav-link" href="/register">register</a></li>
-                                </ul>
-                            </li>
                             <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
                         </ul>
                         <ul class="nav navbar-nav navbar-right">
@@ -260,21 +243,26 @@
             {{#if wishlist.products.length}}
             <div class="wishlist-grid">
                 {{#each wishlist.products}}
-                <div class="wishlist-card">
-                    <img src="{{this.image}}" alt="{{this.name}}" class="product-image">
-                    <div class="product-info">
-                        <h2 class="product-name">{{this.name}}</h2>
-                        <p class="product-price">₹{{this.price}}</p>
-                        <div class="wishlist-actions">
-                            <form action="/wishlist/delete/{{this.productId._id}}" method="POST"
-                                style="display:inline-block;">
-                                <button type="submit" class="wishlist-btn remove">
-                                    <i class="fas fa-trash"></i> Remove
-                                </button>
-                            </form>
+                    <div class="wishlist-card">
+                        <img src="{{this.image}}" alt="{{this.name}}" class="product-image">
+                        <div class="product-info">
+                            <h2 class="product-name">{{this.name}}</h2>
+                            <p class="product-price">₹{{this.price}}</p>
+                            <div class="wishlist-actions">
+                                <form action="/wishlist/delete/{{this.productId._id}}" method="POST"
+                                    style="display:inline-block;">
+                                    <button type="submit" class="wishlist-btn remove">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </form>
+                                <a href="/cart/add/{{this.productId._id}}">
+                                    <button type="submit" class="wishlist-btn add-to-cart">
+                                        <i class="fas fa-cart-plus"></i> Add to Cart
+                                    </button>
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
                 {{/each}}
             </div>
             {{else}}

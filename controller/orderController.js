@@ -114,9 +114,20 @@ const updateProductStatus = async (req, res) => {
     }
 }
 
+const orderDetails=async (req,res)=>{
+    const {orderId}=req.params;    
+    try {
+        const order=await orderModel.findById(orderId).populate("address").populate("products.productId").exec()        
+        res.render("admin/orderDetails",{order})
+    } catch (error) {
+        res.send(error)
+    }
+}
+
 
 module.exports = {
     loadOrder,
     cancelOrder,
-    updateProductStatus
+    updateProductStatus,
+    orderDetails
 }

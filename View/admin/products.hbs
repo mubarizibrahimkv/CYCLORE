@@ -198,7 +198,7 @@
                 {{#each products}}
                 <tr>
                     <td>{{this.name}}</td>
-                    <td>{{this.category}}</td>
+                    <td>{{this.categories.name}}</td>
                     <td>₹{{this.price}}</td>
                     <td>{{this.stock}}</td>
                     <td>
@@ -246,10 +246,9 @@
                             <label for="productCategory">Category</label>
                             <select class="form-control" id="productCategory" name="category">
                                 <option value="">Select Category</option>
-                                <option value="Sports">Sports</option>
-                                <option value="Mountain">Mountain</option>
-                                <option value="City">City</option>
-                                <option value="E-bikes">E-bikes</option>
+                                {{#each categories}}
+                                <option value="{{this._id}}">{{this.name}}</option>
+                                {{/each}}
                             </select>
                             <small class="text-danger" id="productCategoryError"></small>
                         </div>
@@ -335,7 +334,8 @@
                         </div>
                         <div class="form-group">
                             <label for="editProductDescription">Description</label>
-                            <textarea class="form-control" id="editProductDescription" name="description" rows="3"></textarea>
+                            <textarea class="form-control" id="editProductDescription" name="description"
+                                rows="3"></textarea>
                             <small class="text-danger" id="editProductDescriptionError"></small>
                         </div>
                         <input type="file" id="editProductImage" name="images" accept="image/*" multiple />
@@ -443,6 +443,7 @@
         });
     </script>
 
+    <!--========form validation edit product======-->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const form = document.getElementById("editProductForm");
@@ -450,7 +451,6 @@
             form.addEventListener("submit", (e) => {
                 let isValid = true;
 
-                // Product Name Validation
                 const productName = document.getElementById("editProductName");
                 const productNameError = document.getElementById("editProductNameError");
                 if (!productName.value.trim()) {
@@ -460,7 +460,6 @@
                     productNameError.textContent = "";
                 }
 
-                // Product Category Validation
                 const productCategory = document.getElementById("editProductCategory");
                 const productCategoryError = document.getElementById("editProductCategoryError");
                 if (!productCategory.value) {
@@ -470,7 +469,6 @@
                     productCategoryError.textContent = "";
                 }
 
-                // Product Price Validation
                 const productPrice = document.getElementById("editProductPrice");
                 const productPriceError = document.getElementById("editProductPriceError");
                 if (!productPrice.value || productPrice.value <= 0) {
@@ -480,7 +478,6 @@
                     productPriceError.textContent = "";
                 }
 
-                // Product Stock Validation
                 const productStock = document.getElementById("editProductStock");
                 const productStockError = document.getElementById("editProductStockError");
                 if (!productStock.value || productStock.value <= 0) {
@@ -490,7 +487,6 @@
                     productStockError.textContent = "";
                 }
 
-                // Product Description Validation
                 const productDescription = document.getElementById("editProductDescription");
                 const productDescriptionError = document.getElementById("editProductDescriptionError");
                 if (!productDescription.value.trim()) {
@@ -500,7 +496,6 @@
                     productDescriptionError.textContent = "";
                 }
 
-                // Product Images Validation
                 const productImage = document.getElementById("editProductImage");
                 const productImageError = document.getElementById("editProductImageError");
                 if (!productImage.files.length) {
@@ -510,13 +505,11 @@
                     productImageError.textContent = "";
                 }
 
-                // Prevent form submission if validation fails
                 if (!isValid) {
                     e.preventDefault();
                 }
             });
 
-            // Clear error message on user input
             document.querySelectorAll("input, textarea, select").forEach((field) => {
                 field.addEventListener("input", () => {
                     const errorField = document.getElementById(`${field.id}Error`);

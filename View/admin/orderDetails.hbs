@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .order-container {
+            width: 80%;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        h3 {
+            margin-top: 2rem;
+            color: #34495e;
+        }
+
+        .card {
+            background-color: #fff;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2,
+        .card h3,
+        .card h4 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .card p {
+            margin: 0.5rem 0;
+            font-size: 16px;
+        }
+
+        .card span {
+            color: #2980b9;
+        }
+
+        .products {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .product {
+            flex: 1;
+            min-width: 250px;
+            background-color: #ecf0f1;
+            padding: 1rem;
+        }
+
+        .product h4 {
+            margin-top: 0;
+        }
+
+        .product p {
+            margin: 0.5rem 0;
+        }
+
+        .product span {
+            color: #2ecc71;
+        }
+
+        /* Container to hold all product cards */
+        .products-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 1rem;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .card.product {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            flex: 1;
+            min-width: 250px;
+            max-width: 500px;
+        }
+
+        .card.product h4 {
+            margin: 0 0 1rem;
+            color: #34495e;
+        }
+
+        .card.product p {
+            margin: 0.5rem 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .card.product span {
+            font-weight: bold;
+            color: #2980b9;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="order-container">
+        <h1>Order Details</h1>
+
+        <!-- Order Info Card -->
+        <div class="card">
+            <h2>Order ID: <span id="orderId">{{order._id}}</span></h2>
+            <p><strong>User ID:</strong> <span id="userId">{{order.address.user}}</span></p>
+            <p><strong>Payment Status:</strong> <span id="paymentStatus">{{order.paymentStatus}}</span></p>
+            <p><strong>Payment Method:</strong> <span id="paymentMethod">{{order.paymentMethod}}</span></p>
+            <p><strong>Coupon Applyied Price:</strong> <span id="couponCode">{{order.couponDiscount}}</span></p>
+            <p><strong>Shipping Cost:</strong> <span id="shippingCost">{{order.shippingCost}}</span></p>
+            <p><strong>Total:</strong> <span id="total">{{order.total}}</span></p>
+            <p><strong>Order Status:</strong> <span id="orderStatus">{{order.status}}</span></p>
+            <p><strong>Created At:</strong> <span id="createdAt">{{formatDate order.createdAt}}</span></p>
+        </div>
+
+        <!-- User Info Card -->
+        <div class="card">
+            <h3>User Details</h3>
+            <p><strong>Name:</strong> <span id="userName">{{order.address.firstName}} {{order.address.lastName}}</span>
+            </p>
+            <p><strong>Address:</strong> <span
+                    id="userAddress">{{order.address.address}},{{order.address.city}},{{order.address.state}},{{order.address.country}}</span>
+            </p>
+            <p><strong>Phone Number:</strong> <span id="userPhoneNumber">{{order.address.mobile}}</span></p>
+        </div>
+
+        <!-- Products Card -->
+        <h3>Products</h3>
+        <div class="products-container">
+            {{#each order}}
+            {{#each products}}
+            <div class="card product">
+                <h4>Product: <span class="product-name">{{this.name}}</span></h4>
+                <p><strong>Quantity:</strong> <span class="product-quantity">{{this.quantity}}</span></p>
+                <p><strong>Price:</strong> <span class="product-price">{{this.discountedPrice}}</span></p>
+                <p><strong>Status:</strong> <span class="product-status">{{this.status}}</span></p>
+            </div>
+            {{/each}}
+            {{/each}}
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,5 +1,5 @@
-const Order=require("../Model/orderModel")
-const PDFDocument = require('pdfkit');
+const Order = require("../Model/orderModel");
+const PDFDocument = require("pdfkit");
 
 function createInvoice(invoice, res) {
   const doc = new PDFDocument({ size: "A4", margin: 50 });
@@ -35,6 +35,15 @@ function generateCustomerInformation(doc, order) {
   doc.text(`Invoice Date: ${new Date(order.createdAt).toLocaleDateString()}`, 50, 215);
   doc.text(`Customer Name: ${order.address.firstName || "N/A"}`, 50, 230);
   doc.text(`Customer Address: ${order.address.address || "N/A"}`, 50, 245);
+
+  // Include Coupon Details
+  if (order.couponCode && order.couponDiscount > 0) {
+    doc
+      .text(`Coupon Applied: ${order.couponCode}`, 50, 260)
+      .text(`Coupon Discount: ₹${order.couponDiscount}`, 50, 275);
+  } else {
+    doc.text(`Coupon Applied: None`, 50, 260);
+  }
 }
 
 function generateInvoiceTable(doc, order) {
@@ -54,44 +63,84 @@ function generateInvoiceTable(doc, order) {
     doc.text(product.quantity, 200, yPosition, { width: 90, align: "right" });
     doc.text(`₹${unitPrice}`, 300, yPosition, { width: 90, align: "right" });
     doc.text(`₹${totalPrice}`, 400, yPosition, { width: 90, align: "right" });
+
+    if (product.discountedPrice && product.discountedPrice < product.productId.price) {
+      doc.fontSize(8).fillColor("green").text(
+        `Offer Applied: Original Price ₹${product.productId.price}`,
+        50,
+        yPosition + 10
+      );
+      doc.fillColor("black");
+    }
   });
 
+  const subtotal = order.products.reduce((sum, product) => {
+    const unitPrice = product.discountedPrice || product.productId.price;
+    return sum + unitPrice * product.quantity;
+  }, 0);
+
   const totalY = invoiceTableTop + 25 + order.products.length * 25;
-  doc
-    .fontSize(12)
-    .text(`Total: ₹${order.total}`, 400, totalY, { width: 90, align: "right" });
+
+  doc.text(`Subtotal: ₹${subtotal}`, 400, totalY, { width: 90, align: "right" });
+
+  if (order.couponDiscount > 0) {
+    doc.text(`Coupon Discount: -₹${order.couponDiscount}`, 380, totalY + 20, { width: 90, align: "right" });
+  }
+
+  doc.text(`Shipping Cost: ₹${order.shippingCost}`, 400, totalY + 40, { width: 90, align: "right" });
+  doc.text(`Total: ₹${order.total}`, 400, totalY + 60, { width: 90, align: "right" });
 }
 
 function generateFooter(doc) {
   doc
     .fontSize(10)
-    .text("Thank you for your purchase!", 50, 780, { align: "center", width: 500 });
+    .text("Thank you for your purchase!", 50, 750, { align: "center", width: 500 })
+    .text("This invoice is generated electronically and does not require a signature.", 50, 765, { align: "center", width: 500 });
 }
 
+
 const invoiceDownload = async (req, res) => {
-  const orderId = req.params.id;  
+  const orderId = req.params.id;
 
   try {
-    const order = await Order.findById(orderId).populate("userId").populate("products.productId").populate("address").exec();
+    const order = await Order.findById(orderId)
+      .populate("userId")
+      .populate("products.productId")
+      .populate("address")
+      .exec();
+
     if (!order) {
       return res.status(404).send("Order not found");
     }
 
     const canceledTotal = order.products
-    .filter((item) => item.status === "Cancelled")
-    .reduce((sum, item) => {
-      const price = item.discountedPrice || item.productId.price; 
-      return sum + price * item.quantity;
-    }, 0);
+      .filter((item) => item.status === "Cancelled")
+      .reduce((sum, item) => {
+        const price = item.discountedPrice || item.productId.price;
+        return sum + price * item.quantity;
+      }, 0);
 
-  const updatedTotal = order.total - canceledTotal;
+    const updatedTotal = order.total - canceledTotal;
 
-    order.products = order.products.filter(item => item.status !== "Cancelled");
+    const discountApplied = order.couponDiscount || 0;
+
+    const finalTotal = updatedTotal - discountApplied;
 
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename=invoice_${orderId}.pdf`);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=invoice_${orderId}.pdf`
+    );
 
-    createInvoice({ ...order.toObject(), total: updatedTotal }, res);
+    createInvoice(
+      {
+        ...order.toObject(),
+        total: order.total, // Use the stored total
+        couponCode: order.couponCode || "N/A", // Include coupon code
+        discountApplied: order.couponDiscount || 0, // Use couponDiscount directly
+      },
+      res
+    );
   } catch (error) {
     console.error("Error generating invoice:", error);
     res.status(500).send("Internal Server Error");

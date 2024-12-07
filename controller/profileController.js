@@ -14,7 +14,8 @@ const loadProfile = async (req, res) => {
     try {
         const user = await userModel.findOne({ _id: id });
         const addresses = await addressModel.find({ user: id })
-        res.render("user/profile", { user, addresses })
+        const isGoogleUser = !!user.googleId;
+        res.render("user/profile", { user, addresses,isGoogleUser })
     } catch (error) {
         res.send(error)
     }
@@ -160,7 +161,6 @@ const retryPaymentSuccess = async (req, res) => {
         return res.status(200).json({ message: 'Order placed successfully' });
 
     } catch (error) {
-        console.error('Error handling order:', error);
         res.status(500).json({ message: 'Failed to place order. Please try again.' });
     }
 };
@@ -190,10 +190,10 @@ const updatePaymentFailure = async (req, res) => {
 
 const cancelOrder = async (req, res) => {
     const { orderId, productId } = req.params;
+    const { cancellationReason } = req.body;
 
     try {
-        const order = await orderModel.findById(orderId);
-
+        const order = await orderModel.findById(orderId);        
         if (!order) {
             return res.status(404).send('Order not found');
         }
@@ -204,10 +204,13 @@ const cancelOrder = async (req, res) => {
             return res.status(404).send('Product not found');
         }
 
-        product.status = 'Cancelled';      
+        product.status = 'Cancelled';  
+        order.total=order.total-product.price;
+        product.cancellationReason =cancellationReason
         
-
-        if (order.paymentMethod === 'Razorpay') {
+        await order.save()
+        
+        if (order.paymentMethod === 'Razorpay'||order.paymentMethod==="Wallet") {
             const refundAmount = product.discountedPrice
                 ? product.discountedPrice * product.quantity
                 : product.price * product.quantity; 
@@ -256,38 +259,60 @@ const changePassword = async (req, res) => {
     const userId = req.session.user;
 
     if (!currentPassword || !newPassword || !confirmPassword) {
-        return res.render("user/profile", { message: 'All fields are required' });
+        return res.render("user/profile", { 
+            message: 'All fields are required', 
+            showModal: true 
+        });
     }
 
     if (newPassword.length < 8) {
-        return res.render("user/profile", { message: 'Password must be at least 8 characters long',showModal:true });
+        return res.render("user/profile", { 
+            message: 'Password must be at least 8 characters long', 
+            showModal: true 
+        });
     }
 
     try {
         const user = await userModel.findById(userId);
         if (!user) {
-            return res.render("user/profile", { message: 'User not found' });
+            return res.render("user/profile", { 
+                message: 'User not found', 
+                showModal: true 
+            });
         }
 
         const isMatch = await bcrypt.compare(currentPassword, user.password);
         if (!isMatch) {
-            return res.render("user/profile", { message: 'Current password is incorrect' });
+            return res.render("user/profile", { 
+                message: 'Current password is incorrect', 
+                showModal: true 
+            });
         }
 
         if (newPassword !== confirmPassword) {
-            return res.render("user/profile", { message: 'New passwords do not match' });
+            return res.render("user/profile", { 
+                message: 'New passwords do not match', 
+                showModal: true 
+            });
         }
 
         const passwordHash = await bcrypt.hash(newPassword, 10);
         user.password = passwordHash;
         await user.save();
 
-        res.render("user/profile", { success: 'Password changed successfully!' });
+        return res.render("user/profile", { 
+            success: 'Password changed successfully!', 
+            showModal: true 
+        });
     } catch (error) {
         console.error(error);
-        return res.render("user/profile", { message: 'An error occurred', error });
+        return res.render("user/profile", { 
+            message: 'An error occurred', 
+            error, 
+            showModal: true 
+        });
     }
-};
+}
 
 const loadViewDetails = async (req, res) => {
     try {
@@ -309,21 +334,26 @@ const loadViewDetails = async (req, res) => {
     }
 };
 
-const loadWishlist=async(req,res)=>{
-    const userId=req.session.user    
+const loadWishlist = async (req, res) => {
+    const userId = req.session.user;
     try {
-        const wishlist=await wishlistModel.findOne({userId}).populate("products.productId");            
-        
+        const wishlist = await wishlistModel
+            .findOne({ userId })
+            .populate({
+                path: "products.productId",
+                match: { isListed: true }, 
+            });
+
         if (!wishlist || wishlist.products.length === 0) {
             return res.render("user/wishlist", { wishlist: { products: [] } });
         }
-
-        res.render("user/wishlist",{wishlist})
+        wishlist.products = wishlist.products.filter(product => product.productId);
+        res.render("user/wishlist", { wishlist });
     } catch (error) {
         console.error("Error loading wishlist:", error);
         res.status(500).send("Internal Server Error");
     }
-}
+};
 
 const addWishlist=async(req,res)=>{
     const productId=req.params.id
@@ -420,6 +450,30 @@ const loadWallet = async (req, res) => {
     }
 };
 
+const returnProduct=async(req,res)=>{
+    const { orderId,productId } = req.params;
+    const { reason } = req.body;
+    try {
+        const order = await orderModel.findById(orderId);        
+        if (!order) {
+            return res.status(404).send('Order not found');
+        }
+        const product = order.products.find(p => p.productId.toString() === productId);        
+
+        if (!product) {
+            return res.status(404).send('Product not found');
+        }
+        product.status="Returned";
+        product.returnReason = reason;
+
+        await order.save();  
+
+        res.status(200).json({ success: true, message: 'Product returned successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'An error occurred' });
+    }
+}
 
 module.exports = {
     loadProfile,
@@ -436,6 +490,7 @@ module.exports = {
     loadWallet,
     addWishlist,
     removeWishlist,
+    returnProduct,
     retryPaymentSuccess,
     updatePaymentFailure
 }

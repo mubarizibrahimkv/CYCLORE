@@ -13,9 +13,9 @@ router.get("/orderSuccess",userAuth.checkSession,salesController.loadOrderSucces
 router.post("/checkout",salesController.saveOrder)
 router.post("/updateCart",salesController.updateCartQuantity)
 router.post("/createRazorpayOrder",salesController.createRazorpayOrder)
+router.post("/checkout/createWalletOrder",salesController.createWalletOrder)
 router.post("/applyCoupon",salesController.applyCoupon)
 router.post("/checkout",salesController.paymentFailer)
-
 
 
 module.exports=router

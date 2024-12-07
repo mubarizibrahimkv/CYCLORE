@@ -21,6 +21,8 @@ router.get("/wishlist",userAuth.checkSession,profileCotroller.loadWishlist)
 router.get("/profile/wallet",userAuth.checkSession,profileCotroller.loadWallet)
 router.get("/wishlist/add/:id",profileCotroller.addWishlist)
 router.post('/wishlist/delete/:id',profileCotroller.removeWishlist);
+router.put('/product/return/:orderId/:productId',profileCotroller.returnProduct)
+
 
 
 

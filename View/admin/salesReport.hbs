@@ -150,7 +150,8 @@
             font-size: 16px;
             color: #555;
         }
-        .main{
+
+        .main {
             margin-top: 50px;
             margin-bottom: 50px;
         }
@@ -182,6 +183,14 @@
 
         <!-- Filter Options -->
         <div id="filters">
+            <label for="fromDate">From Date</label>
+            <input type="date" name="fromDate" id="fromDate">
+            <br>
+
+            <label for="toDate">To Date</label>
+            <input type="date" name="toDate" id="toDate">
+            <br>
+
             <label for="singleDay"></label>
             <input type="date" name="singleDay" id="singleDay">
             <br>
@@ -300,13 +309,26 @@
                 updateSalesReport({ quickRange });
             });
 
+            document.getElementById('fromDate').addEventListener('change', (event) => {
+                const fromDate = event.target.value;
+                const toDate = document.getElementById('toDate').value;
+                updateSalesReport({ fromDate, toDate });
+            });
+
+            document.getElementById('toDate').addEventListener('change', (event) => {
+                const toDate = event.target.value;
+                const fromDate = document.getElementById('fromDate').value;
+                updateSalesReport({ fromDate, toDate });
+            });
+
             const formatNumber = (num) => {
                 return new Intl.NumberFormat().format(num);
             };
         });
-
     </script>
 
+
+    <!--=================downold pdf======================-->
     <script>
         document.getElementById('downloadPDFBtn').addEventListener('click', function () {
             const tableData = captureTableData();

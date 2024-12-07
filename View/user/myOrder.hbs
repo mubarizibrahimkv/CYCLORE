@@ -440,23 +440,6 @@
                             <li class="nav-item ">
                                 <a href="/shop" class="nav-link dropdown-toggle" role="button">Shop</a>
                             </li>
-                            <li class="nav-item submenu dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
-                                    aria-haspopup="true" aria-expanded="false">Blog</a>
-                                <ul class="dropdown-menu">
-                                    <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
-                                    <li class="nav-item"><a class="nav-link" href="single-blog.html">Blog Details</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="nav-item submenu dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
-                                    aria-haspopup="true" aria-expanded="false">Login/Register</a>
-                                <ul class="dropdown-menu">
-                                    <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
-                                    <li class="nav-item"><a class="nav-link" href="/register">signUp</a></li>
-                                </ul>
-                            </li>
                             <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
                         </ul>
                         <ul class="nav navbar-nav navbar-right">
@@ -500,8 +483,6 @@
         </div>
     </div>
 
-
-
     <div class="orders-section">
         <h2>Your Orders</h2>
         {{#if order}}
@@ -522,14 +503,18 @@
                 {{#each products}}
                 <tr>
                     <td>{{this.productId.name}}</td>
-                    <td>{{this.productId.price}}</td>
+                    <td>{{#if this.discountedPrice}}{{this.discountedPrice}}{{else}}{{this.productId.price}}{{/if}}</td>
                     <td>{{this.quantity}}</td>
-                    <td>₹{{multiply this.productId.price this.quantity}}</td>
+                    <td>{{#if this.discountedPrice}}{{multiply this.discountedPrice this.quantity}}{{else}}₹{{multiply
+                        this.productId.price this.quantity}}{{/if}}</td>
                     <td><span class="status pending">{{this.status}}</span></td>
                     <td>
-                        <form action="/order/cancel/{{../_id}}/{{this.productId._id}}" method="POST">
-                            <button type="submit" class="btn btn-danger btn-sm" {{#if (eq this.status "Cancelled" )}}
-                                disabled {{/if}}>
+                        <form action="/order/cancel/{{../_id}}/{{this.productId._id}}" method="POST"
+                            class="cancel-form">
+                            <input type="hidden" name="cancellationReason" class="cancellation-reason" />
+                            <button type="button" class="btn btn-danger btn-sm cancel-btn"
+                                data-product-id="{{this.productId._id}}" {{#if (eq this.status "Cancelled" )}} disabled
+                                {{/if}}>
                                 Cancel
                             </button>
                         </form>
@@ -538,12 +523,11 @@
                         <form action="/profile/order/viewDetails/{{../_id}}/{{this.productId._id}}" method="GET"><button
                                 type="submit" class="btn btn-danger btn-sm">View details</button></form>
                     </td>
-                    {{#if (eq ../paymentStatus "Failed")}}
+                    {{#if (eq this.status "Delivered")}}
                     <td>
-                        <h6>Payment Failed!</h6>
-                        <button onclick="handleRetryPayment('{{../_id}}')" class="btn btn-primary btn-sm">Retry</button>
+                        <button onclick="returnProduct('{{../_id}}','{{this.productId._id}}')"
+                            class="btn btn-success btn-sm">Return</button>
                     </td>
-
                     {{/if}}
                 </tr>
                 {{/each}}
@@ -558,6 +542,12 @@
                             Invoice</button>
                         {{/if}}
                     </td>
+                    {{#if (eq this.paymentStatus "Failed")}}
+                    <td>
+                        <h6>Payment Failed!</h6>
+                        <button onclick="handleRetryPayment('{{this._id}}')" class="btn btn-primary btn-sm">Retry</button>
+                    </td>
+                    {{/if}}
                 </tr>
                 {{/each}}
             </tbody>
@@ -673,6 +663,53 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
+
+    <!--=========return product========-->
+    <script>
+        function returnProduct(orderId,productId) {
+            Swal.fire({
+                title: 'Return Reason',
+                input: 'textarea',
+                inputLabel: 'Please provide a reason for returning the product:',
+                inputPlaceholder: 'Type your reason here...',
+                showCancelButton: true,
+                confirmButtonText: 'Submit',
+                cancelButtonText: 'Cancel',
+                preConfirm: (reason) => {
+                    if (!reason) {
+                        Swal.showValidationMessage('You need to provide a reason!');
+                        return false;
+                    }
+                    return reason;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const reason = result.value;
+
+                    fetch(`/product/return/${orderId}/${productId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ reason: reason })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire('Success', 'Product has been successfully returned!', 'success');
+                            } else {
+                                Swal.fire('Error', data.message || 'An error occurred', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire('Error', 'An error occurred while processing the return', 'error');
+                            console.error(error);
+                        });
+                }
+            });
+        }
+    </script>
+
 </body>
 
 <!--============invoice download===============-->
@@ -685,161 +722,152 @@
 <!--=================retry payment in razorpay==================-->
 <script>
     function handleRetryPayment(orderId) {
-    fetch(`/order/retry/${orderId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.orderId && data.amount) {
-                const options = {
-                    key: 'rzp_test_4rzZQ0EHL6muv5',
-                    amount: data.amount,
-                    currency: 'INR',
-                    name: 'Cyclore',
-                    description: 'Order Payment Retry',
-                    order_id: data.orderId,
-                    handler: function (response) {
-                        handlePaymentSuccess(response, orderId);
-                    },
-                    prefill: {
-                        name: "{{user.name}}",
-                        email: "{{user.email}}",
-                        contact: "{{user.mobile}}"
-                    },
-                    theme: {
-                        color: '#F37254'
-                    },
-                    modal: {
-                        ondismiss: function () {
-                            fetch(`/order/fail/${orderId}`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                            })
-                                .then(() => {
-                                    Swal.fire({
-                                        title: 'Payment Cancelled',
-                                        text: 'You closed the payment window. Redirecting to your orders page.',
-                                        icon: 'warning',
-                                        confirmButtonText: 'OK'
-                                    }).then(() => {
-                                        window.location.href = '/profile/order';
-                                    });
+        fetch(`/order/retry/${orderId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.orderId && data.amount) {
+                    const options = {
+                        key: 'rzp_test_4rzZQ0EHL6muv5',
+                        amount: data.amount,
+                        currency: 'INR',
+                        name: 'Cyclore',
+                        description: 'Order Payment Retry',
+                        order_id: data.orderId,
+                        handler: function (response) {
+                            handlePaymentSuccess(response, orderId);
+                        },
+                        prefill: {
+                            name: "{{user.name}}",
+                            email: "{{user.email}}",
+                            contact: "{{user.mobile}}"
+                        },
+                        theme: {
+                            color: '#F37254'
+                        },
+                        modal: {
+                            ondismiss: function () {
+                                fetch(`/order/fail/${orderId}`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
                                 })
-                                .catch(error => {
-                                    console.error('Failed to update payment status:', error);
-                                });
+                                    .then(() => {
+                                        Swal.fire({
+                                            title: 'Payment Cancelled',
+                                            text: 'You closed the payment window. Redirecting to your orders page.',
+                                            icon: 'warning',
+                                            confirmButtonText: 'OK'
+                                        }).then(() => {
+                                            window.location.href = '/profile/order';
+                                        });
+                                    })
+                                    .catch(error => {
+                                        console.error('Failed to update payment status:', error);
+                                    });
+                            }
                         }
-                    }
-                };
+                    };
 
-                const rzp = new Razorpay(options);
-                rzp.open();
-            } else {
+                    const rzp = new Razorpay(options);
+                    rzp.open();
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to retry payment. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error retrying payment:', error);
                 Swal.fire({
                     title: 'Error!',
                     text: 'Failed to retry payment. Please try again.',
                     icon: 'error',
                     confirmButtonText: 'OK'
                 });
-            }
-        })
-        .catch(error => {
-            console.error('Error retrying payment:', error);
-            Swal.fire({
-                title: 'Error!',
-                text: 'Failed to retry payment. Please try again.',
-                icon: 'error',
-                confirmButtonText: 'OK'
             });
-        });
-}
+    }
 
-function handlePaymentSuccess(response, orderId) {
-    const paymentDetails = {
-        razorpay_payment_id: response.razorpay_payment_id,
-        razorpay_order_id: response.razorpay_order_id,
-        razorpay_signature: response.razorpay_signature
-    };
+    function handlePaymentSuccess(response, orderId) {
+        const paymentDetails = {
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_signature: response.razorpay_signature
+        };
 
-    fetch('/profile/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            orderId: orderId,
-            paymentDetails: paymentDetails,
-            paymentStatus: 'Completed',
+        fetch('/profile/order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                orderId: orderId,
+                paymentDetails: paymentDetails,
+                paymentStatus: 'Completed',
+            })
         })
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message) {
-                window.location.href = '/profile/order';
-            } else {
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    window.location.href = '/profile/order';
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to place order. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting order:', error);
                 Swal.fire({
                     title: 'Error!',
-                    text: 'Failed to place order. Please try again.',
+                    text: 'Failed to submit order. Please try again.',
                     icon: 'error',
                     confirmButtonText: 'OK'
                 });
-            }
-        })
-        .catch(error => {
-            console.error('Error submitting order:', error);
+            });
+    }
+</script>
+
+
+<!-----cancel order conforamtion ---->
+<script>
+    document.querySelectorAll('.cancel-btn').forEach(button => {
+        button.addEventListener('click', function (event) {
+            event.preventDefault();
+            const form = button.closest('form');
             Swal.fire({
-                title: 'Error!',
-                text: 'Failed to submit order. Please try again.',
-                icon: 'error',
-                confirmButtonText: 'OK'
+                title: 'Are you sure?',
+                html: `
+                    <p>Please provide a reason for canceling this product:</p>
+                    <textarea id="cancelReason" class="swal2-textarea" placeholder="Enter reason here"></textarea>
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, cancel it!',
+                cancelButtonText: 'No, keep it',
+                preConfirm: () => {
+                    const reason = document.getElementById('cancelReason').value;
+                    if (!reason) {
+                        Swal.showValidationMessage('You need to provide a reason for cancellation');
+                        return false;
+                    }
+                    return reason;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.querySelector('.cancellation-reason').value = result.value;
+                    form.submit();
+                }
             });
         });
-}
+    });
 </script>
 
-
-
-<script>
-    function cancelOrder(orderId) {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, cancel it!',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = `/order/cancel/${orderId}`;
-            }
-        });
-    }
-</script>
-
-
-
-
-<!-----cancel order---->
-<script>
-    async function cancelProduct(orderId, productId) {
-        try {
-            const response = await fetch(`/order/cancel/${orderId}/${productId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                document.querySelector(`.status[data-product-id="${productId}"]`).textContent = 'Cancelled';
-            } else {
-                alert('Failed to cancel the product');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    }
-</script>
 
 
 </html>

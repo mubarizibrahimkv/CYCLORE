@@ -18,6 +18,21 @@ const loadCoupon = async (req, res) => {
 const addCoupon = async (req, res) => {
     try {
         const { code, discountType, discountValue, minPurchase, maxDiscount, expiryDate } = req.body;
+
+        if (!code || !discountType || !discountValue || !minPurchase || !maxDiscount || !expiryDate) {
+            return res.status(400).send('All fields are required');
+        }
+
+        if (discountValue > 100 || minPurchase > 100 || maxDiscount > 100) {
+            return res.status(400).send('Discount values, minimum purchase, and maximum discount must be below 100');
+        }
+
+        const currentDate = new Date();
+        const parsedExpiryDate = new Date(expiryDate);
+        if (parsedExpiryDate <= currentDate) {
+            return res.status(400).send('Expiry date must be in the future');
+        }
+
         const newCoupon = new couponModel({
             code,
             discountType,
@@ -26,6 +41,7 @@ const addCoupon = async (req, res) => {
             maxDiscount,
             expiryDate,
         });
+
         await newCoupon.save();
         res.redirect('/admin/coupon');
     } catch (error) {
@@ -46,18 +62,45 @@ const deleteCoupon = async (req, res) => {
 }
 
 const editCoupon = async (req, res) => {
-    const id = req.params.id
+    const id = req.params.id;
     const { code, discountType, discountValue, minPurchase, maxDiscount, expiryDate } = req.body;
+
     try {
+        if (!code || !discountType || !discountValue || !minPurchase || !maxDiscount || !expiryDate) {
+            return res.status(400).send('All fields are required');
+        }
+
+        if (discountValue > 100 || minPurchase > 100 || maxDiscount > 100) {
+            return res.status(400).send('Discount values, minimum purchase, and maximum discount must be below 100');
+        }
+
+        const currentDate = new Date();
+        const parsedExpiryDate = new Date(expiryDate);
+        if (parsedExpiryDate <= currentDate) {
+            return res.status(400).send('Expiry date must be in the future');
+        }
+
+        const coupon = await couponModel.findById(id);
+        if (!coupon) {
+            return res.status(404).send('Coupon not found');
+        }
+
         await couponModel.findByIdAndUpdate(id, {
-            code, discountType, discountValue, minPurchase, maxDiscount, expiryDate
-        })
-        res.redirect("/admin/coupon")
+            code,
+            discountType,
+            discountValue,
+            minPurchase,
+            maxDiscount,
+            expiryDate,
+        });
+
+        res.redirect("/admin/coupon");
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Error deactivating coupon')
+        console.error('Error editing coupon:', error);
+        res.status(500).send('Error editing coupon');
     }
-}
+};
+
 
 const loadOffer = async (req, res) => {
     try {
@@ -87,29 +130,25 @@ const addOffer = async (req, res) => {
     } = req.body;
 
     try {
-        if (!offerName || offerName.trim() === '') {
-            return res.status(400).send('Offer name is required.');
+        if (!offerName || !applicableTo || !discountType || !discountValue || !expiryDate) {
+            return res.status(400).send('All fields are required.');
         }
-        if (!['Product', 'Category'].includes(applicableTo)) {
-            return res.status(400).send('ApplicableTo must be either "Product" or "Category".');
+
+        if (discountValue > 100 || discountValue < 0) {
+            return res.status(400).send('Discount value must be between 0 and 100.');
         }
+
+        const parsedExpiryDate = new Date(expiryDate);
+        if (isNaN(parsedExpiryDate) || parsedExpiryDate <= new Date()) {
+            return res.status(400).send('Expiry date must be a valid future date.');
+        }
+
         if (applicableTo === 'Product' && (!products || products.length === 0)) {
-            return res.status(400).send('At least one product must be selected for a product-specific offer.');
+            return res.status(400).send('At least one product must be selected.');
         }
+
         if (applicableTo === 'Category' && (!categories || categories.length === 0)) {
-            return res.status(400).send('At least one category must be selected for a category-specific offer.');
-        }
-        if (!['percentage', 'fixed'].includes(discountType)) {
-            return res.status(400).send('Discount type must be either "percentage" or "fixed".');
-        }
-        if (!discountValue || discountValue <= 0) {
-            return res.status(400).send('Discount value must be a positive number.');
-        }
-        if (!expiryDate || isNaN(new Date(expiryDate).getTime())) {
-            return res.status(400).send('A valid expiry date is required.');
-        }
-        if (new Date(expiryDate) <= new Date()) {
-            return res.status(400).send('Expiry date must be in the future.');
+            return res.status(400).send('At least one category must be selected.');
         }
 
         const newOffer = new offerModel({
@@ -125,8 +164,6 @@ const addOffer = async (req, res) => {
 
         await newOffer.save();
 
-        console.log('New offer created:', newOffer);
-
         if (applicableTo === 'Product') {
             await productModel.updateMany(
                 { _id: { $in: products } },
@@ -136,32 +173,27 @@ const addOffer = async (req, res) => {
 
         if (applicableTo === 'Category') {
             const categoryIds = categories.map(id => new mongoose.Types.ObjectId(id));
-        
             const productsInCategories = await productModel.find({ categories: { $in: categoryIds } });
-        
+
             if (!productsInCategories.length) {
-                console.log(`No products found for categories: ${categories}`);
-                return res.status(404).send('No products associated with the selected categories.');
+                return res.status(404).send('No products found for the selected categories.');
             }
-        
-            console.log('Products found:', productsInCategories);
-        
+
             await productModel.updateMany(
                 { _id: { $in: productsInCategories.map(product => product._id) } },
                 { $set: { offer: newOffer._id } }
             );
-        
+
             newOffer.products = productsInCategories.map(product => product._id);
             await newOffer.save();
         }
-        
 
         res.redirect('/admin/offer');
     } catch (error) {
         console.error('Error saving offer:', error.message);
         res.status(500).send('Error saving offer. Please try again later.');
     }
-}
+};
 
 const editOffer = async (req, res) => {
     const offerId = req.params.id;
@@ -172,47 +204,48 @@ const editOffer = async (req, res) => {
         categories,
         discountType,
         discountValue,
-        expiryDate
+        expiryDate,
     } = req.body;
 
     try {
-        const existingOffer = await offerModel.findById(offerId);
-
-        if (!existingOffer) {
-            return res.status(404).json({ message: 'Offer not found' });
+        if (!offerName || !applicableTo || !discountType || !discountValue || !expiryDate) {
+            return res.status(400).send('All fields are required.');
         }
 
-        if (!offerName || offerName.trim() === '') {
-            return res.status(400).send('Offer name is required.');
+        if (discountValue > 100 || discountValue < 0) {
+            return res.status(400).send('Discount value must be between 0 and 100.');
         }
 
-        if (!['Product', 'Category'].includes(applicableTo)) {
-            return res.status(400).send('ApplicableTo must be either "Product" or "Category".');
+        const parsedExpiryDate = new Date(expiryDate);
+        if (isNaN(parsedExpiryDate) || parsedExpiryDate <= new Date()) {
+            return res.status(400).send('Expiry date must be a valid future date.');
         }
 
         if (applicableTo === 'Product' && (!products || products.length === 0)) {
-            return res.status(400).send('At least one product must be selected for a product-specific offer.');
+            return res.status(400).send('At least one product must be selected.');
         }
 
         if (applicableTo === 'Category' && (!categories || categories.length === 0)) {
-            return res.status(400).send('At least one category must be selected for a category-specific offer.');
+            return res.status(400).send('At least one category must be selected.');
         }
 
-        if (!['percentage', 'fixed'].includes(discountType)) {
-            return res.status(400).send('Discount type must be either "percentage" or "fixed".');
+        const existingOffer = await offerModel.findById(offerId);
+        if (!existingOffer) {
+            return res.status(404).send('Offer not found.');
         }
 
-        if (!discountValue || discountValue <= 0) {
-            return res.status(400).send('Discount value must be a positive number.');
-        }
-
-        if (!expiryDate || isNaN(new Date(expiryDate).getTime())) {
-            return res.status(400).send('A valid expiry date is required.');
-        }
-
-        const currentDate = new Date();
-        if (new Date(expiryDate) <= currentDate) {
-            return res.status(400).send('Expiry date must be in the future.');
+        if (existingOffer.applicableTo === 'Product') {
+            await productModel.updateMany(
+                { _id: { $in: existingOffer.products } },
+                { $unset: { offer: "" } }
+            );
+        } else if (existingOffer.applicableTo === 'Category') {
+            const oldCategoryProducts = await productModel.find({ categories: { $in: existingOffer.categories } });
+            const oldCategoryProductIds = oldCategoryProducts.map(product => product._id);
+            await productModel.updateMany(
+                { _id: { $in: oldCategoryProductIds } },
+                { $unset: { offer: "" } }
+            );
         }
 
         const updateFields = {
@@ -222,30 +255,13 @@ const editOffer = async (req, res) => {
             discountValue,
             expiryDate,
             products: [],
-            categories: []
+            categories: [],
         };
 
         if (applicableTo === 'Product') {
             updateFields.products = products ? (Array.isArray(products) ? products : [products]) : [];
         } else if (applicableTo === 'Category') {
             updateFields.categories = categories ? (Array.isArray(categories) ? categories : [categories]) : [];
-        }
-
-        if (existingOffer.applicableTo === 'Product') {
-            await productModel.updateMany(
-                { _id: { $in: existingOffer.products } },
-                { $unset: { offer: "" } }
-            );
-        } else if (existingOffer.applicableTo === 'Category') {
-            const oldCategoryProducts = await productModel.find({
-                category: { $in: existingOffer.categories }
-            });
-
-            const oldCategoryProductIds = oldCategoryProducts.map((product) => product._id);
-            await productModel.updateMany(
-                { _id: { $in: oldCategoryProductIds } },
-                { $unset: { offer: "" } }
-            );
         }
 
         const updatedOffer = await offerModel.findByIdAndUpdate(offerId, updateFields, { new: true });
@@ -256,11 +272,8 @@ const editOffer = async (req, res) => {
                 { $set: { offer: updatedOffer._id } }
             );
         } else if (applicableTo === 'Category') {
-            const newCategoryProducts = await productModel.find({
-                category: { $in: updateFields.categories }
-            });
-
-            const newCategoryProductIds = newCategoryProducts.map((product) => product._id);
+            const newCategoryProducts = await productModel.find({ categories: { $in: updateFields.categories } });
+            const newCategoryProductIds = newCategoryProducts.map(product => product._id);
             await productModel.updateMany(
                 { _id: { $in: newCategoryProductIds } },
                 { $set: { offer: updatedOffer._id } }
@@ -271,7 +284,6 @@ const editOffer = async (req, res) => {
         }
 
         res.redirect("/admin/offer");
-
     } catch (error) {
         console.error('Error updating offer:', error);
         res.status(500).json({ message: 'Failed to update offer.', error });

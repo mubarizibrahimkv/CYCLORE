@@ -63,6 +63,20 @@
         .orders-section a:hover {
             color: #0d4a8b;
         }
+
+        .shopNow {
+            display: inline-block;
+            padding: 12px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            background-color: #a1720c;
+            color: #fff;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -89,23 +103,6 @@
                             <li class="nav-item submenu dropdown active">
                                 <a href="/shop" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
                                     aria-haspopup="true" aria-expanded="false">Shop</a>
-                            </li>
-                            <li class="nav-item submenu dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
-                                    aria-haspopup="true" aria-expanded="false">Blog</a>
-                                <ul class="dropdown-menu">
-                                    <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
-                                    <li class="nav-item"><a class="nav-link" href="single-blog.html">Blog Details</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="nav-item submenu dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
-                                    aria-haspopup="true" aria-expanded="false">Pages</a>
-                                <ul class="dropdown-menu">
-                                    <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
-                                    <li class="nav-item"><a class="nav-link" href="/signup">Tracking</a></li>
-                                </ul>
                             </li>
                             <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
                         </ul>
@@ -187,7 +184,7 @@
                                     <h5>{{this.productId.name}}</h5>
                                 </td>
                                 <td>
-                                    <h5>{{this.productId.category}}</h5>
+                                    <h5>{{this.productId.categories.name}}</h5>
                                 </td>
                                 <td>
                                     <h5>₹{{#if
@@ -227,36 +224,44 @@
                             </tr>
                             {{/each}}
                             {{/each}}
-                            {{/if}}
-                            <tr class="out_button_area">
-                                <td>
-
-                                </td>
-                                <td>
-
-                                </td>
-                                <td>
-
-                                </td>
-                                <td>
-                                    <div class="checkout_btn_inner d-flex align-items-center">
-                                        <a class="gray_btn" href="/shop">Continue Shopping</a>
-                                        <a class="primary-btn" href="/checkout">Proceed to checkout</a>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    {{else}}
-                    <tr class="empty">
-                        <td colspan="7">
-                            <div class="empty-cart-icon">🛒</div>
-                            <p>Your cart is empty. Nothing to show here!</p>
-                        </td>
-                    </tr>
-                    {{/if}}
+                            <td colspan="6">
+                                <div>
+                                    <h5><strong>Order Total : </strong>
+                                    </h5>
+                            <td id="order-total"><strong>₹0.00</strong></td>
                 </div>
+                </td>
+                {{/if}}
+                <tr class="out_button_area">
+                    <td>
+
+                    </td>
+                    <td>
+
+                    </td>
+                    <td>
+
+                    </td>
+                    <td>
+                        <div class="checkout_btn_inner d-flex align-items-center">
+                            <a class="gray_btn" href="/shop">Continue Shopping</a>
+                            <a class="primary-btn" href="/checkout">Proceed to checkout</a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+                </table>
+                {{else}}
+                <tr class="empty">
+                    <td colspan="7">
+                        <div class="empty-cart-icon">🛒</div>
+                        <p>Your cart is empty. Nothing to show here!</p>
+                        <a href="/shop" class="shopNow">Shop Now</a>
+                    </td>
+                </tr>
+                {{/if}}
             </div>
+        </div>
         </div>
     </section>
     <!--================End Cart Area =================-->
@@ -353,14 +358,54 @@
     <script src="/js/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <!--==================order total=========-->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const calculateOrderTotal = () => {
+                const totalElements = document.querySelectorAll("[id^='price-']");
+                let orderTotal = 0;
 
+                totalElements.forEach((element) => {
+                    const price = parseFloat(element.textContent.replace("₹", ""));
+                    orderTotal += price;
+                });
+
+                const orderTotalElement = document.getElementById("order-total");
+                if (orderTotalElement) {
+                    orderTotalElement.textContent = `₹${orderTotal.toFixed(2)}`;
+                }
+            };
+
+            const quantityInputs = document.querySelectorAll(".quantity-input");
+            quantityInputs.forEach((input) => {
+                input.addEventListener("input", (event) => {
+                    const quantity = parseInt(event.target.value) || 0;
+                    const priceElement = event.target.closest("tr").querySelector(".price");
+                    const totalElement = event.target.closest("tr").querySelector("[id^='price-']");
+
+                    if (priceElement && totalElement) {
+                        const price = parseFloat(priceElement.textContent.replace("₹", ""));
+                        const productTotal = price * quantity;
+
+                        totalElement.textContent = `₹${productTotal.toFixed(2)}`;
+
+                        calculateOrderTotal();
+                    }
+                });
+            });
+
+            calculateOrderTotal();
+        });
+
+    </script>
 
 
     <!---update Quantity---->
-<script>
+    <script>
         function updateQuantity(action, productId) {
             const input = document.querySelector(`input[data-product-id='${productId}']`);
             const priceElement = document.querySelector(`#price-${productId}`);
+            const orderTotalElement = document.getElementById('order-total');
             let currentQty = parseInt(input.value);
 
             if (action === 'increase') {
@@ -386,7 +431,16 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+                        const oldPrice = parseFloat(priceElement.textContent.replace("₹", ""));
+                        const newPrice = data.newPrice;
+
                         priceElement.textContent = `₹${data.newPrice}`;
+
+                        const currentOrderTotal = parseFloat(orderTotalElement.textContent.replace("₹", ""));
+                        const priceDifference = newPrice - oldPrice;
+                        const updatedOrderTotal = currentOrderTotal + priceDifference;
+
+                        orderTotalElement.textContent = `₹${updatedOrderTotal.toFixed(2)}`;
                     } else {
                         swal.fire({
                             title: "Error!",
@@ -405,7 +459,7 @@
                     });
                 });
         }
-</script>
+    </script>
 
 
     <!----delete   product---->

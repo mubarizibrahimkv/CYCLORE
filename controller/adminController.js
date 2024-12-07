@@ -138,82 +138,151 @@ const toggleCategoryStatus = async (req, res) => {
 
 //------------Product management-----------//
 const loadProducts = async (req, res) => {
-    const products = await productModel.find({})
-    res.render("admin/products", { products })
+    const products = await productModel
+    .find({})
+    .populate('categories')
+    .lean();
+    const categories=await categoryModel.find()
+    res.render("admin/products", { products,categories })
 };
 
 const addProduct = async (req, res) => {
     try {
         const { name, description, stock, category, price } = req.body;
 
-       
+        const validationErrors = [];
+
+        if (!name || name.trim() === "") {
+            validationErrors.push("Product name is required.");
+        } else if (name.length < 3) {
+            validationErrors.push("Product name must be at least 3 characters long.");
+        }
+
+        if (!description || description.trim() === "") {
+            validationErrors.push("Product description is required.");
+        } else if (description.length < 10) {
+            validationErrors.push("Product description must be at least 10 characters long.");
+        }
+
+        if (!stock || isNaN(stock) || stock < 0) {
+            validationErrors.push("Stock must be a non-negative number.");
+        }
+
+        if (!category || category.trim() === "") {
+            validationErrors.push("Category is required.");
+        }
+
+        if (!price || isNaN(price) || price <= 0) {
+            validationErrors.push("Price must be a positive number.");
+        }
 
         const images = req.files && Array.isArray(req.files)
             ? req.files.map(file => path.join('uploads', path.basename(file.path)))
             : [];
+        if (images.length === 0) {
+            validationErrors.push("At least one product image is required.");
+        }
+
+        if (validationErrors.length > 0) {
+            return res.status(400).json({ errors: validationErrors });
+        }
 
         const newProduct = new productModel({
             name,
             description,
             stock,
-            category,
+            categories: category,
             price,
             images,
-            isListed: true
+            isListed: true,
         });
 
         await newProduct.save();
         res.redirect("/admin/products");
     } catch (error) {
-        console.log('Error adding product:', error);
-        res.status(400).send('Error adding product: ' + error.message);
+        console.log("Error adding product:", error);
+        res.status(500).send("Error adding product: " + error.message);
     }
 };
 
+
 const editProduct = async (req, res) => {
     const { id, name, category, price, stock, description } = req.body;
-    const images = req.files; 
+    const images = req.files;
 
-    const numericStock = parseInt(stock, 10);
-    if (isNaN(numericStock) || numericStock < 0) {
-        return res.status(400).send('Stock must be a non-negative integer.');
-    }
-
-    const numericPrice = parseFloat(price);
-    if (isNaN(numericPrice) || numericPrice <= 0) {
-        return res.status(400).send('Price must be a number greater than 0.');
-    }
-
-    if (!category || category.trim() === "") {
-        return res.status(400).send('Category is required.');
-    }
-
-    let updateData = { name, category, price, stock, description };
+    let updateData = {};
 
     try {
+        if (!id) {
+            return res.status(400).send("Product ID is required.");
+        }
+
         const product = await productModel.findById(id);
 
         if (!product) {
-            return res.status(404).send('Product not found');
+            return res.status(404).send("Product not found.");
+        }
+
+        const validationErrors = [];
+
+        if (name) {
+            if (name.trim() === "") {
+                validationErrors.push("Product name cannot be empty.");
+            } else if (name.length < 3) {
+                validationErrors.push("Product name must be at least 3 characters long.");
+            }
+            updateData.name = name;
+        }
+
+        if (category) {
+            if (category.trim() === "") {
+                validationErrors.push("Category cannot be empty.");
+            }
+            updateData.category = category;
+        }
+
+        if (price) {
+            if (isNaN(price) || price <= 0) {
+                validationErrors.push("Price must be a positive number.");
+            }
+            updateData.price = price;
+        }
+
+        if (stock) {
+            if (isNaN(stock) || stock < 0) {
+                validationErrors.push("Stock must be a non-negative number.");
+            }
+            updateData.stock = stock;
+        }
+
+        if (description) {
+            if (description.trim() === "") {
+                validationErrors.push("Description cannot be empty.");
+            } else if (description.length < 10) {
+                validationErrors.push("Description must be at least 10 characters long.");
+            }
+            updateData.description = description;
         }
 
         if (images && images.length > 0) {
             const newImages = images.map(file => `uploads/${file.filename}`);
-
             updateData.images = newImages;
         } else {
             updateData.images = product.images; 
+        }
+
+        if (validationErrors.length > 0) {
+            return res.status(400).json({ errors: validationErrors });
         }
 
         await productModel.findByIdAndUpdate(id, updateData, { new: true });
 
         res.redirect('/admin/products');
     } catch (error) {
-        console.log('Error updating product:', error);
-        res.status(500).send('Error updating product');
+        console.log("Error updating product:", error);
+        res.status(500).send("Error updating product: " + error.message);
     }
 };
-
 
 
 const toggleProductStatus = async (req, res) => {
@@ -232,7 +301,6 @@ const toggleProductStatus = async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 };
-
 
 const loadProfile = async (req, res) => {
     try {

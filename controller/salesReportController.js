@@ -20,9 +20,17 @@ const loadSalesReport = async (req, res) => {
                 (sum, product) => sum + (product.price * product.quantity),
                 0
             );
+            const offerTotal=order.products.reduce(
+                (sum,product)=>sum+(product.discountedPrice*product.quantity),
+                0
+            )
+            
             const orderTotalWithShippingCost = orderTotal + order.shippingCost;
-            const discount = orderTotalWithShippingCost - order.total;
-
+            const offeredPriceWithShippingCost=offerTotal+ order.shippingCost;
+            const offerDiscount = orderTotalWithShippingCost-offeredPriceWithShippingCost
+            const couponDiscount=order.couponDiscount;
+            const discount=offerDiscount+couponDiscount;
+            
             if (!dailyReport[orderDate]) {
                 dailyReport[orderDate] = {
                     totalOrders: 0,
@@ -35,7 +43,8 @@ const loadSalesReport = async (req, res) => {
             dailyReport[orderDate].totalOrders++;
             dailyReport[orderDate].totalAmount += orderTotalWithShippingCost;
             dailyReport[orderDate].totalDiscount += discount;
-            dailyReport[orderDate].netSales += orderTotalWithShippingCost - discount;
+            dailyReport[orderDate].netSales += order.total;
+            
 
             overallOrderCount++;
             overallTotalSales += orderTotalWithShippingCost;
@@ -48,7 +57,6 @@ const loadSalesReport = async (req, res) => {
             ...dailyReport[date]
         }));
 
-        // Pass both daily and overall totals to the view
         res.render("admin/salesReport", {
             dailyReport: dailyReportArray,
             overallOrderCount,
@@ -166,12 +174,13 @@ const downloadExcelReport = async (req, res) => {
 };
 
 const filter = async (req, res) => {
-    const { specificDay, quickRange } = req.body;
+    const { specificDay, quickRange, fromDate, toDate } = req.body;
 
     try {
         let query = {};
         const now = new Date();
 
+        // Handle specific day filter
         if (specificDay) {
             const startOfDay = new Date(specificDay);
             startOfDay.setHours(0, 0, 0, 0);
@@ -180,6 +189,7 @@ const filter = async (req, res) => {
             query.createdAt = { $gte: startOfDay, $lte: endOfDay };
         }
 
+        // Handle quick range filters
         if (quickRange === '1day') {
             const yesterday = new Date(now);
             yesterday.setDate(now.getDate() - 1);
@@ -194,6 +204,14 @@ const filter = async (req, res) => {
             query.createdAt = { $gte: lastMonth, $lte: now };
         }
 
+        // Handle custom date range filter
+        if (fromDate && toDate) {
+            const startDate = new Date(fromDate);
+            const endDate = new Date(toDate);
+            query.createdAt = { $gte: startDate, $lte: endDate };
+        }
+
+        // Query the sales data with the constructed query
         const dailyReport = await orderModel.aggregate([
             { $match: query },
             { $unwind: "$products" },
@@ -248,6 +266,7 @@ const filter = async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 };
+
 
 
 module.exports = {

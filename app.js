@@ -41,13 +41,13 @@ const formatHelpers = require('./helpers/format');
 const mathHelpers = require('./helpers/math');
 const dateHelpers = require('./helpers/date');
 const arrayHelpers = require('./helpers/array');
-
+const modalHelpers = require('./helpers/modal');
 
 hbs.registerHelper(formatHelpers);
 hbs.registerHelper(mathHelpers);
 hbs.registerHelper(dateHelpers);
 hbs.registerHelper(arrayHelpers);
-
+hbs.registerHelper(modalHelpers);
 
 
 app.use(methodOverride('_method'));

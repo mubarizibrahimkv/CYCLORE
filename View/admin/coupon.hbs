@@ -175,18 +175,18 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="code" class="form-label">Coupon Code</label>
-                            <input type="text" class="form-control" name="code" id="code" required>
+                            <input type="text" class="form-control" name="code" id="code">
                         </div>
                         <div class="mb-3">
                             <label for="discountType" class="form-label">Discount Type</label>
-                            <select class="form-select" name="discountType" id="discountType" required>
+                            <select class="form-select" name="discountType" id="discountType">
                                 <option value="percentage">Percentage</option>
                                 <option value="fixed">Fixed</option>
                             </select>
                         </div>
                         <div class="mb-3">
                             <label for="discountValue" class="form-label">Discount Value</label>
-                            <input type="number" class="form-control" name="discountValue" id="discountValue" required>
+                            <input type="number" class="form-control" name="discountValue" id="discountValue">
                         </div>
                         <div class="mb-3">
                             <label for="minPurchase" class="form-label">Minimum Purchase</label>
@@ -198,7 +198,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="expiryDate" class="form-label">Expiry Date</label>
-                            <input type="date" class="form-control" name="expiryDate" id="expiryDate" required>
+                            <input type="date" class="form-control" name="expiryDate" id="expiryDate">
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -266,6 +266,141 @@
     {{/each}}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+    <!--=============add modal validation===============-->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.querySelector('#addCouponModal form');
+
+            form.addEventListener('submit', (event) => {
+                let isValid = true;
+                const code = form.querySelector('#code').value.trim();
+                const discountType = form.querySelector('#discountType').value;
+                const discountValue = parseFloat(form.querySelector('#discountValue').value);
+                const minPurchase = parseFloat(form.querySelector('#minPurchase').value) || 0;
+                const maxDiscount = parseFloat(form.querySelector('#maxDiscount').value) || 0;
+                const expiryDate = new Date(form.querySelector('#expiryDate').value);
+                const currentDate = new Date();
+
+                form.querySelectorAll('.text-danger').forEach((el) => (el.textContent = ''));
+
+                if (!code) {
+                    showError('#code', 'Coupon code is required.');
+                    isValid = false;
+                }
+
+                if (!discountValue || discountValue <= 0) {
+                    showError('#discountValue', 'Discount value must be a positive number.');
+                    isValid = false;
+                } else if (discountType === 'percentage' && discountValue > 100) {
+                    showError('#discountValue', 'Percentage discount cannot exceed 100%.');
+                    isValid = false;
+                }
+
+                if (minPurchase < 0) {
+                    showError('#minPurchase', 'Minimum purchase cannot be negative.');
+                    isValid = false;
+                }
+
+                if (maxDiscount < 0) {
+                    showError('#maxDiscount', 'Maximum discount cannot be negative.');
+                    isValid = false;
+                }
+
+                if (minPurchase > maxDiscount) {
+                    showError('#minPurchase', 'Minimum purchase cannot be greater than the maximum discount.');
+                    showError('#maxDiscount', 'Maximum discount cannot be less than the minimum purchase.');
+                    isValid = false;
+                }
+
+                if (isNaN(expiryDate.getTime()) || expiryDate < currentDate) {
+                    showError('#expiryDate', 'Expiry date must be a valid future date.');
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    event.preventDefault();
+                }
+            });
+
+            function showError(fieldSelector, message) {
+                const field = form.querySelector(fieldSelector);
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'text-danger';
+                errorDiv.textContent = message;
+                field.parentElement.appendChild(errorDiv);
+            }
+        });
+    </script>
+
+    <!--=============edit modal validation===============-->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const editForms = document.querySelectorAll('form[action^="/admin/coupons/edit/"]');
+
+            editForms.forEach((form) => {
+                form.addEventListener('submit', (event) => {
+                    const formId = form.getAttribute('action').split('/').pop();
+
+                    const discountType = form.querySelector(`#discountType-${formId}`).value;
+                    const code = form.querySelector(`#code-${formId}`).value.trim();
+                    const discountValue = parseFloat(form.querySelector(`#discountValue-${formId}`).value) || 0;
+                    const minPurchase = parseFloat(form.querySelector(`#minPurchase-${formId}`).value) || 0;
+                    const maxDiscount = parseFloat(form.querySelector(`#maxDiscount-${formId}`).value) || 0;
+                    const expiryDate = form.querySelector(`#expiryDate-${formId}`).value;
+
+                    form.querySelectorAll('.text-danger').forEach((el) => el.remove());
+
+                    let isValid = true;
+
+                    if (code === '') {
+                        showError(form, `#code-${formId}`, 'Coupon code is required.');
+                        isValid = false;
+                    }
+
+                    if (discountValue <= 0) {
+                        showError(form, `#discountValue-${formId}`, 'Discount value must be a positive number.');
+                        isValid = false;
+                    }
+
+                    if (discountType === 'percentage' && discountValue >= 100) {
+                        showError(form, `#discountValue-${formId}`, 'Discount value must be less than 100 for percentage type.');
+                        isValid = false;
+                    }
+
+                    if (minPurchase > 0 && maxDiscount > 0) {
+                        if (minPurchase > maxDiscount) {
+                            showError(form, `#minPurchase-${formId}`, 'Minimum purchase cannot exceed maximum discount.');
+                            showError(form, `#maxDiscount-${formId}`, 'Maximum discount must be greater than minimum purchase.');
+                            isValid = false;
+                        }
+                    }
+
+                    const today = new Date();
+                    const selectedDate = new Date(expiryDate);
+                    if (!expiryDate || selectedDate <= today) {
+                        showError(form, `#expiryDate-${formId}`, 'Expiry date must be in the future.');
+                        isValid = false;
+                    }
+
+                    if (!isValid) {
+                        event.preventDefault(); 
+                    }
+                });
+            });
+
+            function showError(form, selector, message) {
+                const field = form.querySelector(selector);
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'text-danger mt-1';
+                errorDiv.textContent = message;
+                field.parentElement.appendChild(errorDiv);
+            }
+        });
+
+    </script>
+    
 </body>
 
 </html>

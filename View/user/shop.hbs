@@ -50,6 +50,19 @@
 		.buttonApply:hover {
 			background-color: #0056b3;
 		}
+
+		.noProducts {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100px;
+			text-align: center;
+			font-size: 1.5em;
+			font-weight: bold;
+			color: #888;
+			margin-top: 20px;
+			margin-left: 20px;
+		}
 	</style>
 </head>
 
@@ -78,23 +91,16 @@
 									aria-haspopup="true" aria-expanded="false">Shop</a>
 
 							</li>
-							<li class="nav-item submenu dropdown">
-								<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
-									aria-haspopup="true" aria-expanded="false">Blog</a>
-								<ul class="dropdown-menu">
-									<li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
-									<li class="nav-item"><a class="nav-link" href="single-blog.html">Blog Details</a>
-									</li>
-								</ul>
-							</li>
+							{{#if user}}{{else}}
 							<li class="nav-item submenu dropdown">
 								<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
 									aria-haspopup="true" aria-expanded="false">Login/Register</a>
 								<ul class="dropdown-menu">
 									<li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
-									<li class="nav-item"><a class="nav-link" href="/register">register</a></li>
+									<li class="nav-item"><a class="nav-link" href="/register">signUp</a></li>
 								</ul>
 							</li>
+							{{/if}}
 							<li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
 						</ul>
 						<ul class="nav navbar-nav navbar-right">
@@ -118,7 +124,8 @@
 		</div>
 		<div class="search_input" id="search_input_box">
 			<div class="container">
-				<input type="text" class="form-control" id="search_input" placeholder="Search Here" onkeyup="filterProducts()">
+				<input type="text" class="form-control" id="search_input" placeholder="Search Here"
+					onkeyup="filterProducts()">
 				<span class="lnr lnr-cross" id="close_search" title="Close Search"></span>
 			</div>
 		</div>
@@ -150,14 +157,13 @@
 						<div class="common-filter">
 							<div class="head">Category</div>
 							<ul>
-								<li class="filter-list"><input class="pixel-radio" type="radio" name="category"
-										value="Category">Sports</li>
-								<li class="filter-list"><input class="pixel-radio" type="radio" id="mountain"
-										name="category" value="Mountain">Mountain</li>
-								<li class="filter-list"><input class="pixel-radio" type="radio" id="city"
-										name="category" value="City">City</li>
-								<li class="filter-list"><input class="pixel-radio" type="radio" id="e-bikes"
-										name="category" value="E-bikes">E-bikes</li>
+								{{#each categories}}
+								<li class="filter-list">
+									<input class="pixel-radio" type="radio" id="{{this._id}}" name="category"
+										value="{{this.name}}">
+									<label for="{{this._id}}">{{this.name}}</label>
+								</li>
+								{{/each}}
 							</ul>
 						</div>
 						<div class="common-filter">
@@ -169,7 +175,6 @@
 									- A</li>
 								<li class="filter-list"><input class="pixel-radio" type="radio" value="new-arrivals"
 										name="sort">New Arrivals</li>
-
 							</ul>
 						</div>
 						<div class="common-filter">
@@ -199,6 +204,7 @@
 				<!-- Start Best Seller -->
 				<section class="lattest-product-area pb-40 category-list">
 					<div class="row">
+						{{#if products.length}}
 						{{#each products}}
 						<a href="/singleProduct/{{this._id}}">
 							<div class="col-lg-4 col-md-6 product-card">
@@ -216,11 +222,11 @@
 											{{/if}}
 										</div>
 										<div class="prd-bottom">
-											<a href="/cart/add/{{this.id}}" class="social-info">
+											<a href="/cart/add/{{this._id}}" class="social-info">
 												<span class="ti-bag"></span>
 												<p class="hover-text">add to bag</p>
 											</a>
-											<a href="/wishlist/add/{{this.id}}" class="social-info">
+											<a href="/wishlist/add/{{this._id}}" class="social-info">
 												<span class="lnr lnr-heart"></span>
 												<p class="hover-text">Wishlist</p>
 											</a>
@@ -238,6 +244,11 @@
 							</div>
 						</a>
 						{{/each}}
+						{{else}}
+						<div class="noProducts">
+							<p>No products are Available</p>
+						</div>
+						{{/if}}
 					</div>
 				</section>
 				<!-- End Best Seller -->
@@ -588,17 +599,17 @@
 			const input = document.getElementById('search_input');
 			const filter = input.value.toLowerCase();
 			const productCards = document.querySelectorAll('.product-card');
-			console.log("input",input.value)
-			console.log("productcard",productCards)
+			console.log("input", input.value)
+			console.log("productcard", productCards)
 
 			productCards.forEach(card => {
 				const name = card.querySelector('h6').textContent.toLowerCase();
 				const description = card.querySelector('p').textContent.toLowerCase();
 
 				if (name.includes(filter) || description.includes(filter)) {
-					card.style.display = ''; 
+					card.style.display = '';
 				} else {
-					card.style.display = 'none'; 
+					card.style.display = 'none';
 				}
 			});
 		}

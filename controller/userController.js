@@ -5,6 +5,7 @@ const productModel = require("../Model/productModel")
 const offerModel = require("../Model/offerModel")
 require("dotenv").config()
 const session = require("express-session")
+const categoryModel = require("../Model/categoryModel")
 
 
 
@@ -17,6 +18,7 @@ const pageNotFound = async (req, res) => {
 }
 
 const loadHomePage = async (req, res) => {
+    const user=req.session.user
     try {
         const bannerImages = [
             '/img/banner/banner-image.png',
@@ -26,7 +28,7 @@ const loadHomePage = async (req, res) => {
         ];
 
         const randomImage = bannerImages[Math.floor(Math.random() * bannerImages.length)];
-        return res.render("user/home", { bannerImagePath: randomImage })
+        return res.render("user/home", { user,bannerImagePath: randomImage })
     } catch (error) {
         res.send(error)
     }
@@ -144,13 +146,14 @@ const registerUser = async (req, res) => {
 const googleAuth = async (req, res) => {
     try {
         const user = req.user;
+                
         if (!user) {
             return res.redirect("/register");
         }
         if (user.status === "false") {
             return res.render("user/register", { message: "User is blocked by admin" });
         }
-        req.session.user=user
+        req.session.user = user
         res.redirect("/");
     } catch (error) {
         console.error("Google authentication error:", error);
@@ -261,13 +264,23 @@ const login = async (req, res) => {
 
 //------------Shop-----------
 const loadShop = async (req, res) => {
+    const user = req.session.user;
     try {
         const { category, sort, minPrice, maxPrice } = req.query;
 
         let filterQuery = { isListed: true };
 
+        const listedCategories = await categoryModel.find({ isListed: true });
+
+        const listedCategoryIds = listedCategories.map(cat => cat._id);
+
         if (category) {
-            filterQuery.category = category;
+            const categoryDoc = await categoryModel.findOne({ name: category, isListed: true });
+            if (categoryDoc) {
+                filterQuery.categories = categoryDoc._id; 
+            } else {
+                return res.render('user/shop', { products: [], categories: [], user });
+            }
         }
 
         if (minPrice || maxPrice) {
@@ -278,31 +291,31 @@ const loadShop = async (req, res) => {
 
         let sortQuery = {};
         if (sort === 'az') {
-            sortQuery.name = 1;
+            sortQuery.name = 1; 
         } else if (sort === 'za') {
-            sortQuery.name = -1;
+            sortQuery.name = -1; 
         } else if (sort === 'new-arrivals') {
-            sortQuery.createdAt = -1;
+            sortQuery.createdAt = -1; 
         }
 
-        const products = await productModel.find(filterQuery).populate("offer").sort(sortQuery);                
+        const products = await productModel
+            .find({ ...filterQuery, categories: { $in: listedCategoryIds } })
+            .populate('offer')
+            .populate('categories')
+            .sort(sortQuery)
+            .lean();
+
         products.forEach((product) => {
             product.discountedPrice = product.price;
-
             if (product.offer) {
-                const isOfferForCategory = product.offer.applicableTo === 'Category' &&
-                    product.offer.categories && product.offer.categories.includes(product.category);
-
-                if (product.offer.discountType === 'percentage' && isOfferForCategory) {
-                    const discount = (product.price * product.offer.discountValue) / 100;
-                    product.discountedPrice = product.price - discount;
-                    console.log(`Applying Percentage Discount: ${discount}`);
-                }
-                else if (product.offer.discountType === 'fixed' && isOfferForCategory) {
-                    product.discountedPrice = product.price - product.offer.discountValue;
-                    console.log(`Applying Fixed Discount: ${product.offer.discountValue}`);
-                }
-                else if (product.offer.applicableTo === 'Product') {
+                if (product.offer.applicableTo === 'Category') {
+                    if (product.offer.discountType === 'percentage') {
+                        const discount = (product.price * product.offer.discountValue) / 100;
+                        product.discountedPrice = product.price - discount;
+                    } else if (product.offer.discountType === 'fixed') {
+                        product.discountedPrice = product.price - product.offer.discountValue;
+                    }
+                } else if (product.offer.applicableTo === 'Product') {
                     if (product.offer.discountType === 'percentage') {
                         const discount = (product.price * product.offer.discountValue) / 100;
                         product.discountedPrice = product.price - discount;
@@ -313,8 +326,7 @@ const loadShop = async (req, res) => {
             }
         });
 
-        res.render('user/shop', { products });
-
+        res.render('user/shop', { products, categories: listedCategories, user });
     } catch (error) {
         console.error('Error fetching products:', error);
         res.status(500).send('Internal Server Error');
@@ -326,44 +338,47 @@ const loadSingleProduct = async (req, res) => {
     try {
         const productId = req.params.id;
 
-        // Fetch product and populate its offer and category
         const product = await productModel
             .findById(productId)
-            .populate('offer')
-            .populate('category'); // Ensure category is included
+            .populate("categories")
+            .populate("offer");
 
         if (!product) {
-            return res.status(404).send('Product not found');
+            return res.status(404).send("Product not found");
         }
 
         let discountedPrice = product.price;
 
         if (product.offer) {
-            // Check if the offer is category-specific
             const isOfferForCategory =
-                product.offer.applicableTo === 'Category' &&
-                product.offer.categories &&
-                product.offer.categories.includes(product.category?._id.toString());
+                product.offer.applicableTo === "Category" &&
+                product.offer.categories.some(
+                    (categoryId) => categoryId.toString() === product.categories._id.toString()
+                );
 
-            // Check if the offer is product-specific or category-specific
-            if (product.offer.discountType === 'percentage' && (product.offer.applicableTo === 'Product' || isOfferForCategory)) {
+            if (
+                product.offer.discountType === "percentage" &&
+                (product.offer.applicableTo === "Product" || isOfferForCategory)
+            ) {
                 const discount = (product.price * product.offer.discountValue) / 100;
                 discountedPrice = product.price - discount;
-            } else if (product.offer.discountType === 'fixed' && (product.offer.applicableTo === 'Product' || isOfferForCategory)) {
+            } else if (
+                product.offer.discountType === "fixed" &&
+                (product.offer.applicableTo === "Product" || isOfferForCategory)
+            ) {
                 discountedPrice = product.price - product.offer.discountValue;
             }
         }
 
-        // Render with computed discounted price
-        res.render('user/singleProduct', {
+        res.render("user/singleProduct", {
             product: {
                 ...product.toObject(),
-                discountedPrice, // Add the computed discounted price
+                discountedPrice,
             },
         });
     } catch (error) {
-        console.error('Error loading single product:', error);
-        res.status(500).send('Internal Server Error');
+        console.error("Error loading single product:", error);
+        res.status(500).send("Internal Server Error");
     }
 };
 
@@ -421,37 +436,37 @@ const loadResetPassword = async (req, res) => {
     }
 }
 
-const forgotResendOtp=async(req,res)=>{
+const forgotResendOtp = async (req, res) => {
     try {
-        const otp=generateOtp()
-        req.session.userOtp=otp
-        const email=req.session.email
-        const emailSend=await sendVerificationEmail(email,otp)
-        if(emailSend){
-            console.log("Resending OTP :",otp);
-            res.status(200).json({success:true,message:"Resend OTP successfull"})
+        const otp = generateOtp()
+        req.session.userOtp = otp
+        const email = req.session.email
+        const emailSend = await sendVerificationEmail(email, otp)
+        if (emailSend) {
+            console.log("Resending OTP :", otp);
+            res.status(200).json({ success: true, message: "Resend OTP successfull" })
         }
     } catch (error) {
-        res.status(500).json({success:false,message:"Internal server error"})
+        res.status(500).json({ success: false, message: "Internal server error" })
     }
 }
 
-const postNewPassword=async(req,res)=>{
+const postNewPassword = async (req, res) => {
     try {
-        const {password,confirmPassword}=req.body
-        const email=req.session.email
-        if(password===confirmPassword){
-            const passwordHash=await securePassword(password)
+        const { password, confirmPassword } = req.body
+        const email = req.session.email
+        if (password === confirmPassword) {
+            const passwordHash = await securePassword(password)
             await userModel.updateOne(
-                {email:email},
-                {$set:{password:passwordHash}}
+                { email: email },
+                { $set: { password: passwordHash } }
             )
             console.log("updated");
-            
+
             res.redirect("/login")
-        }else{
-            res.render("user/resetPassword",{message:"Password do not match"})
-        }  
+        } else {
+            res.render("user/resetPassword", { message: "Password do not match" })
+        }
     } catch (error) {
         res.redirect("/pageNotFound")
     }

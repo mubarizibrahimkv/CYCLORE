@@ -93,6 +93,10 @@
             position: absolute;
             right: 20px;
         }
+
+        .text-dangerEdit {
+            color: red;
+        }
     </style>
 </head>
 
@@ -180,25 +184,25 @@
     <div class="modal fade" id="addOfferModal" tabindex="-1" aria-labelledby="addOfferModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form action="/admin/offers/add" method="POST">
+                <form action="/admin/offers/add" method="POST" id="offerForm">
                     <div class="modal-header">
                         <h5 class="modal-title" id="addOfferModalLabel">Add Offer</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <!-- Offer Name -->
                         <div class="mb-3">
                             <label for="offerName" class="form-label">Offer Name</label>
-                            <input type="text" class="form-control" name="offerName" id="offerName" required>
+                            <input type="text" class="form-control" name="offerName" id="offerName">
+                            <small class="text-danger" id="offerNameError"></small>
                         </div>
 
-                        <!-- Applicable To -->
                         <label for="applicableTo">Applicable To:</label>
-                        <select name="applicableTo" id="applicableTo" required>
+                        <select name="applicableTo" id="applicableTo">
                             <option value="" disabled selected>Select Applicable Option</option>
                             <option value="Product">Product</option>
                             <option value="Category">Category</option>
                         </select>
+                        <small class="text-danger" id="applicableToError"></small>
 
                         <input type="hidden" name="applicableToId" id="applicableToId" />
 
@@ -224,25 +228,25 @@
                         </div>
 
 
-                        <!-- Discount Type -->
                         <div class="mb-3">
                             <label for="discountType" class="form-label">Discount Type</label>
-                            <select class="form-select" name="discountType" id="discountType" required>
+                            <select class="form-select" name="discountType" id="discountType">
                                 <option value="percentage">Percentage</option>
                                 <option value="fixed">Fixed</option>
                             </select>
+                            <small class="text-danger" id="discountTypeError"></small>
                         </div>
 
-                        <!-- Discount Value -->
                         <div class="mb-3">
                             <label for="discountValue" class="form-label">Discount Value</label>
-                            <input type="number" class="form-control" name="discountValue" id="discountValue" required>
+                            <input type="number" class="form-control" name="discountValue" id="discountValue">
+                            <small class="text-danger" id="discountValueError"></small>
                         </div>
 
-                        <!-- Expiry Date -->
                         <div class="mb-3">
                             <label for="expiryDate" class="form-label">Expiry Date</label>
-                            <input type="date" class="form-control" name="expiryDate" id="expiryDate" required>
+                            <input type="date" class="form-control" name="expiryDate" id="expiryDate">
+                            <small class="text-danger" id="expiryDateError"></small>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -259,7 +263,7 @@
         aria-labelledby="editOfferModalLabel-{{this._id}}" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form action="/admin/offers/edit/{{this._id}}" method="POST">
+                <form action="/admin/offers/edit/{{this._id}}" method="POST" class="modalEdit" id="modalEditn">
                     <div class="modal-header">
                         <h5 class="modal-title" id="editCouponModalLabel-{{this._id}}">Edit Offer</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -268,7 +272,8 @@
                         <div class="mb-3">
                             <label for="offerName-{{this._id}}" class="form-label">Offer Name</label>
                             <input type="text" class="form-control" name="offerName" id="offerName-{{this._id}}"
-                                value="{{this.offerName}}" required>
+                                value="{{this.offerName}}">
+                            <div class="text-dangerEdit" id="offerNameErrorEdit"></div>
                         </div>
 
                         <label for="applicableTo-{{this._id}}">Applicable To:</label>
@@ -280,6 +285,7 @@
                             <option value="Category" {{#if (eq this.applicableTo "Category" )}}selected{{/if}}>Category
                             </option>
                         </select>
+                        <div class="text-dangerEdit" id="applicableToErrorEdit"></div>
 
                         <input type="hidden" name="applicableToId" id="applicableToId" />
 
@@ -294,6 +300,7 @@
                                 <label for="product_{{this._id}}_{{../_id}}">{{this.name}}</label>
                             </div>
                             {{/each}}
+                            <div class="text-danger" id="productCategoryErrorEdit"></div>
                         </div>
 
                         <!-- Category Selection -->
@@ -306,6 +313,7 @@
                                     id="category_{{this._id}}_{{../_id}}" {{#if (includes ../categories
                                     this._id)}}checked{{/if}}>
                                 <label for="category_{{this._id}}_{{../_id}}">{{this.name}}</label>
+                                <div class="text-dangerEdit" id="productCategoryError"></div>
                             </div>
                             {{/each}}
                         </div>
@@ -313,22 +321,25 @@
 
                         <div class="mb-3">
                             <label for="discountType-{{this._id}}" class="form-label">Discount Type</label>
-                            <select class="form-select" name="discountType" id="discountType-{{this._id}}" required>
+                            <select class="form-select" name="discountType" id="discountType-{{this._id}}">
                                 <option value="percentage" {{#if (eq this.discountType 'percentage' )}}selected{{/if}}>
                                     Percentage</option>
                                 <option value="fixed" {{#if (eq this.discountType 'fixed' )}}selected{{/if}}>Fixed
                                 </option>
                             </select>
+                            <div class="text-dangerEdit" id="discountTypeError"></div>
                         </div>
                         <div class="mb-3">
                             <label for="discountValue-{{this._id}}" class="form-label">Discount Value</label>
                             <input type="number" class="form-control" name="discountValue"
-                                id="discountValue-{{this._id}}" value="{{this.discountValue}}" required>
+                                id="discountValue-{{this._id}}" value="{{this.discountValue}}">
+                            <div class="text-dangerEdit" id="discountValueErrorEdit"></div>
                         </div>
                         <div class="mb-3">
                             <label for="expiryDate-{{this._id}}" class="form-label">Expiry Date</label>
                             <input type="date" class="form-control" name="expiryDate" id="expiryDate-{{this._id}}"
-                                value="{{formatDateForInput this.expiryDate}}" required>
+                                value="{{formatDateForInput this.expiryDate}}">
+                            <div class="text-dangerEdit" id="expiryDateErrorEdit"></div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -362,12 +373,81 @@
         });
     </script>
 
+    <!--==============add offer validation=========-->
+    <script>
+        document.getElementById('offerForm').addEventListener('submit', function (e) {
+            e.preventDefault();
 
-     <!--======================edit======================-->
+            document.querySelectorAll('.text-danger').forEach(function (element) {
+                element.textContent = '';
+            });
+
+            const offerName = document.getElementById('offerName').value.trim();
+            const applicableTo = document.getElementById('applicableTo').value;
+            const discountType = document.getElementById('discountType').value;
+            const discountValue = document.getElementById('discountValue').value;
+            const expiryDate = document.getElementById('expiryDate').value;
+            const products = [...document.querySelectorAll('input[name="products[]"]:checked')].map(input => input.value);
+            const categories = [...document.querySelectorAll('input[name="categories[]"]:checked')].map(input => input.value);
+
+            let isValid = true;
+
+            if (!offerName) {
+                document.getElementById('offerNameError').textContent = 'Offer name is required.';
+                isValid = false;
+            }
+
+            if (!['Product', 'Category'].includes(applicableTo)) {
+                document.getElementById('applicableToError').textContent = 'Applicable To must be either "Product" or "Category".';
+                isValid = false;
+            }
+
+            if (applicableTo === 'Product' && (!products || products.length === 0)) {
+                document.getElementById('productCategoryError').textContent = 'At least one product must be selected for a product-specific offer.';
+                isValid = false;
+            }
+
+            if (applicableTo === 'Category' && (!categories || categories.length === 0)) {
+                document.getElementById('productCategoryError').textContent = 'At least one category must be selected for a category-specific offer.';
+                isValid = false;
+            }
+
+            if (!['percentage', 'fixed'].includes(discountType)) {
+                document.getElementById('discountTypeError').textContent = 'Discount type must be either "percentage" or "fixed".';
+                isValid = false;
+            }
+
+            if (!discountValue || discountValue <= 0) {
+                document.getElementById('discountValueError').textContent = 'Discount value must be a positive number.';
+                isValid = false;
+            } else if (discountType === 'percentage' && (discountValue <= 0 || discountValue > 100)) {
+                document.getElementById('discountValueError').textContent = 'Percentage discount must be between 1 and 100.';
+                isValid = false;
+            }
+
+            if (!expiryDate) {
+                document.getElementById('expiryDateError').textContent = 'Expiry Date is required.';
+                isValid = false;
+            } else if (isNaN(new Date(expiryDate).getTime())) {
+                document.getElementById('expiryDateError').textContent = 'A valid expiry date is required.';
+                isValid = false;
+            } else if (new Date(expiryDate) <= new Date()) {
+                document.getElementById('expiryDateError').textContent = 'Expiry date must be in the future.';
+                isValid = false;
+            }
+
+            if (isValid) {
+                e.target.submit();
+            }
+        });
+    </script>
+
+
+    <!--======================edit======================-->
     <script>
         document.querySelectorAll('.applicableToDropdown').forEach((dropdown) => {
             dropdown.addEventListener('change', (event) => {
-                const selectedValue = event.target.value; 
+                const selectedValue = event.target.value;
                 const id = event.target.dataset.id;
 
                 const productSection = document.querySelector(`#productSelection-${id}`);
@@ -384,14 +464,84 @@
         });
     </script>
 
+    <!--=================edit modal validation==================-->
+    <script>
+        document.querySelectorAll('.modalEdit').forEach((form) => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                // Clear all error messages
+                form.querySelectorAll('.text-dangerEdit').forEach((element) => {
+                    element.textContent = '';
+                });
+
+                // Fetch input values
+                const offerName = form.querySelector('input[name="offerName"]').value.trim();
+                const applicableTo = form.querySelector('select[name="applicableTo"]').value;
+                const discountType = form.querySelector('select[name="discountType"]').value;
+                const discountValue = parseFloat(form.querySelector('input[name="discountValue"]').value); const expiryDate = form.querySelector('input[name="expiryDate"]').value;
+                const products = [...form.querySelectorAll('input[name="products[]"]:checked')].map(input => input.value);
+                const categories = [...form.querySelectorAll('input[name="categories[]"]:checked')].map(input => input.value);
+
+                const errorDiv = form.querySelector('#discountValueErrorEdit');
+                errorDiv.textContent = '';
+
+                let isValid = true;
+
+                // Validate Offer Name
+                if (!offerName) {
+                    const errorDiv = form.querySelector('#offerNameErrorEdit');
+                    errorDiv.textContent = 'Offer name is required.';
+                    isValid = false;
+                }
+
+                // Validate Applicable To
+                if (!['Product', 'Category'].includes(applicableTo)) {
+                    const errorDiv = form.querySelector('#applicableToErrorEdit');
+                    errorDiv.textContent = 'Applicable To must be either "Product" or "Category".';
+                    isValid = false;
+                }
+
+                // Validate Product Selection
+                if (applicableTo === 'Product' && (!products || products.length === 0)) {
+                    const errorDiv = form.querySelector('#productCategoryErrorEdit');
+                    errorDiv.textContent = 'At least one product must be selected for a product-specific offer.';
+                    isValid = false;
+                }
+
+                // Validate Category Selection
+                if (applicableTo === 'Category' && (!categories || categories.length === 0)) {
+                    const errorDiv = form.querySelector('#productCategoryErrorEdit');
+                    errorDiv.textContent = 'At least one category must be selected for a category-specific offer.';
+                    isValid = false;
+                }
+
+                // Validate Discount Value
+                if (!discountValue || discountValue <= 0) {
+                    const errorDiv = form.querySelector('#discountValueErrorEdit');
+                    errorDiv.textContent = 'Discount value must be a positive number.';
+                    isValid = false;
+                } else if (discountType === 'percentage' && discountValue > 100) {
+                    errorDiv.textContent = 'Percentage discount must not exceed 100%.';
+                    isValid = false;
+                }
+
+                // Validate Expiry Date
+                if (!expiryDate || new Date(expiryDate) < new Date()) {
+                    const errorDiv = form.querySelector('#expiryDateErrorEdit');
+                    errorDiv.textContent = 'Expiry date cannot be empty or in the past.';
+                    isValid = false;
+                }
+
+                // Submit form if valid
+                if (isValid) {
+                    form.submit();
+                }
+            });
+        });
+    </script>
 
 
-
-
-    <!--=================delete==================-->
-
-    
-    
 </body>
 
 </html>

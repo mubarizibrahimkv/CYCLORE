@@ -228,23 +228,6 @@
                                 <a href="/shop" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
                                     aria-haspopup="true" aria-expanded="false">Shop</a>
                             </li>
-                            <li class="nav-item submenu dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
-                                    aria-haspopup="true" aria-expanded="false">Blog</a>
-                                <ul class="dropdown-menu">
-                                    <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
-                                    <li class="nav-item"><a class="nav-link" href="single-blog.html">Blog Details</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="nav-item submenu dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
-                                    aria-haspopup="true" aria-expanded="false">Pages</a>
-                                <ul class="dropdown-menu">
-                                    <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
-                                    <li class="nav-item"><a class="nav-link" href="/register">Signup</a></li>
-                                </ul>
-                            </li>
                             <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
                         </ul>
                         <ul class="nav navbar-nav navbar-right">
@@ -411,37 +394,45 @@
                                 <div class="col-md-6 form-group p_star">
                                     <input type="text" class="form-control" id="first" name="firstName"
                                         placeholder="First name">
+                                    <div class="text-danger" id="firstNameError"></div>
                                 </div>
                                 <div class="col-md-6 form-group p_star">
                                     <input type="text" class="form-control" id="last" name="lastName"
                                         placeholder="Last name">
-
+                                    <div class="text-danger" id="lastNameError"></div>
                                 </div>
                                 <div class="col-md-6 form-group p_star">
                                     <input type="text" class="form-control" id="number" name="mobile"
                                         placeholder="Phone number">
+                                    <div class="text-danger" id="mobileError"></div>
                                 </div>
                                 <div class="col-md-6 form-group p_star">
                                     <input type="text" class="form-control" id="email" name="email"
                                         placeholder="Email Address">
+                                    <div class="text-danger" id="emailError"></div>
                                 </div>
                                 <div class="col-md-12 form-group p_star">
                                     <input type="text" class="form-control" id="address" name="address"
                                         placeholder="Address">
+                                    <div class="text-danger" id="addressError"></div>
                                 </div>
                                 <div class="col-md-12 form-group p_star">
                                     <input type="text" class="form-control" id="country" name="country"
                                         placeholder="country">
+                                    <div class="text-danger" id="countryError"></div>
                                 </div>
                                 <div class="col-md-12 form-group p_star">
                                     <input type="text" class="form-control" id="state" name="state" placeholder="State">
+                                    <div class="text-danger" id="stateError"></div>
                                 </div>
                                 <div class="col-md-12 form-group p_star">
                                     <input type="text" class="form-control" id="city" name="city" placeholder="City">
+                                    <div class="text-danger" id="cityError"></div>
                                 </div>
                                 <div class="col-md-12 form-group">
                                     <input type="text" class="form-control" id="zip" name="pinCode"
                                         placeholder="Pincode">
+                                    <div class="text-danger" id="pinCodeError"></div>
                                 </div>
                                 <div class="profile-buttons">
                                     <button class="btn1" type="submit">ADD ADDRESS</button>
@@ -481,7 +472,7 @@
                                     </li>                
                                 </ul>
                                 <div id="messageContainer" style="color: red; display: none; font-size: 14px;">
-                                <strong>Note:</strong> The order total is less than ₹1000, and Cash on Delivery is not available.
+                                <strong>Note:</strong> The order total is greater than ₹10000, and Cash on Delivery is not available.
                                 </div>
                                 <div class="payment_item">
                                     <div class="radion_btn">
@@ -494,6 +485,13 @@
                                     <div class="radion_btn">
                                         <input type="radio" id="f-option6" name="paymentMethod" value="Razorpay">
                                         <label for="f-option6">Razorpay </label>
+                                        <div class="check"></div>
+                                    </div>
+                                </div>
+                                <div class="payment_item active">
+                                    <div class="radion_btn">
+                                        <input type="radio" id="f-option7" name="paymentMethod" value="Wallet">
+                                        <label for="f-option7">Wallet</label>
                                         <div class="check"></div>
                                     </div>
                                 </div>
@@ -602,13 +600,88 @@
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 
+
+    <!--==========add address validate==========-->
+    <script>
+        document.querySelector('form.contact_form').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    document.querySelectorAll('.text-danger').forEach((element) => {
+        element.textContent = '';
+    });
+
+    const firstName = document.getElementById('first').value.trim();
+    const lastName = document.getElementById('last').value.trim();
+    const mobile = document.getElementById('number').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const address = document.getElementById('address').value.trim();
+    const country = document.getElementById('country').value.trim();
+    const state = document.getElementById('state').value.trim();
+    const city = document.getElementById('city').value.trim();
+    const pinCode = document.getElementById('zip').value.trim();
+
+    let isValid = true;
+
+    if (!firstName) {
+        document.getElementById('firstNameError').textContent = 'First name is required.';
+        isValid = false;
+    }
+
+    if (!lastName) {
+        document.getElementById('lastNameError').textContent = 'Last name is required.';
+        isValid = false;
+    }
+
+    if (!mobile || !/^\d{10}$/.test(mobile)) {
+        document.getElementById('mobileError').textContent = 'Enter a valid 10-digit phone number.';
+        isValid = false;
+    }
+
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+        document.getElementById('emailError').textContent = 'Enter a valid email address.';
+        isValid = false;
+    }
+
+    if (!address) {
+        document.getElementById('addressError').textContent = 'Address is required.';
+        isValid = false;
+    }
+
+    if (!country) {
+        document.getElementById('countryError').textContent = 'Country is required.';
+        isValid = false;
+    }
+
+    if (!state) {
+        document.getElementById('stateError').textContent = 'State is required.';
+        isValid = false;
+    }
+
+    if (!city) {
+        document.getElementById('cityError').textContent = 'City is required.';
+        isValid = false;
+    }
+
+    if (!pinCode || !/^\d{5,6}$/.test(pinCode)) {
+        document.getElementById('pinCodeError').textContent = 'Enter a valid 5 or 6-digit pincode.';
+        isValid = false;
+    }
+
+    if (isValid) {
+        this.submit();
+    }
+});
+
+    </script>
+
+
     <!--==============check cod les than 10000 ==============-->
     <script>
         const subtotalAmount={{subtotal}}
         const codRadioButton = document.getElementById("f-option5");
         const messageContainer=document.getElementById("messageContainer")
         function checkSubtotal(){
-            if(subtotalAmount <=10000){
+            if(subtotalAmount >=10000){
                 codRadioButton.disabled=true,
                 messageContainer.style.display="block"
             }else{
@@ -680,6 +753,7 @@
             const selectedAddressElement = document.querySelector('input[name="selectedAddress"]:checked');
             const paymentMethodElement = document.querySelector('input[name="paymentMethod"]:checked');
             const couponCodeElement = document.querySelector('#couponCodeInput');
+            const couponDiscountElement=document.getElementById("discount")
 
 
             if (!paymentMethodElement) {
@@ -695,6 +769,7 @@
             const selectedAddress = selectedAddressElement.value;
             const paymentMethod = paymentMethodElement.value;
             const couponCode = couponCodeElement ? couponCodeElement.value.trim() : '';
+            const couponDiscount = couponDiscountElement? couponDiscountElement.innerText.replace('₹', '').trim(): '';
 
 
             const cartItems = [];
@@ -719,6 +794,7 @@
             subtotal: {{subtotal}},
             shippingCost: {{shippingCost}},
             total: {{total}},
+            couponDiscount:couponDiscount,
             totalAfterDiscount:totalAfterDiscount,
             paymentMethod: paymentMethod,
             couponCode: couponCode
@@ -728,6 +804,8 @@
             createRazorpayOrder(orderData);
         } else if (paymentMethod === "CashOnDelivery") {
             submitOrderToBackend(orderData);
+        }else if(paymentMethod==="Wallet"){
+            createWalletOrder(orderData)
         }
 }
 
@@ -859,8 +937,6 @@ function handlePaymentFailure(orderData, paymentStatus) {
     });
 }
 
-
-
         function submitOrderToBackend(orderData) {
         fetch('/checkout', {
         method: 'POST',
@@ -889,6 +965,45 @@ function handlePaymentFailure(orderData, paymentStatus) {
             text: 'Failed to submit order. Please try again.',
             icon: 'error',
             confirmButtonText: 'OK'
+                });
+            });
+        }
+
+        function createWalletOrder(orderData){
+            fetch("/checkout/createWalletOrder",{
+                method:"POST",
+                headers:{
+                    'Content-Type': 'application/json'
+                },
+                body:JSON.stringify(orderData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    window.location.href = '/orderSuccess';
+                }else if (data.error === 'Insufficient wallet balance') {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Your wallet balance is insufficient to place this order.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                 }else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to place order. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+               })
+            .catch(error => {
+                console.error('Error submitting order:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Failed to submit order. Please try again.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
                 });
             });
         }
@@ -989,7 +1104,6 @@ function removeCoupon() {
 
 
 </script>
-
 
 </body>
 

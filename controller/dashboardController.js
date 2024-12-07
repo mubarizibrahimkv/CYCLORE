@@ -184,7 +184,6 @@ const getSalesData = async (req, res) => {
     }
 };
 
-
 const bestSellingProductsPipeline = [
     { $unwind: "$products" },
     { $group: {
@@ -208,7 +207,6 @@ const bestSellingProductsPipeline = [
     }},
 ];
 
-
 const bestSellingCategoriesPipeline = [
     { $unwind: "$products" },
     { $lookup: {
@@ -218,8 +216,15 @@ const bestSellingCategoriesPipeline = [
         as: "productDetails",
     }},
     { $unwind: "$productDetails" },
+    { $lookup: {
+        from: "categories", 
+        localField: "productDetails.categories",
+        foreignField: "_id", 
+        as: "categoryDetails",
+    }},
+    { $unwind: "$categoryDetails" },
     { $group: {
-        _id: "$productDetails.category",
+        _id: "$categoryDetails.name", // Group by category name
         totalSold: { $sum: "$products.quantity" },
     }},
     { $sort: { totalSold: -1 } },
@@ -229,10 +234,6 @@ const bestSellingCategoriesPipeline = [
         totalSold: 1,
     }},
 ];
-
-
-
-
 
 module.exports={
     loadDashboard,

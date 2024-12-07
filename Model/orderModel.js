@@ -25,20 +25,32 @@ const orderSchema = new mongoose.Schema({
             required: true
         },
         discountedPrice: {
-            type: Number,  
+            type: Number,
             required: false
         },
         status: {
             type: String,
-            enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled'],
+            enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled','Returned'],
             default: 'Pending'
-        }
+        },
+        cancellationReason: {
+            type: String,
+            required: false
+        },
+        returnReason:{
+            type:String,
+            required:false,
+        },
     }
     ],
     address: {
         type: mongoose.Schema.ObjectId,
         ref: 'Address',
         required: true
+    },
+    couponDiscount: {
+        type: Number,
+        required:true,
     },
     total: {
         type: Number,

@@ -5,19 +5,32 @@ const productModel = require("../Model/productModel")
 const addressModel = require("../Model/addressModel")
 const orderModel = require("../Model/orderModel")
 const couponModel = require("../Model/couponModel")
+const wallerModel=require("../Model/walletModel")
 require('dotenv').config();
 
 
 const loadCart = async (req, res) => {
     try {
         const userId = req.session.user
-        const product = await cartModel.findOne({ userId }).populate("products.productId").exec();
+        const product = await cartModel
+        .findOne({ userId }) 
+        .populate({
+            path: "products.productId",
+            populate: {
+                path: "categories",
+                model: "Category",
+                match: { isListed: true }
+            }
+        })
+        .exec();   
+        
         if (!product) {
             return res.render("user/cart", { message: "Your cart is empty." });
         }
 
-        const listedProducts = product.products.filter(item => item.productId.isListed);
-
+        const listedProducts = product.products.filter(item => 
+            item.productId.isListed && item.productId.categories.every(category => category.isListed)
+        );
         if (listedProducts.length !== product.products.length) {
             product.products = listedProducts;
             await product.save();
@@ -92,8 +105,8 @@ const addCart = async (req, res) => {
                 cart.products.push({
                     productId,
                     quantity: 1,
-                    price: product.price, // Store the price in the cart
-                    discountedPrice: discountedPrice // Optionally store discounted price
+                    price: product.price,
+                    discountedPrice: discountedPrice 
                 });
             }
         }
@@ -134,6 +147,8 @@ const updateCartQuantity = async (req, res) => {
 
         const product = cart.products[productIndex].productId;
 
+        const cartProduct=cart.products[productIndex];        
+
         const availableStock = product.stock;
         const currentQuantity = cart.products[productIndex].quantity;
         const quantityDifference = quantity - currentQuantity;
@@ -150,10 +165,11 @@ const updateCartQuantity = async (req, res) => {
         const newStock = availableStock - quantityDifference;
         await productModel.findByIdAndUpdate(productId, { stock: newStock });
 
-        await cart.save();
-
-        const updatedPrice = product.price * quantity;
-
+        await cart.save();            
+        
+        const price=cartProduct.discountedPrice?cartProduct.discountedPrice:product.price
+        const updatedPrice = price * quantity;
+        
         res.json({ success: true, newPrice: updatedPrice });
 
     } catch (error) {
@@ -303,8 +319,8 @@ const loadOrderSuccess = async (req, res) => {
 
 const saveOrder = async (req, res) => {
     const userId = req.session.user;
-    const { addressId, cartItems, subtotal, shippingCost, total, paymentMethod, couponCode, paymentStatus, paymentDetails } = req.body;
-
+    const { addressId, cartItems, subtotal, shippingCost, total, paymentMethod, couponCode, paymentStatus, paymentDetails,couponDiscount } = req.body;    
+    
     if (isNaN(total) || total <= 0) {
         return res.status(400).json({ error: 'Invalid total amount.' });
     }
@@ -356,6 +372,8 @@ const saveOrder = async (req, res) => {
         shippingCost: shippingCost,
         total: finalTotal,
         paymentMethod: paymentMethod,
+        couponCode:couponCode,
+        couponDiscount:couponDiscount,
         paymentStatus: finalPaymentStatus,
         paymentDetails: paymentDetails || {},
         orderDate: new Date()
@@ -383,6 +401,68 @@ const saveOrder = async (req, res) => {
         res.status(500).json({ error: 'Failed to place order' });
     }
 };
+
+const createWalletOrder=async(req,res)=>{
+    const userId=req.session.user
+    const { totalAfterDiscount,addressId, cartItems, subtotal, shippingCost, total, paymentMethod, couponCode, paymentStatus, paymentDetails,couponDiscount } = req.body;
+    
+    try {
+
+        const finalTotal=totalAfterDiscount?totalAfterDiscount:total;
+        
+        const wallet=await wallerModel.findOne({userId})
+        if (finalTotal > wallet.balance) {
+            return res.status(400).json({ error: 'Insufficient wallet balance' });
+        }        
+
+        const orderProducts = cartItems.map(item => {
+            const discountedPrice = item.discountedPrice || item.price;
+            return {
+                productId: item.productId,
+                quantity: item.quantity,
+                name: item.name,
+                price: item.price,
+                discountedPrice: discountedPrice,
+                status: item.status
+            };
+        });
+
+        const finalPaymentStatus = paymentStatus || 'Pending';
+        
+        const newOrder = new orderModel({
+            userId: userId,
+            address: addressId,
+            products: orderProducts,
+            subtotal: subtotal,
+            shippingCost: shippingCost,
+            total: finalTotal,
+            couponCode:couponCode,
+            couponDiscount:couponDiscount,
+            paymentMethod: paymentMethod,
+            paymentStatus: finalPaymentStatus,
+            paymentDetails: paymentDetails || {},
+            orderDate: new Date()
+        });
+
+        const order = await newOrder.save();
+
+        wallet.balance -= finalTotal;
+        
+        await wallet.save();
+
+        await cartModel.findOneAndUpdate(
+            { userId: userId },
+            { $pull: { products: { productId: { $in: cartItems.map(item => item.productId) } } } },
+            { new: true }
+        );
+
+        res.status(200).json({ message: 'Order placed successfully', orderId: order._id });
+
+    } catch (error) {
+        console.error('Error saving order:', error);
+        res.status(500).json({ error: 'Failed to place order' });
+    }
+}
 
 const instance = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
@@ -481,7 +561,6 @@ const applyCoupon = async (req, res) => {
     }
 }
 
-
 module.exports = {
     loadCart,
     addCart,
@@ -494,5 +573,6 @@ module.exports = {
     updateCartQuantity,
     createRazorpayOrder,
     applyCoupon,
-    paymentFailer
+    paymentFailer,
+    createWalletOrder
 }
