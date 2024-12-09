@@ -7,7 +7,6 @@
     <title>Category Management</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        /* General styling */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -30,8 +29,6 @@
             color: #333;
         }
 
-        /* Additional styles for other elements remain unchanged */
-        /* Add Category Button */
         .add-category-button-container {
             display: flex;
             justify-content: flex-end;
@@ -53,7 +50,6 @@
             background-color: #0056b3;
         }
 
-        /* Table styling */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -76,7 +72,6 @@
             background-color: #f1f1f1;
         }
 
-        /* Button styling */
         button,
         .button-link {
             padding: 8px 12px;
@@ -90,20 +85,16 @@
 
         .list-button {
             background-color: #0a4218;
-            /* Green for list */
         }
 
         .unlist-button {
             background-color: #991524;
-            /* Red for unlist */
         }
 
         .edit-button {
             background-color: #574716;
-            /* Yellow for edit */
         }
 
-        /* Button hover effects */
         .list-button:hover {
             background-color: #0c2b13;
         }
@@ -138,7 +129,6 @@
             display: flex;
             gap: 25px;
             list-style: none;
-            /* Removes the dot/bullet points */
             padding: 0;
             margin: 0;
         }
@@ -151,10 +141,7 @@
 
         .navbar ul li a#same {
             color: #9e7317;
-            /* Solid color for the Dashboard link */
             font-weight: 800;
-            /* Make the text bold */
-
         }
 
         .icons {
@@ -246,25 +233,18 @@
                 </div>
                 <div class="modal-body">
                     <form action="/admin/categories/add" method="POST">
-                        <!-- Category Dropdown -->
                         <div class="form-group">
                             <label for="categoryName">Category</label>
-                            <select class="form-control" id="categoryName" name="name" required>
-                                <option value="">Select Category</option>
-                                <option value="Sports">Sports</option>
-                                <option value="Mountain">Mountain</option>
-                                <option value="City">City</option>
-                                <option value="E-bikes">E-bikes</option>
-                            </select>
+                            <input class="form-control" id="categoryName" name="name">
+                            <small id="categoryNameError" class="form-text text-danger"></small>
+                            <!-- Variant Input -->
+                            <div class="form-group">
+                                <label for="categoryVariant">Variant</label>
+                                <input type="text" class="form-control" id="categoryVariant" name="variant">
+                                <small id="categoryVariantError" class="form-text text-danger"></small>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Category</button>
                         </div>
-
-                        <!-- Variant Input -->
-                        <div class="form-group">
-                            <label for="categoryVariant">Variant</label>
-                            <input type="text" class="form-control" id="categoryVariant" name="variant" required>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary">Add Category</button>
                     </form>
                 </div>
             </div>
@@ -285,28 +265,19 @@
                 <div class="modal-body">
                     <form action="/admin/categories/edit" method="POST" id="editCategoryForm">
                         <input type="hidden" name="id" id="editCategoryId">
-
                         <!-- Category Dropdown -->
                         <div class="form-group">
                             <label for="editCategoryName">Category Name</label>
-                            <select class="form-control" id="editCategoryName" name="name" required>
-                                <option value="">Select Category</option>
-                                <option value="Sports">Sports</option>
-                                <option value="Mountain">Mountain</option>
-                                <option value="City">City</option>
-                                <option value="E-bikes">E-bikes</option>
-                            </select>
+                            <input class="form-control" id="editCategoryName" name="name">
                             <small id="nameError" style="color: red; display: none;">Please select a category
                                 name.</small>
                         </div>
-
                         <!-- Variant Input -->
                         <div class="form-group">
                             <label for="editCategoryVariant">Variant</label>
-                            <input type="text" class="form-control" id="editCategoryVariant" name="variant" required>
+                            <input type="text" class="form-control" id="editCategoryVariant" name="variant">
                             <small id="variantError" style="color: red; display: none;">Please enter a variant.</small>
                         </div>
-
                         <button type="submit" class="btn btn-primary">Update Category</button>
                     </form>
                 </div>
@@ -326,6 +297,157 @@
             $('#editCategoryModal').modal('show');
         }
     </script>
+
+    <!--=============add category validate===============-->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const categoryNameInput = document.getElementById("categoryName");
+            const categoryVariantInput = document.getElementById("categoryVariant");
+            const categoryNameError = document.getElementById("categoryNameError");
+            const categoryVariantError = document.getElementById("categoryVariantError");
+            const addCategoryButton = document.getElementById("addCategoryButton");
+            const form = document.getElementById("addCategoryForm");
+
+            async function validateCategoryName() {
+                const value = categoryNameInput.value.trim();
+                if (!value) {
+                    categoryNameError.textContent = "Category name is required.";
+                    return false;
+                } else if (value.length < 3) {
+                    categoryNameError.textContent = "Category name must be at least 3 characters.";
+                    return false;
+                } else {
+                    const isDuplicate = await checkDuplicate("name", value);
+                    if (isDuplicate) {
+                        categoryNameError.textContent = "Category name give defferent.";
+                        return false;
+                    }
+                    categoryNameError.textContent = "";
+                    return true;
+                }
+            }
+
+            async function validateCategoryVariant() {
+                const value = categoryVariantInput.value.trim();
+                if (!value) {
+                    categoryVariantError.textContent = "Variant is required.";
+                    return false;
+                } else {
+                    const isDuplicate = await checkDuplicate("variant", value);
+                    if (isDuplicate) {
+                        categoryVariantError.textContent = "Variant already exists.";
+                        return false;
+                    }
+                    categoryVariantError.textContent = "";
+                    return true;
+                }
+            }
+
+            async function checkDuplicate(field, value) {
+                try {
+                    const response = await fetch(`/admin/categories/check-duplicate?${field}=${encodeURIComponent(value)}`);
+                    const data = await response.json();
+                    return data.isDuplicate;
+                } catch (error) {
+                    console.error("Error checking duplicate:", error);
+                    return false;
+                }
+            }
+            async function validateForm() {
+                const isCategoryNameValid = await validateCategoryName();
+                const isCategoryVariantValid = await validateCategoryVariant();
+                addCategoryButton.disabled = !(isCategoryNameValid && isCategoryVariantValid);
+            }
+
+            categoryNameInput.addEventListener("input", validateForm);
+            categoryVariantInput.addEventListener("input", validateForm);
+
+            form.addEventListener("submit", async function (event) {
+                await validateForm();
+                if (addCategoryButton.disabled) {
+                    event.preventDefault();
+                }
+            });
+        });
+    </script>
+
+    <!--=============edit category validate===============-->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const editCategoryForm = document.getElementById("editCategoryForm");
+            const editCategoryNameInput = document.getElementById("editCategoryName");
+            const editCategoryVariantInput = document.getElementById("editCategoryVariant");
+            const editCategoryIdInput = document.getElementById("editCategoryId");
+            const nameError = document.getElementById("nameError");
+            const variantError = document.getElementById("variantError");
+
+            function validateEditCategoryName() {
+                const value = editCategoryNameInput.value.trim();
+                if (!value) {
+                    nameError.textContent = "Category name is required.";
+                    nameError.style.display = "block";
+                    return false;
+                } else if (value.length < 3) {
+                    nameError.textContent = "Category name must be at least 3 characters.";
+                    nameError.style.display = "block";
+                    return false;
+                }
+                nameError.style.display = "none";
+                return true;
+            }
+
+            function validateEditCategoryVariant() {
+                const value = editCategoryVariantInput.value.trim();
+                if (!value) {
+                    variantError.textContent = "Variant is required.";
+                    variantError.style.display = "block";
+                    return false;
+                }
+                variantError.style.display = "none";
+                return true;
+            }
+
+            async function checkDuplicateCategoryName() {
+                const categoryId = editCategoryIdInput.value;
+                const categoryName = editCategoryNameInput.value.trim();
+                try {
+                    const response = await fetch(`/admin/categories/check-duplicate`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ id: categoryId, name: categoryName }),
+                    });
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        nameError.textContent = "Category name  give different.";
+                        nameError.style.display = "block";
+                        return false;
+                    }
+                    nameError.style.display = "none";
+                    return true;
+                } catch (error) {
+                    console.error("Error checking duplicate name:", error);
+                    return false;
+                }
+            }
+
+            editCategoryNameInput.addEventListener("input", async function () {
+                if (validateEditCategoryName()) {
+                    await checkDuplicateCategoryName();
+                }
+            });
+
+            editCategoryForm.addEventListener("submit", async function (event) {
+                const isNameValid = validateEditCategoryName() && (await checkDuplicateCategoryName());
+                const isVariantValid = validateEditCategoryVariant();
+
+                if (!isNameValid || !isVariantValid) {
+                    event.preventDefault(); 
+                }
+            });
+        });
+    </script>
+
 </body>
 
 </html>

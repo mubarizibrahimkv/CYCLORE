@@ -17,7 +17,9 @@ router.post("/users/block/:id", adminAuth.checkSession, adminController.blockUse
 router.post("/users/unblock/:id", adminAuth.checkSession, adminController.unblockUser); 
 router.get("/categories",adminAuth.checkSession,adminController.loadCategories)
 router.post("/categories/add",adminController.addCategory)
+router.get('/categories/check-duplicate',adminController.checkDuplicateAddCategory);
 router.post("/categories/edit",adminController.editCategory)
+router.post("/categories/check-duplicate",adminController.checkDuplicateEditCategory)
 router.post('/categories/toggle-status/:id', adminController.toggleCategoryStatus);
 router.get("/products",adminAuth.checkSession,adminController.loadProducts)
 router.post("/products/toggle-status/:id",adminController.toggleProductStatus)

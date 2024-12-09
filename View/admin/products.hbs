@@ -315,10 +315,9 @@
                             <label for="editProductCategory">Category</label>
                             <select class="form-control" id="editProductCategory" name="category">
                                 <option value="">Select Category</option>
-                                <option value="Sports">Sports</option>
-                                <option value="Mountain">Mountain</option>
-                                <option value="City">City</option>
-                                <option value="E-bikes">E-bikes</option>
+                                {{#each categories}}
+                                <option value="{{this._id}}">{{this.name}}</option>
+                                {{/each}}
                             </select>
                             <small class="text-danger" id="editProductCategoryError"></small>
                         </div>

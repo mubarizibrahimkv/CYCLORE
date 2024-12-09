@@ -88,23 +88,67 @@ const addCategory = async (req, res) => {
     try {
         const { name, variant } = req.body;
 
+        // 1. Validate Empty Fields
         if (!name || name.trim() === "") {
             return res.status(400).send('Category name is required');
         }
 
-        const existingCategory = await categoryModel.findOne({ name });
+        // 2. Check for Duplicate Category
+        const existingCategory = await categoryModel.findOne({ name: name.trim() });
         if (existingCategory) {
             return res.status(400).send('Category already exists');
         }
 
-        const newCategory = new categoryModel({ name, variant, isListed: true }); 
+        // 3. Save New Category
+        const newCategory = new categoryModel({ name: name.trim(), variant, isListed: true });
         await newCategory.save();
+
+        // Redirect or respond based on request type
+        if (req.headers['content-type'] === 'application/json') {
+            return res.status(201).json({ message: 'Category added successfully' });
+        }
         res.redirect('/admin/categories');
     } catch (error) {
         console.error('Error adding category:', error);
         res.status(500).send('Internal Server Error');
     }
 };
+
+const checkDuplicateAddCategory = async (req, res) => {
+    try {
+        const { name, variant } = req.query;
+        if (name) {
+            const existingCategory = await categoryModel.findOne({ name: name.trim() });
+            return res.json({ isDuplicate: !!existingCategory });
+        }
+        if (variant) {
+            const existingVariant = await categoryModel.findOne({ variant: variant.trim() });
+            return res.json({ isDuplicate: !!existingVariant });
+        }
+
+        res.json({ isDuplicate: false });
+    } catch (error) {
+        console.error('Error checking duplicate category:', error);
+        res.status(500).json({ isDuplicate: false, error: 'Internal Server Error' });
+    }
+};
+
+const checkDuplicateEditCategory=async(req,res)=>{
+    try {
+        const { id, name } = req.body;
+
+        const duplicate = await categoryModel.findOne({ name, _id: { $ne: id } });
+
+        if (duplicate) {
+            return res.json({ success: false });
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error("Error checking duplicate category name:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+}
 
 const editCategory = async (req, res) => {
     try {
@@ -325,6 +369,8 @@ module.exports = {
     blockUser,
     loadCategories,
     addCategory,
+    checkDuplicateAddCategory,
+    checkDuplicateEditCategory,
     editCategory,
     toggleCategoryStatus,
     loadProducts,

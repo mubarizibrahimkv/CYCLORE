@@ -594,13 +594,14 @@
 	<script src="/js/gmaps.min.js"></script>
 	<script src="/js/main.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+
+
+<!--============search==========-->
 	<script>
 		function filterProducts() {
 			const input = document.getElementById('search_input');
 			const filter = input.value.toLowerCase();
 			const productCards = document.querySelectorAll('.product-card');
-			console.log("input", input.value)
-			console.log("productcard", productCards)
 
 			productCards.forEach(card => {
 				const name = card.querySelector('h6').textContent.toLowerCase();

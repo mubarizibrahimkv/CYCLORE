@@ -334,6 +334,17 @@
             font-size: 12px;
             display: none;
         }
+
+        .error-message {
+            color: red;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .is-invalid {
+            border-color: red;
+            outline: none;
+        }
     </style>
 </head>
 
@@ -483,7 +494,7 @@
         <br>
         <hr>
 
-
+        <!--=================add address modal==================-->
         <div class="section">
             <h3 class="h4">ADD ADDRESS</h3>
             <form action="/profile/saveAddress" method="post" id="addressForm">
@@ -498,8 +509,7 @@
                         <input type="email" id="email" placeholder="Email" name="email">
                         <span class="error-message" id="emailError"></span>
 
-                        <input type="tel" id="mobile" placeholder="Phone Number" name="mobile"
-                            pattern="^\d{10}$">
+                        <input type="tel" id="mobile" placeholder="Phone Number" name="mobile" pattern="^\d{10}$">
                         <span class="error-message" id="mobileError"></span>
 
                         <input type="text" id="address" placeholder="Address" name="address">
@@ -514,8 +524,7 @@
                         <input type="text" id="country" placeholder="Country" name="country">
                         <span class="error-message" id="countryError"></span>
 
-                        <input type="text" id="pinCode" placeholder="Pin Code" name="pinCode" 
-                            pattern="^\d{6}$">
+                        <input type="text" id="pinCode" placeholder="Pin Code" name="pinCode" pattern="^\d{6}$">
                         <span class="error-message" id="pinCodeError"></span>
                     </div>
                 </div>
@@ -525,9 +534,6 @@
             </form>
         </div>
     </div>
-
-
-
 
     <!-- Edit Address Modal -->
     <div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel"
@@ -544,38 +550,47 @@
                         <div class="mb-3">
                             <label for="editFirstName" class="form-label">First Name</label>
                             <input type="text" class="form-control" id="editFirstName" name="firstName">
+                            <span class="text-danger small" id="editFirstNameError"></span>
                         </div>
                         <div class="mb-3">
                             <label for="editLastName" class="form-label">Last Name</label>
                             <input type="text" class="form-control" id="editLastName" name="lastName">
+                            <span class="text-danger small" id="editLastNameError"></span>
                         </div>
                         <div class="mb-3">
                             <label for="editMobile" class="form-label">Mobile</label>
                             <input type="tel" class="form-control" id="editMobile" name="mobile">
+                            <span class="text-danger small" id="editMobileError"></span>
                         </div>
                         <div class="mb-3">
                             <label for="editEmail" class="form-label">Email</label>
                             <input type="email" class="form-control" id="editEmail" name="email">
+                            <span class="text-danger small" id="editEmailError"></span>
                         </div>
                         <div class="mb-3">
                             <label for="editAddress" class="form-label">Address</label>
                             <input type="text" class="form-control" id="editAddress" name="address">
+                            <span class="text-danger small" id="editAddressError"></span>
                         </div>
                         <div class="mb-3">
                             <label for="editCity" class="form-label">City</label>
                             <input type="text" class="form-control" id="editCity" name="city">
+                            <span class="text-danger small" id="editCityError"></span>
                         </div>
                         <div class="mb-3">
                             <label for="editState" class="form-label">State</label>
-                            <input type="text" class="form-control" id="editState" name="state" >
+                            <input type="text" class="form-control" id="editState" name="state">
+                            <span class="text-danger small" id="editStateError"></span>
                         </div>
                         <div class="mb-3">
                             <label for="editCountry" class="form-label">Country</label>
                             <input type="text" class="form-control" id="editCountry" name="country">
+                            <span class="text-danger small" id="editCountryError"></span>
                         </div>
                         <div class="mb-3">
                             <label for="editPinCode" class="form-label">Pin Code</label>
-                            <input type="text" class="form-control" id="editPinCode" name="pinCode" >
+                            <input type="text" class="form-control" id="editPinCode" name="pinCode">
+                            <span class="text-danger small" id="editPinCodeError"></span>
                         </div>
                         <button type="submit" class="btn btn-primary">Save Changes</button>
                     </form>
@@ -583,10 +598,6 @@
             </div>
         </div>
     </div>
-
-
-
-
 
     <!-- start footer Area -->
     <footer class="footer-area section_gap">
@@ -695,67 +706,56 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 
+    <!--===============edit address modal--=============-->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const form = document.getElementById('addressForm');
+    document.addEventListener('DOMContentLoaded', function () {
+        const editForm = document.getElementById('editAddressForm');
+        const fields = [
+            { id: 'editFirstName', validation: value => value.trim() !== '', errorMessage: 'First Name is required.' },
+            { id: 'editLastName', validation: value => value.trim() !== '', errorMessage: 'Last Name is required.' },
+            { id: 'editMobile', validation: value => /^\d{10}$/.test(value), errorMessage: 'Enter a valid 10-digit phone number.' },
+            { id: 'editEmail', validation: value => /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(value), errorMessage: 'Enter a valid email address.' },
+            { id: 'editAddress', validation: value => value.trim() !== '', errorMessage: 'Address is required.' },
+            { id: 'editCity', validation: value => value.trim() !== '', errorMessage: 'City is required.' },
+            { id: 'editState', validation: value => value.trim() !== '', errorMessage: 'State is required.' },
+            { id: 'editCountry', validation: value => value.trim() !== '', errorMessage: 'Country is required.' },
+            { id: 'editPinCode', validation: value => /^\d{6}$/.test(value), errorMessage: 'Enter a valid 6-digit pin code.' },
+        ];
 
-            const firstName = document.getElementById('firstName');
-            const lastName = document.getElementById('lastName');
-            const email = document.getElementById('email');
-            const mobile = document.getElementById('mobile');
-            const address = document.getElementById('address');
-            const city = document.getElementById('city');
-            const state = document.getElementById('state');
-            const country = document.getElementById('country');
-            const pinCode = document.getElementById('pinCode');
+        // Function to validate a single field
+        function validateField(field) {
+            const inputElement = document.getElementById(field.id);
+            const errorElement = document.getElementById(`${field.id}Error`);
+            const isValid = field.validation(inputElement.value);
 
-            const firstNameError = document.getElementById('firstNameError');
-            const lastNameError = document.getElementById('lastNameError');
-            const emailError = document.getElementById('emailError');
-            const mobileError = document.getElementById('mobileError');
-            const addressError = document.getElementById('addressError');
-            const cityError = document.getElementById('cityError');
-            const stateError = document.getElementById('stateError');
-            const countryError = document.getElementById('countryError');
-            const pinCodeError = document.getElementById('pinCodeError');
-
-            function validateField(inputElement, errorElement, validationFn) {
-                inputElement.addEventListener('input', function () {
-                    if (!validationFn(inputElement.value)) {
-                        errorElement.style.display = 'block';
-                    } else {
-                        errorElement.style.display = 'none';
-                    }
-                });
+            if (!isValid) {
+                errorElement.textContent = field.errorMessage;
+                inputElement.classList.add('is-invalid'); // Optional: Adds Bootstrap error style
+            } else {
+                errorElement.textContent = '';
+                inputElement.classList.remove('is-invalid'); // Optional: Removes Bootstrap error style
             }
 
-            const isNotEmpty = value => value.trim() !== '';
-            const isValidEmail = value => /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(value);
-            const isValidPhone = value => /^\d{10}$/.test(value);
-            const isValidPinCode = value => /^\d{6}$/.test(value);
+            return isValid;
+        }
 
-            validateField(firstName, firstNameError, isNotEmpty);
-            validateField(lastName, lastNameError, isNotEmpty);
-            validateField(email, emailError, isValidEmail);
-            validateField(mobile, mobileError, isValidPhone);
-            validateField(address, addressError, isNotEmpty);
-            validateField(city, cityError, isNotEmpty);
-            validateField(state, stateError, isNotEmpty);
-            validateField(country, countryError, isNotEmpty);
-            validateField(pinCode, pinCodeError, isValidPinCode);
+        // Validate all fields when form is submitted
+        editForm.addEventListener('submit', function (e) {
+            let allValid = true;
 
-            form.addEventListener('submit', function (e) {
-                e.preventDefault(); 
-
-                if (firstName.value.trim() === '' || lastName.value.trim() === '' || !isValidEmail(email.value) || !isValidPhone(mobile.value) || address.value.trim() === '' || city.value.trim() === '' || state.value.trim() === '' || country.value.trim() === '' || !isValidPinCode(pinCode.value)) {
-                    alert('Please fill in all required fields correctly.');
-                    return false;
+            fields.forEach(field => {
+                if (!validateField(field)) {
+                    allValid = false;
                 }
-
-                form.submit();
             });
+
+            if (!allValid) {
+                e.preventDefault(); // Prevent form submission if there are errors
+            }
         });
-    </script>
+    });
+</script>
+
 
 
     <script>
