@@ -1,5 +1,5 @@
 const crypto = require("crypto")
-const Razorpay = require('razorpay');
+const Razorpay = require('razorpay')
 const cartModel = require("../Model/cartModel")
 const productModel = require("../Model/productModel")
 const addressModel = require("../Model/addressModel")
@@ -19,7 +19,7 @@ const loadCart = async (req, res) => {
             populate: {
                 path: "categories",
                 model: "Category",
-                match: { isListed: true }
+                match: {isListed:true}
             }
         })
         .exec();   
@@ -28,9 +28,8 @@ const loadCart = async (req, res) => {
             return res.render("user/cart", { message: "Your cart is empty." });
         }
 
-        const listedProducts = product.products.filter(item => 
-            item.productId.isListed && item.productId.categories.every(category => category.isListed)
-        );
+        const listedProducts = product.products.filter(item =>item.productId.isListed);
+        
         if (listedProducts.length !== product.products.length) {
             product.products = listedProducts;
             await product.save();
@@ -91,8 +90,9 @@ const addCart = async (req, res) => {
                 ]
             });
         } else {
+            cart.products = cart.products.filter(item => item.productId !== null);
             const existingProductIndex = cart.products.findIndex(
-                (item) => item.productId._id.toString() === productId.toString()
+                (item) => item.productId && item.productId._id.toString() === productId.toString()
             );
 
             if (existingProductIndex > -1) {
@@ -114,7 +114,6 @@ const addCart = async (req, res) => {
         const newStock = product.stock - 1;
         await productModel.findByIdAndUpdate(productId, { stock: newStock });
 
-        // Save the cart to the database
         await cart.save();
         res.redirect("/cart");
 
@@ -122,7 +121,7 @@ const addCart = async (req, res) => {
         console.error(error);
         res.status(500).send('Server error');
     }
-}
+};
 
 const updateCartQuantity = async (req, res) => {
     try {
@@ -149,14 +148,16 @@ const updateCartQuantity = async (req, res) => {
 
         const cartProduct=cart.products[productIndex];        
 
-        const availableStock = product.stock;
         const currentQuantity = cart.products[productIndex].quantity;
+        const availableStock = product.stock;
+        const maxAllowedQuantity = availableStock + currentQuantity;
+
         const quantityDifference = quantity - currentQuantity;
 
-        if (quantity > availableStock + currentQuantity - 1) {
+        if (quantity >maxAllowedQuantity) {
             return res.json({
                 success: false,
-                message: `Only ${availableStock + currentQuantity - 1} units available for this product`
+                message: `Only ${availableStock + currentQuantity} units available for this product`
             });
         }
 
@@ -218,23 +219,34 @@ const cancelProduct = async (req, res) => {
 };
 
 const loadCheckout = async (req, res) => {
-    const id = req.session.user
+    const id = req.session.user;
+
     try {
-        const coupons = await couponModel.find()
-        const addresses = await addressModel.find({ user: id })
-        const cart = await cartModel.findOne({ userId: id }).populate("products.productId").exec()
-           
+        const coupons = await couponModel.find();
+        const addresses = await addressModel.find({ user: id,isListed:true });
+        
+        const cart = await cartModel.findOne({ userId: id })
+            .populate({
+                path: "products.productId",
+                populate: {
+                    path: "categories",
+                },
+            })
+            .exec();
+
         if (!cart || cart.products.length === 0) {
             return res.redirect("/cart?message=Your cart is empty. Add products to proceed to checkout.");
         }
 
-        const validProducts = cart.products.filter(item => item.productId.isListed);
+        const validProducts = cart.products.filter(
+            (item) => item.productId && item.productId.isListed && item.productId.categories.isListed
+        );
 
         if (validProducts.length < cart.products.length) {
             cart.products = validProducts;
             await cart.save();
 
-            return res.redirect("/cart?message=Some unlisted products were removed from your cart. Proceed to checkout.");
+            return res.redirect("/cart?message=Some unlisted products or categories were removed from your cart. Proceed to checkout.");
         }
 
         let subtotal = 0;
@@ -242,16 +254,16 @@ const loadCheckout = async (req, res) => {
             const price = item.discountedPrice ? item.discountedPrice : item.price;
             subtotal += price * item.quantity;
         });
+        
         const shippingCost = 50;
-        const total = subtotal + shippingCost
+        const total = subtotal + shippingCost;
 
-
-        res.render("user/checkout", { coupons, addresses, cart, subtotal, shippingCost, total })
+        res.render("user/checkout", { coupons, addresses, cart, subtotal, shippingCost, total });
     } catch (error) {
         console.error(error);
         res.status(500).send('Server error');
     }
-}
+};
 
 const updateAddress = async (req, res) => {
     const { id, firstName, lastName, mobile, email, address, country, city, state, pinCode } = req.body;
@@ -515,16 +527,22 @@ const paymentFailer = async (req, res) => {
 }
 
 const applyCoupon = async (req, res) => {
-    const { couponCode, subtotal } = req.body
+    const { couponCode, subtotal } = req.body;
+    
 
     try {
         const trimmedCouponCode = couponCode.trim();
 
-        const coupon = await couponModel.findOne({ code: trimmedCouponCode })
-
+        const coupon = await couponModel.findOne({ code: trimmedCouponCode });
 
         if (!coupon || new Date(coupon.expiryDate) < new Date()) {
             return res.status(400).json({ message: 'Invalid or expired coupon code.' });
+        }
+        
+        if (coupon.minPurchase && subtotal < coupon.minPurchase) {
+            return res.status(400).json({
+                message: `Subtotal must be at least ₹${coupon.minPurchase} to apply this coupon.`,
+            });
         }
 
         let discount = 0;
@@ -536,9 +554,8 @@ const applyCoupon = async (req, res) => {
         }
 
         if (coupon.maxDiscount && discount > coupon.maxDiscount) {
-            return res.status(400).json({
-                message: `No discount applied. Maximum discount allowed for this coupon is ₹${coupon.maxDiscount}.`,
-            });
+            discount = coupon.maxDiscount;
+            maxDiscountMessage = `Note: Discount is capped at ₹${coupon.maxDiscount} (max discount).`;
         }
 
         const newTotal = subtotal - discount;
@@ -559,7 +576,8 @@ const applyCoupon = async (req, res) => {
         });
         return res.status(500).json({ message: 'Server error. Please try again.' });
     }
-}
+};
+
 
 module.exports = {
     loadCart,

@@ -359,8 +359,6 @@
         </div>
     </div>
 
-
-
     <!--================Checkout Area =================-->
     <section class="checkout_area section_gap">
         <div class="container">
@@ -397,51 +395,51 @@
                 <div class="billing_details">
                     <div class="row">
                         <div class="col-lg-8">
-                            <h3>New Address</h3>
+                            <h3>Create New Address</h3>
                             <form class="row contact_form" action="/checkout/addAddress" method="post"
-                                novalidate="novalidate">
+                                novalidate="novalidate" id="addressForm">
                                 <div class="col-md-6 form-group p_star">
                                     <input type="text" class="form-control" id="first" name="firstName"
                                         placeholder="First name">
-                                    <div class="text-danger" id="firstNameError"></div>
+                                    <div class="text-danger" id="firstNameError1"></div>
                                 </div>
                                 <div class="col-md-6 form-group p_star">
                                     <input type="text" class="form-control" id="last" name="lastName"
                                         placeholder="Last name">
-                                    <div class="text-danger" id="lastNameError"></div>
+                                    <div class="text-danger" id="lastNameError1"></div>
                                 </div>
                                 <div class="col-md-6 form-group p_star">
                                     <input type="text" class="form-control" id="number" name="mobile"
                                         placeholder="Phone number">
-                                    <div class="text-danger" id="mobileError"></div>
+                                    <div class="text-danger" id="mobileError1"></div>
                                 </div>
                                 <div class="col-md-6 form-group p_star">
                                     <input type="text" class="form-control" id="email" name="email"
                                         placeholder="Email Address">
-                                    <div class="text-danger" id="emailError"></div>
+                                    <div class="text-danger" id="emailError1"></div>
                                 </div>
                                 <div class="col-md-12 form-group p_star">
                                     <input type="text" class="form-control" id="address" name="address"
                                         placeholder="Address">
-                                    <div class="text-danger" id="addressError"></div>
+                                    <div class="text-danger" id="addressError1"></div>
                                 </div>
                                 <div class="col-md-12 form-group p_star">
                                     <input type="text" class="form-control" id="country" name="country"
                                         placeholder="country">
-                                    <div class="text-danger" id="countryError"></div>
+                                    <div class="text-danger" id="countryError1"></div>
                                 </div>
                                 <div class="col-md-12 form-group p_star">
                                     <input type="text" class="form-control" id="state" name="state" placeholder="State">
-                                    <div class="text-danger" id="stateError"></div>
+                                    <div class="text-danger" id="stateError1"></div>
                                 </div>
                                 <div class="col-md-12 form-group p_star">
                                     <input type="text" class="form-control" id="city" name="city" placeholder="City">
-                                    <div class="text-danger" id="cityError"></div>
+                                    <div class="text-danger" id="cityError1"></div>
                                 </div>
                                 <div class="col-md-12 form-group">
                                     <input type="text" class="form-control" id="zip" name="pinCode"
                                         placeholder="Pincode">
-                                    <div class="text-danger" id="pinCodeError"></div>
+                                    <div class="text-danger" id="pinCodeError1"></div>
                                 </div>
                                 <div class="profile-buttons">
                                     <button class="btn1" type="submit">ADD ADDRESS</button>
@@ -612,158 +610,159 @@
 
     <!--==========add address validate==========-->
     <script>
-        document.querySelector('form.contact_form').addEventListener('submit', function (e) {
-    e.preventDefault();
-
-    document.querySelectorAll('.text-danger').forEach((element) => {
-        element.textContent = '';
-    });
-
-    const firstName = document.getElementById('first').value.trim();
-    const lastName = document.getElementById('last').value.trim();
-    const mobile = document.getElementById('number').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const address = document.getElementById('address').value.trim();
-    const country = document.getElementById('country').value.trim();
-    const state = document.getElementById('state').value.trim();
-    const city = document.getElementById('city').value.trim();
-    const pinCode = document.getElementById('zip').value.trim();
-
+document.getElementById('addressForm').addEventListener('submit', function(event) {
+    event.preventDefault();
     let isValid = true;
 
-    if (!firstName) {
-        document.getElementById('firstNameError').textContent = 'First name is required.';
+    const firstName = document.getElementById('first');
+    if (firstName.value.trim() === '') {
+        document.getElementById('firstNameError1').textContent = 'First name is required.';
         isValid = false;
+    } else {
+        document.getElementById('firstNameError1').textContent = '';
     }
 
-    if (!lastName) {
-        document.getElementById('lastNameError').textContent = 'Last name is required.';
+    const lastName = document.getElementById('last');
+    if (lastName.value.trim() === '') {
+        document.getElementById('lastNameError1').textContent = 'Last name is required.';
         isValid = false;
+    } else {
+        document.getElementById('lastNameError1').textContent = '';
     }
 
-    if (!mobile || !/^\d{10}$/.test(mobile)) {
-        document.getElementById('mobileError').textContent = 'Enter a valid 10-digit phone number.';
+    const mobile = document.getElementById('number');
+    const mobileRegex = /^[0-9]{10}$/;
+    if (!mobileRegex.test(mobile.value)) {
+        document.getElementById('mobileError1').textContent = 'Phone number must be 10 digits.';
         isValid = false;
+    } else {
+        document.getElementById('mobileError1').textContent = '';
     }
 
-    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
-        document.getElementById('emailError').textContent = 'Enter a valid email address.';
+    const email = document.getElementById('email');
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    if (!emailRegex.test(email.value)) {
+        document.getElementById('emailError1').textContent = 'Please enter a valid email address.';
         isValid = false;
+    } else {
+        document.getElementById('emailError1').textContent = '';
     }
 
-    if (!address) {
-        document.getElementById('addressError').textContent = 'Address is required.';
+    const address = document.getElementById('address');
+    if (address.value.trim() === '') {
+        document.getElementById('addressError1').textContent = 'Address is required.';
         isValid = false;
+    } else {
+        document.getElementById('addressError1').textContent = '';
     }
 
-    if (!country) {
-        document.getElementById('countryError').textContent = 'Country is required.';
+    const country = document.getElementById('country');
+    if (country.value.trim() === '') {
+        document.getElementById('countryError1').textContent = 'Country is required.';
         isValid = false;
+    } else {
+        document.getElementById('countryError1').textContent = '';
     }
 
-    if (!state) {
-        document.getElementById('stateError').textContent = 'State is required.';
+    const state = document.getElementById('state');
+    if (state.value.trim() === '') {
+        document.getElementById('stateError1').textContent = 'State is required.';
         isValid = false;
+    } else {
+        document.getElementById('stateError1').textContent = '';
     }
 
-    if (!city) {
-        document.getElementById('cityError').textContent = 'City is required.';
+    const city = document.getElementById('city');
+    if (city.value.trim() === '') {
+        document.getElementById('cityError1').textContent = 'City is required.';
         isValid = false;
+    } else {
+        document.getElementById('cityError1').textContent = '';
     }
 
-    if (!pinCode || !/^\d{5,6}$/.test(pinCode)) {
-        document.getElementById('pinCodeError').textContent = 'Enter a valid 5 or 6-digit pincode.';
+    const pinCode = document.getElementById('zip');
+    const pinCodeRegex = /^[0-9]{6}$/;
+    if (!pinCodeRegex.test(pinCode.value)) {
+        document.getElementById('pinCodeError1').textContent = 'Pin code must be 6 digits.';
         isValid = false;
+    } else {
+        document.getElementById('pinCodeError1').textContent = '';
     }
 
     if (isValid) {
-        this.submit();
+        document.getElementById('addressForm').submit();
     }
 });
-
-    </script>
+</script>
 
     <!--==========edit address validate==========-->
     <script>
     document.getElementById("editAddressForm").addEventListener("submit", function (e) {
     let isValid = true;
 
-    // Clear previous errors
     const errorFields = document.querySelectorAll(".text-danger");
     errorFields.forEach((field) => (field.textContent = ""));
 
-    // Validate First Name
     const firstName = document.getElementById("editFirstName").value.trim();
     if (!firstName) {
         document.getElementById("firstNameError").textContent = "First Name is required.";
         isValid = false;
     }
 
-    // Validate Last Name
     const lastName = document.getElementById("editLastName").value.trim();
     if (!lastName) {
         document.getElementById("lastNameError").textContent = "Last Name is required.";
         isValid = false;
     }
 
-    // Validate Mobile
     const mobile = document.getElementById("editMobile").value.trim();
     if (!/^\d{10}$/.test(mobile)) {
         document.getElementById("mobileError").textContent = "Enter a valid 10-digit mobile number.";
         isValid = false;
     }
 
-    // Validate Email
     const email = document.getElementById("editEmail").value.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         document.getElementById("emailError").textContent = "Enter a valid email address.";
         isValid = false;
     }
 
-    // Validate Address
     const address = document.getElementById("editAddress").value.trim();
     if (!address) {
         document.getElementById("addressError").textContent = "Address is required.";
         isValid = false;
     }
 
-    // Validate City
     const city = document.getElementById("editCity").value.trim();
     if (!city) {
         document.getElementById("cityError").textContent = "City is required.";
         isValid = false;
     }
 
-    // Validate State
     const state = document.getElementById("editState").value.trim();
     if (!state) {
         document.getElementById("stateError").textContent = "State is required.";
         isValid = false;
     }
 
-    // Validate Country
     const country = document.getElementById("editCountry").value.trim();
     if (!country) {
         document.getElementById("countryError").textContent = "Country is required.";
         isValid = false;
     }
 
-    // Validate Pin Code
     const pinCode = document.getElementById("editPinCode").value.trim();
     if (!/^\d{6}$/.test(pinCode)) {
         document.getElementById("pinCodeError").textContent = "Enter a valid 6-digit pin code.";
         isValid = false;
     }
 
-    // Prevent form submission if not valid
     if (!isValid) {
         e.preventDefault();
     }
 });
 
-</script>
-
-
+    </script>
 
     <!--==============check cod les than 10000 ==============-->
     <script>
@@ -1103,12 +1102,12 @@ function handlePaymentFailure(orderData, paymentStatus) {
 
 <!--=======apply coupon & remove coupon===========-->
 <script>
-   function applyCoupon() {
-    const couponCode = document.getElementById("couponCodeInput").value;
+  function applyCoupon() {
+    const couponCode = document.getElementById("couponCodeInput").value.trim();
     const subtotal = parseFloat(document.getElementById("subtotal").textContent.replace("₹", ""));
-    const total=parseFloat(document.getElementById("total").textContent.replace("₹",""))
+    const total = parseFloat(document.getElementById("total").textContent.replace("₹", ""));
 
-     if (!couponCode) {
+    if (!couponCode) {
         Swal.fire({
             title: 'Error!',
             text: 'Please enter a valid coupon code.',
@@ -1117,7 +1116,7 @@ function handlePaymentFailure(orderData, paymentStatus) {
         });
         return;
     }
-    
+
     fetch('/applyCoupon', {
         method: 'POST',
         headers: {
@@ -1128,12 +1127,11 @@ function handlePaymentFailure(orderData, paymentStatus) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            console.log("working success")
             const discount = parseFloat(data.discount);
-            const newTotal = parseFloat(data.newTotal)
+            const newTotal = parseFloat(data.newTotal);
 
             if (isNaN(newTotal)) {
-                 Swal.fire({
+                Swal.fire({
                     title: 'Error!',
                     text: 'Error calculating the total.',
                     icon: 'error',
@@ -1141,23 +1139,24 @@ function handlePaymentFailure(orderData, paymentStatus) {
                 });
                 return;
             }
-            
+
             document.getElementById("discountRow").style.display = 'block';
             document.getElementById("discount").textContent = "₹" + discount.toFixed(2);
 
             document.getElementById("totalAfterDiscountRow").style.display = 'block';
-            document.getElementById("totalAfterDiscount").textContent = "₹" + (total - discount).toFixed(2);
+            document.getElementById("totalAfterDiscount").textContent = "₹" + newTotal.toFixed(2);
 
-           Swal.fire({
+            Swal.fire({
                 title: 'Success!',
-                text: `Coupon applied: ₹${discount} discount`,
+                text: `Coupon applied: ₹${discount.toFixed(2)} discount`,
                 icon: 'success',
                 confirmButtonText: 'OK'
             });
         } else {
+            // Display error message from the backend
             Swal.fire({
                 title: 'Error!',
-                text: data.message,
+                text: data.message, // Use the message returned from the backend
                 icon: 'error',
                 confirmButtonText: 'OK'
             });
@@ -1167,12 +1166,13 @@ function handlePaymentFailure(orderData, paymentStatus) {
         console.error('Error:', error);
         Swal.fire({
             title: 'Error!',
-            text: 'Error applying coupon.',
+            text: 'Error applying coupon. Please try again later.',
             icon: 'error',
             confirmButtonText: 'OK'
         });
     });
 }
+
 
 function removeCoupon() {
     document.getElementById("discountRow").style.display = 'none';

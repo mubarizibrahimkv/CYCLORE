@@ -49,11 +49,16 @@ function generateCustomerInformation(doc, order) {
 function generateInvoiceTable(doc, order) {
   const invoiceTableTop = 300;
 
+  // Table Header
   doc.fontSize(12).text("Items", 50, invoiceTableTop);
   doc.text("Qty", 200, invoiceTableTop, { width: 90, align: "right" });
   doc.text("Unit Price", 300, invoiceTableTop, { width: 90, align: "right" });
   doc.text("Total", 400, invoiceTableTop, { width: 90, align: "right" });
 
+  // Initialize adjusted subtotal
+  let adjustedSubtotal = 0;
+
+  // Table Content
   order.products.forEach((product, index) => {
     const yPosition = invoiceTableTop + 25 + index * 25;
     const unitPrice = product.discountedPrice || product.productId.price;
@@ -64,32 +69,60 @@ function generateInvoiceTable(doc, order) {
     doc.text(`₹${unitPrice}`, 300, yPosition, { width: 90, align: "right" });
     doc.text(`₹${totalPrice}`, 400, yPosition, { width: 90, align: "right" });
 
-    if (product.discountedPrice && product.discountedPrice < product.productId.price) {
-      doc.fontSize(8).fillColor("green").text(
-        `Offer Applied: Original Price ₹${product.productId.price}`,
+    if (product.status) {
+      doc.fontSize(8).fillColor("red").text(
+        `Status: ${product.status}`,
         50,
         yPosition + 10
       );
       doc.fillColor("black");
     }
+
+    if (["Cancelled", "Returned"].includes(product.status)) {
+      doc.fontSize(8).fillColor("orange").text(
+        `${product.status}: Yes`,
+        50,
+        yPosition + 20
+      );
+      doc.fillColor("black");
+    } else {
+      doc.fontSize(8).fillColor("green").text(
+        `Cancelled/Returned: No`,
+        50,
+        yPosition + 20
+      );
+      doc.fillColor("black");
+
+      adjustedSubtotal += totalPrice;
+    }
+
+    if (product.discountedPrice && product.discountedPrice < product.productId.price) {
+      doc.fontSize(8).fillColor("green").text(
+        `Offer Applied: Original Price ₹${product.productId.price}`,
+        50,
+        yPosition + 30
+      );
+      doc.fillColor("black");
+    }
   });
 
-  const subtotal = order.products.reduce((sum, product) => {
-    const unitPrice = product.discountedPrice || product.productId.price;
-    return sum + unitPrice * product.quantity;
-  }, 0);
+  const couponDiscount = order.couponDiscount || 0;
+  const shippingCost = order.shippingCost || 0;
+  const adjustedTotal = adjustedSubtotal - couponDiscount + shippingCost;
 
   const totalY = invoiceTableTop + 25 + order.products.length * 25;
 
-  doc.text(`Subtotal: ₹${subtotal}`, 400, totalY, { width: 90, align: "right" });
+  doc.text(`Subtotal: ₹${adjustedSubtotal}`, 400, totalY, { width: 90, align: "right" });
 
-  if (order.couponDiscount > 0) {
-    doc.text(`Coupon Discount: -₹${order.couponDiscount}`, 380, totalY + 20, { width: 90, align: "right" });
+  if (couponDiscount > 0) {
+    doc.text(`Coupon Discount: -₹${couponDiscount}`, 400, totalY + 20, { width: 90, align: "right" });
   }
 
-  doc.text(`Shipping Cost: ₹${order.shippingCost}`, 400, totalY + 40, { width: 90, align: "right" });
-  doc.text(`Total: ₹${order.total}`, 400, totalY + 60, { width: 90, align: "right" });
+  doc.text(`Shipping Cost: ₹${shippingCost}`, 400, totalY + 40, { width: 90, align: "right" });
+  doc.text(`Total: ₹${adjustedTotal}`, 400, totalY + 60, { width: 90, align: "right" });
 }
+
+
 
 function generateFooter(doc) {
   doc

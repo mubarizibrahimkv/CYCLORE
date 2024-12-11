@@ -175,7 +175,7 @@
                     {{#each inventory}}
                     <tr id="product-{{this._id}}">
                         <td>{{this.name}}</td>
-                        <td>{{this.category}}</td>
+                        <td>{{this.categories.name}}</td>
                         <td>₹{{this.price}}</td>
                         <form action="/admin/inventory/update/{{this._id}}" method="post">
                             <td>

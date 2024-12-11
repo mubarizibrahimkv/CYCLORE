@@ -18,7 +18,7 @@ const pageNotFound = async (req, res) => {
 }
 
 const loadHomePage = async (req, res) => {
-    const user=req.session.user
+    const user = req.session.user
     try {
         const bannerImages = [
             '/img/banner/banner-image.png',
@@ -28,7 +28,7 @@ const loadHomePage = async (req, res) => {
         ];
 
         const randomImage = bannerImages[Math.floor(Math.random() * bannerImages.length)];
-        return res.render("user/home", { user,bannerImagePath: randomImage })
+        return res.render("user/home", { user, bannerImagePath: randomImage })
     } catch (error) {
         res.send(error)
     }
@@ -64,7 +64,6 @@ const checkBlockStatus = async (req, res) => {
     }
 };
 
-// ---------------register------------------
 const loadRegister = async (req, res) => {
     try {
         return res.render("user/register");
@@ -146,7 +145,7 @@ const registerUser = async (req, res) => {
 const googleAuth = async (req, res) => {
     try {
         const user = req.user;
-                
+
         if (!user) {
             return res.redirect("/register");
         }
@@ -269,37 +268,45 @@ const loadShop = async (req, res) => {
         const { category, sort, minPrice, maxPrice } = req.query;
 
         let filterQuery = { isListed: true };
-
         const listedCategories = await categoryModel.find({ isListed: true });
-
         const listedCategoryIds = listedCategories.map(cat => cat._id);
 
         if (category) {
             const categoryDoc = await categoryModel.findOne({ name: category, isListed: true });
             if (categoryDoc) {
-                filterQuery.categories = categoryDoc._id; 
+                filterQuery.categories = { $in: [categoryDoc._id] };
             } else {
-                return res.render('user/shop', { products: [], categories: [], user });
+                return res.render('user/shop', {
+                    products: [],
+                    categories: listedCategories,
+                    user,
+                    selectedCategory: category,
+                    sortOption: sort,
+                    minPrice,
+                    maxPrice
+                });
             }
+        } else {
+            filterQuery.categories = { $in: listedCategoryIds };
         }
 
         if (minPrice || maxPrice) {
             filterQuery.price = {};
-            if (minPrice) filterQuery.price.$gte = minPrice;
-            if (maxPrice) filterQuery.price.$lte = maxPrice;
+            if (minPrice) filterQuery.price.$gte = parseFloat(minPrice);
+            if (maxPrice) filterQuery.price.$lte = parseFloat(maxPrice);
         }
 
         let sortQuery = {};
         if (sort === 'az') {
-            sortQuery.name = 1; 
+            sortQuery.name = 1;
         } else if (sort === 'za') {
-            sortQuery.name = -1; 
+            sortQuery.name = -1;
         } else if (sort === 'new-arrivals') {
-            sortQuery.createdAt = -1; 
+            sortQuery.createdAt = -1;
         }
 
         const products = await productModel
-            .find({ ...filterQuery, categories: { $in: listedCategoryIds } })
+            .find(filterQuery)
             .populate('offer')
             .populate('categories')
             .sort(sortQuery)
@@ -308,25 +315,24 @@ const loadShop = async (req, res) => {
         products.forEach((product) => {
             product.discountedPrice = product.price;
             if (product.offer) {
-                if (product.offer.applicableTo === 'Category') {
-                    if (product.offer.discountType === 'percentage') {
-                        const discount = (product.price * product.offer.discountValue) / 100;
-                        product.discountedPrice = product.price - discount;
-                    } else if (product.offer.discountType === 'fixed') {
-                        product.discountedPrice = product.price - product.offer.discountValue;
-                    }
-                } else if (product.offer.applicableTo === 'Product') {
-                    if (product.offer.discountType === 'percentage') {
-                        const discount = (product.price * product.offer.discountValue) / 100;
-                        product.discountedPrice = product.price - discount;
-                    } else if (product.offer.discountType === 'fixed') {
-                        product.discountedPrice = product.price - product.offer.discountValue;
-                    }
+                const discountValue = product.offer.discountValue || 0;
+                if (product.offer.discountType === 'percentage') {
+                    product.discountedPrice -= (product.price * discountValue) / 100;
+                } else if (product.offer.discountType === 'fixed') {
+                    product.discountedPrice -= discountValue;
                 }
             }
         });
 
-        res.render('user/shop', { products, categories: listedCategories, user });
+        res.render('user/shop', {
+            products,
+            categories: listedCategories,
+            user,
+            selectedCategory: category,
+            sortOption: sort,
+            minPrice,
+            maxPrice
+        });
     } catch (error) {
         console.error('Error fetching products:', error);
         res.status(500).send('Internal Server Error');

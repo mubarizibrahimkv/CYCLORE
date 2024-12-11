@@ -35,7 +35,6 @@ const loadOrder = async (req, res) => {
     }
 }
 
-
 const cancelOrder = async (req, res) => {
     const { orderId, productId } = req.params;
 
@@ -58,6 +57,12 @@ const cancelOrder = async (req, res) => {
 
         if (allProductCancelled) {
             order.status = "Cancelled";
+        } else if (order.products.some(e => e.status === "Pending")) {
+            order.status = "Pending";
+        } else if (order.products.some(e => e.status === "Shipped")) {
+            order.status = "Shipped";
+        }else if (order.products.every(e => e.status === "Delivered")) {
+            order.status = "Delivered";
         }
 
         await order.save();
@@ -72,7 +77,6 @@ const cancelOrder = async (req, res) => {
     }
 
 };
-
 
 const updateProductStatus = async (req, res) => {
     const { orderId, productId } = req.params;

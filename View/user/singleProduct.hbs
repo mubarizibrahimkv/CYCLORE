@@ -83,7 +83,7 @@
                         <ul class="nav navbar-nav menu_nav ml-auto">
                             <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
                             <li class="nav-item submenu dropdown active">
-                                <a href="#" class="nav-link dropdown-toggle" role="button" aria-haspopup="true"
+                                <a href="/shop" class="nav-link dropdown-toggle" role="button" aria-haspopup="true"
                                     aria-expanded="false">Shop</a>
                                
                             </li>
@@ -126,11 +126,6 @@
             <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
                 <div class="col-first">
                     <h1>Product Details Page</h1>
-                    <nav class="d-flex align-items-center">
-                        <a href="index.html">Home<span class="lnr lnr-arrow-right"></span></a>
-                        <a href="#">Shop<span class="lnr lnr-arrow-right"></span></a>
-                        <a href="single-product.html">product-details</a>
-                    </nav>
                 </div>
             </div>
         </div>
@@ -175,22 +170,15 @@
                             <li><a href="#"><span>Availibility</span> : {{product.stock}}</a></li>
                         </ul>
                         <p>{{product.description}}</p>
-                        <div class="product_count">
-                            <label for="qty">Quantity:</label>
-                            <input type="text" name="qty" id="sst" maxlength="12" value="1" title="Quantity:"
-                                class="input-text qty">
-                            <button
-                                onclick="var result = document.getElementById('sst'); var sst = result.value; if( !isNaN( sst )) result.value++;return false;"
-                                class="increase items-count" type="button"><i class="lnr lnr-chevron-up"></i></button>
-                            <button
-                                onclick="var result = document.getElementById('sst'); var sst = result.value; if( !isNaN( sst ) &amp;&amp; sst > 0 ) result.value--;return false;"
-                                class="reduced items-count" type="button"><i class="lnr lnr-chevron-down"></i></button>
-                        </div>
+                        {{#if (gt product.stock 0)}}
                         <div class="card_area d-flex align-items-center">
                             <a class="primary-btn" href="/cart/add/{{product._id}}">Add to Cart</a>
-                            <a class="icon_btn" href="#"><i class="lnr lnr lnr-diamond"></i></a>
-                            <a class="icon_btn" href="#"><i class="lnr lnr lnr-heart"></i></a>
                         </div>
+                        {{else}}
+                        <div class="card_area d-flex align-items-center">
+                        <p class="primary-btn">Out of Stock</p>
+                        </div>
+                        {{/if}}
                     </div>
                 </div>
             </div>

@@ -194,7 +194,8 @@
                                     <div class="product_count">
                                         <input type="text" name="qty" id="sst" maxlength="12" value="{{this.quantity}}"
                                             title="Quantity:" class="input-text qty"
-                                            data-product-id="{{this.productId._id}}">
+                                            data-product-id="{{this.productId._id}}"
+                                            data-stock="{{this.productId.stock}}">
                                         <button onclick="updateQuantity('increase', '{{this.productId._id}}')"
                                             class="increase items-count" type="button">
                                             <i class="lnr lnr-chevron-up"></i>
@@ -224,6 +225,7 @@
                             </tr>
                             {{/each}}
                             {{/each}}
+                            {{/if}}
                             <td colspan="6">
                                 <div>
                                     <h5><strong>Order Total : </strong>
@@ -231,7 +233,6 @@
                             <td id="order-total"><strong>₹0.00</strong></td>
                 </div>
                 </td>
-                {{/if}}
                 <tr class="out_button_area">
                     <td>
 
@@ -406,10 +407,21 @@
             const input = document.querySelector(`input[data-product-id='${productId}']`);
             const priceElement = document.querySelector(`#price-${productId}`);
             const orderTotalElement = document.getElementById('order-total');
+            const maxStock = parseInt(input.getAttribute('data-stock'))
             let currentQty = parseInt(input.value);
 
             if (action === 'increase') {
-                currentQty++;
+                if (currentQty < maxStock) {
+                    currentQty++;
+                } else {
+                    swal.fire({
+                        title: "Stock Limit Reached",
+                        text: `Only ${maxStock} items available in stock.`,
+                        icon: "warning",
+                        button: "Okay",
+                    });
+                    return; 
+                }
             } else if (action === 'decrease' && currentQty > 1) {
                 currentQty--;
             }
@@ -462,29 +474,55 @@
     </script>
 
 
-    <!----delete   product---->
+    <!--========delete product============-->
     <script>
         function cancelProduct(productId) {
-            fetch(`/cart/cancel/${productId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const productRow = document.querySelector(`#product-${productId}`);
-                        if (productRow) {
-                            productRow.remove();
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to remove this product from the cart?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/cart/cancel/${productId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
                         }
-                    } else {
-                        console.error('Error:', data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error canceling product:', error);
-                });
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const productRow = document.querySelector(`#product-${productId}`);
+                                if (productRow) {
+                                    productRow.remove();
+                                }
+                                Swal.fire(
+                                    'Deleted!',
+                                    'Your product has been removed from the cart.',
+                                    'success'
+                                );
+                            } else {
+                                Swal.fire(
+                                    'Error!',
+                                    data.message || 'There was an issue removing the product.',
+                                    'error'
+                                );
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire(
+                                'Error!',
+                                'An unexpected error occurred.',
+                                'error'
+                            );
+                            console.error('Error canceling product:', error);
+                        });
+                }
+            });
         }
     </script>
 </body>

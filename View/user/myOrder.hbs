@@ -494,7 +494,7 @@
                     <th>quantity</th>
                     <th>Total</th>
                     <th>Status</th>
-                    <th>Cancel Order</th>
+                    <th>Action</th>
                     <th>View</th>
                 </tr>
             </thead>
@@ -508,27 +508,28 @@
                     <td>{{#if this.discountedPrice}}{{multiply this.discountedPrice this.quantity}}{{else}}₹{{multiply
                         this.productId.price this.quantity}}{{/if}}</td>
                     <td><span class="status pending">{{this.status}}</span></td>
-                    <td>
-                        <form action="/order/cancel/{{../_id}}/{{this.productId._id}}" method="POST"
-                            class="cancel-form">
-                            <input type="hidden" name="cancellationReason" class="cancellation-reason" />
-                            <button type="button" class="btn btn-danger btn-sm cancel-btn"
-                                data-product-id="{{this.productId._id}}" {{#if (eq this.status "Cancelled" )}} disabled
-                                {{/if}}>
-                                Cancel
-                            </button>
-                        </form>
-                    </td>
-                    <td>
-                        <form action="/profile/order/viewDetails/{{../_id}}/{{this.productId._id}}" method="GET"><button
-                                type="submit" class="btn btn-danger btn-sm">View details</button></form>
-                    </td>
                     {{#if (eq this.status "Delivered")}}
                     <td>
                         <button onclick="returnProduct('{{../_id}}','{{this.productId._id}}')"
                             class="btn btn-success btn-sm">Return</button>
                     </td>
+                    {{else}}
+                    <td>
+                        <form action="/order/cancel/{{../_id}}/{{this.productId._id}}" method="POST"
+                            class="cancel-form">
+                            <input type="hidden" name="cancellationReason" class="cancellation-reason" />
+                            <button type="button" class="btn btn-danger btn-sm cancel-btn"
+                                data-product-id="{{this.productId._id}}" {{#if (or (eq this.status "Cancelled" ) (eq
+                                ../paymentStatus "Failed" ) (eq this.status "Returned" ))}} disabled {{/if}}>
+                                Cancel Product
+                            </button>
+                        </form>
+                    </td>
                     {{/if}}
+                    <td>
+                        <form action="/profile/order/viewDetails/{{../_id}}/{{this.productId._id}}" method="GET"><button
+                                type="submit" class="btn btn-danger btn-sm">View details</button></form>
+                    </td>
                 </tr>
                 {{/each}}
                 <tr>
@@ -545,7 +546,8 @@
                     {{#if (eq this.paymentStatus "Failed")}}
                     <td>
                         <h6>Payment Failed!</h6>
-                        <button onclick="handleRetryPayment('{{this._id}}')" class="btn btn-primary btn-sm">Retry</button>
+                        <button onclick="handleRetryPayment('{{this._id}}')"
+                            class="btn btn-primary btn-sm">Retry</button>
                     </td>
                     {{/if}}
                 </tr>
@@ -666,7 +668,7 @@
 
     <!--=========return product========-->
     <script>
-        function returnProduct(orderId,productId) {
+        function returnProduct(orderId, productId) {
             Swal.fire({
                 title: 'Return Reason',
                 input: 'textarea',

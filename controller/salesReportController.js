@@ -14,23 +14,29 @@ const loadSalesReport = async (req, res) => {
         let overallNetSales = 0;
 
         orders.forEach(order => {
+            const validProducts = order.products.filter(product => product.status !== "Cancelled");
+
+            if (validProducts.length === 0) {
+                return;
+            }
+
             const orderDate = order.createdAt.toISOString().split('T')[0];
 
-            const orderTotal = order.products.reduce(
+            const orderTotal = validProducts.reduce(
                 (sum, product) => sum + (product.price * product.quantity),
                 0
             );
-            const offerTotal=order.products.reduce(
-                (sum,product)=>sum+(product.discountedPrice*product.quantity),
+            const offerTotal = validProducts.reduce(
+                (sum, product) => sum + (product.discountedPrice * product.quantity),
                 0
-            )
-            
+            );
+
             const orderTotalWithShippingCost = orderTotal + order.shippingCost;
-            const offeredPriceWithShippingCost=offerTotal+ order.shippingCost;
-            const offerDiscount = orderTotalWithShippingCost-offeredPriceWithShippingCost
-            const couponDiscount=order.couponDiscount;
-            const discount=offerDiscount+couponDiscount;
-            
+            const offeredPriceWithShippingCost = offerTotal + order.shippingCost;
+            const offerDiscount = orderTotalWithShippingCost - offeredPriceWithShippingCost;
+            const couponDiscount = order.couponDiscount || 0;
+            const discount = offerDiscount + couponDiscount;
+
             if (!dailyReport[orderDate]) {
                 dailyReport[orderDate] = {
                     totalOrders: 0,
@@ -44,7 +50,6 @@ const loadSalesReport = async (req, res) => {
             dailyReport[orderDate].totalAmount += orderTotalWithShippingCost;
             dailyReport[orderDate].totalDiscount += discount;
             dailyReport[orderDate].netSales += order.total;
-            
 
             overallOrderCount++;
             overallTotalSales += orderTotalWithShippingCost;
@@ -173,14 +178,13 @@ const downloadExcelReport = async (req, res) => {
     }
 };
 
-const filter = async (req, res) => {
+const filter = async (req, res) => {    
     const { specificDay, quickRange, fromDate, toDate } = req.body;
 
     try {
         let query = {};
         const now = new Date();
 
-        // Handle specific day filter
         if (specificDay) {
             const startOfDay = new Date(specificDay);
             startOfDay.setHours(0, 0, 0, 0);
@@ -189,7 +193,6 @@ const filter = async (req, res) => {
             query.createdAt = { $gte: startOfDay, $lte: endOfDay };
         }
 
-        // Handle quick range filters
         if (quickRange === '1day') {
             const yesterday = new Date(now);
             yesterday.setDate(now.getDate() - 1);
@@ -204,14 +207,12 @@ const filter = async (req, res) => {
             query.createdAt = { $gte: lastMonth, $lte: now };
         }
 
-        // Handle custom date range filter
         if (fromDate && toDate) {
             const startDate = new Date(fromDate);
             const endDate = new Date(toDate);
             query.createdAt = { $gte: startDate, $lte: endDate };
         }
 
-        // Query the sales data with the constructed query
         const dailyReport = await orderModel.aggregate([
             { $match: query },
             { $unwind: "$products" },
@@ -266,8 +267,6 @@ const filter = async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 };
-
-
 
 module.exports = {
     loadSalesReport,

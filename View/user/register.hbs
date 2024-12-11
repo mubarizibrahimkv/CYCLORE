@@ -166,9 +166,6 @@
             font-size: 0.75rem;
             display: none;
         }
-       
-        
-        
     </style>
 </head>
 
@@ -176,6 +173,7 @@
     <div class="container">
         <div class="left-side">
             <div class="content">
+                <h1><strong>CYCLORE</strong></h1>
                 <h2>Join Us Today!</h2>
                 <p>"Pedal into a world of possibilities – register now!"</p>
             </div>
@@ -213,11 +211,11 @@
                 </div>
                 <button type="submit">Register</button>
                 <a href="/auth/google">
-                <div class="google-signup">
-                    <img src="https://i.pinimg.com/236x/39/21/6d/39216d73519bca962bd4a01f3e8f4a4b.jpg"
-                        alt="Google Logo">
-                    Sign Up with Google
-                </div>
+                    <div class="google-signup">
+                        <img src="https://i.pinimg.com/236x/39/21/6d/39216d73519bca962bd4a01f3e8f4a4b.jpg"
+                            alt="Google Logo">
+                        Sign Up with Google
+                    </div>
                 </a>
                 <a href="/login">Already have an account? Log In</a>
             </form>
@@ -274,7 +272,7 @@
             const phonepattern = /^[0-9]{10}$/;
             if (!phonepattern.test(phoneval)) {
                 error3.innerHTML = "Phone number must be 10 digits.";
-                error3.style.display = "block"; 
+                error3.style.display = "block";
                 return false;
             } else {
                 error3.innerHTML = "";
@@ -285,8 +283,10 @@
 
         function passwordValidateChecking() {
             const passwordval = passwordId.value;
-            if (passwordval.length < 8) {
-                error4.innerHTML = "Password must be at least 8 characters long.";
+            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+            if (!passwordPattern.test(passwordval)) {
+                error4.innerHTML = "Password must be at least 8 characters long, and include one uppercase letter, one lowercase letter, one number, and one special character.";
                 error4.style.display = "block";
                 return false;
             } else {
@@ -295,6 +295,7 @@
                 return true;
             }
         }
+
         function confirmPasswordValidateChecking() {
             if (passwordId.value !== confirmPassword.value) {
                 error5.innerHTML = "Passwords do not match.";

@@ -304,7 +304,6 @@
             color: #555;
         }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
             .navbar-2-link {
                 font-size: 0.9rem;
@@ -329,21 +328,16 @@
             color: white;
         }
 
-        .error-message {
-            color: red;
-            font-size: 12px;
-            display: none;
-        }
-
-        .error-message {
-            color: red;
-            font-size: 0.85rem;
-            margin-top: 5px;
-        }
-
         .is-invalid {
             border-color: red;
             outline: none;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.875em;
+            display: block;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -430,7 +424,6 @@
             </div>
         </div>
 
-
         <!-- Modal HTML -->
         <div class="modal fade {{#if showModal}}show{{/if}}" id="changePasswordModal" tabindex="-1"
             aria-labelledby="changePasswordModalLabel" aria-hidden="true">
@@ -450,18 +443,15 @@
                         <form id="changePasswordForm" action="/profile/change-Password" method="post">
                             <div class="mb-3">
                                 <label for="currentPassword" class="form-label">Current Password</label>
-                                <input type="password" class="form-control" id="currentPassword" name="currentPassword"
-                                    required>
+                                <input type="password" class="form-control" id="currentPassword" name="currentPassword">
                             </div>
                             <div class="mb-3">
                                 <label for="newPassword" class="form-label">New Password</label>
-                                <input type="password" class="form-control" id="newPassword" name="newPassword"
-                                    required>
+                                <input type="password" class="form-control" id="newPassword" name="newPassword">
                             </div>
                             <div class="mb-3">
                                 <label for="confirmPassword" class="form-label">Confirm New Password</label>
-                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
-                                    required>
+                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword">
                             </div>
                             <button type="submit" class="btn btn-primary">Change Password</button>
                         </form>
@@ -486,7 +476,7 @@
                 <button class="edit-icon"
                     onclick="openEditModal('{{this.id}}','{{this.firstName}}','{{this.lastName}}','{{this.mobile}}','{{this.email}}',
                       '{{this.address}}','{{this.city}}','{{this.state}}','{{this.country}}','{{this.pinCode}}')">edit</button>
-                <form action="/profile/deleteAddress/{{this._id}}?_method=DELETE" method="POST"><button
+                <form action="/profile/deleteAddress/{{this._id}}" method="POST"><button
                         class="delete-icon">Delete</button></form>
             </div>
             {{/each}}
@@ -494,14 +484,14 @@
         <br>
         <hr>
 
-        <!--=================add address modal==================-->
+        <!--=================add address ==================-->
         <div class="section">
             <h3 class="h4">ADD ADDRESS</h3>
             <form action="/profile/saveAddress" method="post" id="addressForm">
                 <div class="profile-info">
                     <div class="profile-details">
                         <input type="text" id="firstName" placeholder="First Name" name="firstName">
-                        <span class="error-message" id="firstNameError"></span>
+                        <div class="error-message" id="firstNameError"></div>
 
                         <input type="text" id="lastName" placeholder="Last Name" name="lastName">
                         <span class="error-message" id="lastNameError"></span>
@@ -706,55 +696,53 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 
-    <!--===============edit address modal--=============-->
+    <!--===============edit address modal validation=============-->
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const editForm = document.getElementById('editAddressForm');
-        const fields = [
-            { id: 'editFirstName', validation: value => value.trim() !== '', errorMessage: 'First Name is required.' },
-            { id: 'editLastName', validation: value => value.trim() !== '', errorMessage: 'Last Name is required.' },
-            { id: 'editMobile', validation: value => /^\d{10}$/.test(value), errorMessage: 'Enter a valid 10-digit phone number.' },
-            { id: 'editEmail', validation: value => /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(value), errorMessage: 'Enter a valid email address.' },
-            { id: 'editAddress', validation: value => value.trim() !== '', errorMessage: 'Address is required.' },
-            { id: 'editCity', validation: value => value.trim() !== '', errorMessage: 'City is required.' },
-            { id: 'editState', validation: value => value.trim() !== '', errorMessage: 'State is required.' },
-            { id: 'editCountry', validation: value => value.trim() !== '', errorMessage: 'Country is required.' },
-            { id: 'editPinCode', validation: value => /^\d{6}$/.test(value), errorMessage: 'Enter a valid 6-digit pin code.' },
-        ];
+        document.addEventListener('DOMContentLoaded', function () {
+            const editForm = document.getElementById('editAddressForm');
+            const fields = [
+                { id: 'editFirstName', validation: value => value.trim() !== '', errorMessage: 'First Name is required.' },
+                { id: 'editLastName', validation: value => value.trim() !== '', errorMessage: 'Last Name is required.' },
+                { id: 'editMobile', validation: value => /^\d{10}$/.test(value), errorMessage: 'Enter a valid 10-digit phone number.' },
+                { id: 'editEmail', validation: value => /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(value), errorMessage: 'Enter a valid email address.' },
+                { id: 'editAddress', validation: value => value.trim() !== '', errorMessage: 'Address is required.' },
+                { id: 'editCity', validation: value => value.trim() !== '', errorMessage: 'City is required.' },
+                { id: 'editState', validation: value => value.trim() !== '', errorMessage: 'State is required.' },
+                { id: 'editCountry', validation: value => value.trim() !== '', errorMessage: 'Country is required.' },
+                { id: 'editPinCode', validation: value => /^\d{6}$/.test(value), errorMessage: 'Enter a valid 6-digit pin code.' },
+            ];
 
-        // Function to validate a single field
-        function validateField(field) {
-            const inputElement = document.getElementById(field.id);
-            const errorElement = document.getElementById(`${field.id}Error`);
-            const isValid = field.validation(inputElement.value);
+            function validateField(field) {
+                const inputElement = document.getElementById(field.id);
+                const errorElement = document.getElementById(`${field.id}Error`);
+                const isValid = field.validation(inputElement.value);
 
-            if (!isValid) {
-                errorElement.textContent = field.errorMessage;
-                inputElement.classList.add('is-invalid'); // Optional: Adds Bootstrap error style
-            } else {
-                errorElement.textContent = '';
-                inputElement.classList.remove('is-invalid'); // Optional: Removes Bootstrap error style
+                if (!isValid) {
+                    errorElement.textContent = field.errorMessage;
+                    inputElement.classList.add('is-invalid');
+                } else {
+                    errorElement.textContent = '';
+                    inputElement.classList.remove('is-invalid');
+                }
+
+                return isValid;
             }
 
-            return isValid;
-        }
+            editForm.addEventListener('submit', function (e) {
+                let allValid = true;
 
-        // Validate all fields when form is submitted
-        editForm.addEventListener('submit', function (e) {
-            let allValid = true;
+                fields.forEach(field => {
+                    if (!validateField(field)) {
+                        allValid = false;
+                    }
+                });
 
-            fields.forEach(field => {
-                if (!validateField(field)) {
-                    allValid = false;
+                if (!allValid) {
+                    e.preventDefault();
                 }
             });
-
-            if (!allValid) {
-                e.preventDefault(); // Prevent form submission if there are errors
-            }
         });
-    });
-</script>
+    </script>
 
 
 
@@ -785,6 +773,108 @@
             const editAddressModal = new bootstrap.Modal(document.getElementById('editAddressModal'));
             editAddressModal.show();
         }
+    </script>
+
+
+
+    <!--==========add address validation========-->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('addressForm');
+            const firstName = document.getElementById('firstName');
+            const lastName = document.getElementById('lastName');
+            const email = document.getElementById('email');
+            const mobile = document.getElementById('mobile');
+            const address = document.getElementById('address');
+            const city = document.getElementById('city');
+            const state = document.getElementById('state');
+            const country = document.getElementById('country');
+            const pinCode = document.getElementById('pinCode');
+
+            function showError(input, message) {
+                const errorSpan = document.getElementById(input.id + 'Error');
+                errorSpan.textContent = message;
+            }
+
+            function validateInput(event) {
+                const input = event.target;
+                const value = input.value.trim();
+
+                switch (input.id) {
+                    case 'firstName':
+                        if (!value) showError(input, 'First name is required.');
+                        else showError(input, '');
+                        break;
+
+                    case 'lastName':
+                        if (!value) showError(input, 'Last name is required.');
+                        else showError(input, '');
+                        break;
+
+                    case 'email':
+                        if (!value) showError(input, 'Email is required.');
+                        else if (!/^\S+@\S+\.\S+$/.test(value)) showError(input, 'Enter a valid email address.');
+                        else showError(input, '');
+                        break;
+
+                    case 'mobile':
+                        if (!value) showError(input, 'Phone number is required.');
+                        else if (!/^\d{10}$/.test(value)) showError(input, 'Enter a valid 10-digit phone number.');
+                        else showError(input, '');
+                        break;
+
+                    case 'address':
+                        if (!value) showError(input, 'Address is required.');
+                        else showError(input, '');
+                        break;
+
+                    case 'city':
+                        if (!value) showError(input, 'City is required.');
+                        else showError(input, '');
+                        break;
+
+                    case 'state':
+                        if (!value) showError(input, 'State is required.');
+                        else showError(input, '');
+                        break;
+
+                    case 'country':
+                        if (!value) showError(input, 'Country is required.');
+                        else showError(input, '');
+                        break;
+
+                    case 'pinCode':
+                        if (!value) showError(input, 'Pin Code is required.');
+                        else if (!/^\d{6}$/.test(value)) showError(input, 'Enter a valid 6-digit pin code.');
+                        else showError(input, '');
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+
+            [firstName, lastName, email, mobile, address, city, state, country, pinCode].forEach(input => {
+                input.addEventListener('input', validateInput);
+            });
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                let isValid = true;
+
+                [firstName, lastName, email, mobile, address, city, state, country, pinCode].forEach(input => {
+                    validateInput({ target: input });
+                    if (document.getElementById(input.id + 'Error').textContent !== '') {
+                        isValid = false;
+                    }
+                });
+
+                if (isValid) {
+                    form.submit(); 
+                }
+            });
+        });
+
     </script>
 </body>
 

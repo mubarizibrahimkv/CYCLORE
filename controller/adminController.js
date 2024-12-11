@@ -13,7 +13,6 @@ const loadLogin = async (req, res) => {
     res.render("admin/login");
 }
 
-
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -44,7 +43,6 @@ const login = async (req, res) => {
     }
 };
 
-//----------user management----------//
 const loadUserManagement = async (req, res) => {
     try {
         const users = await userModel.find({}); 
@@ -54,7 +52,6 @@ const loadUserManagement = async (req, res) => {
         res.send("Error fetching user data");
     }
 };
-
 
 const blockUser = async (req, res) => {
     const userId = req.params.id;
@@ -66,7 +63,6 @@ const blockUser = async (req, res) => {
     }
 }
 
-
 const unblockUser = async (req, res) => {
     const userId = req.params.id;
     try {
@@ -77,12 +73,10 @@ const unblockUser = async (req, res) => {
     }
 };
 
-//----------Category management--------//
 const loadCategories = async (req, res) => {
     const categories = await categoryModel.find({})
     res.render("admin/categories", { categories })
 };
-
 
 const addCategory = async (req, res) => {
     try {
@@ -117,12 +111,18 @@ const addCategory = async (req, res) => {
 const checkDuplicateAddCategory = async (req, res) => {
     try {
         const { name, variant } = req.query;
+
         if (name) {
-            const existingCategory = await categoryModel.findOne({ name: name.trim() });
+            const existingCategory = await categoryModel.findOne({
+                name: { $regex: `^${name.trim()}$`, $options: "i" } 
+            });
             return res.json({ isDuplicate: !!existingCategory });
         }
+
         if (variant) {
-            const existingVariant = await categoryModel.findOne({ variant: variant.trim() });
+            const existingVariant = await categoryModel.findOne({
+                variant: { $regex: `^${variant.trim()}$`, $options: "i" } 
+            });
             return res.json({ isDuplicate: !!existingVariant });
         }
 
@@ -133,22 +133,25 @@ const checkDuplicateAddCategory = async (req, res) => {
     }
 };
 
-const checkDuplicateEditCategory=async(req,res)=>{
+const checkDuplicateEditCategory = async (req, res) => {
     try {
         const { id, name } = req.body;
 
-        const duplicate = await categoryModel.findOne({ name, _id: { $ne: id } });
+        const duplicate = await categoryModel.findOne({
+            name: { $regex: `^${name.trim()}$`, $options: "i" }, 
+            _id: { $ne: id }  
+        });
 
         if (duplicate) {
-            return res.json({ success: false });
+            return res.json({ success: false });  
         }
 
-        res.json({ success: true });
+        res.json({ success: true }); 
     } catch (error) {
         console.error("Error checking duplicate category name:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
     }
-}
+};
 
 const editCategory = async (req, res) => {
     try {
@@ -166,7 +169,6 @@ const editCategory = async (req, res) => {
     }
 };
 
-
 const toggleCategoryStatus = async (req, res) => {
     const categoryId = req.params.id;
     try {
@@ -180,7 +182,6 @@ const toggleCategoryStatus = async (req, res) => {
     }
 };
 
-//------------Product management-----------//
 const loadProducts = async (req, res) => {
     const products = await productModel
     .find({})
@@ -204,8 +205,6 @@ const addProduct = async (req, res) => {
 
         if (!description || description.trim() === "") {
             validationErrors.push("Product description is required.");
-        } else if (description.length < 10) {
-            validationErrors.push("Product description must be at least 10 characters long.");
         }
 
         if (!stock || isNaN(stock) || stock < 0) {
@@ -223,6 +222,7 @@ const addProduct = async (req, res) => {
         const images = req.files && Array.isArray(req.files)
             ? req.files.map(file => path.join('uploads', path.basename(file.path)))
             : [];
+            
         if (images.length === 0) {
             validationErrors.push("At least one product image is required.");
         }
@@ -249,9 +249,9 @@ const addProduct = async (req, res) => {
     }
 };
 
-
 const editProduct = async (req, res) => {
     const { id, name, category, price, stock, description } = req.body;
+
     const images = req.files;
 
     let updateData = {};
@@ -279,11 +279,14 @@ const editProduct = async (req, res) => {
         }
 
         if (category) {
-            if (category.trim() === "") {
-                validationErrors.push("Category cannot be empty.");
+            const categoryDoc = await categoryModel.findOne({ name: category.trim() });
+            if (!categoryDoc) {
+                validationErrors.push("Invalid category.");
+            } else {
+                updateData.categories = categoryDoc._id; 
             }
-            updateData.category = category;
         }
+        
 
         if (price) {
             if (isNaN(price) || price <= 0) {
@@ -302,8 +305,6 @@ const editProduct = async (req, res) => {
         if (description) {
             if (description.trim() === "") {
                 validationErrors.push("Description cannot be empty.");
-            } else if (description.length < 10) {
-                validationErrors.push("Description must be at least 10 characters long.");
             }
             updateData.description = description;
         }
@@ -327,7 +328,6 @@ const editProduct = async (req, res) => {
         res.status(500).send("Error updating product: " + error.message);
     }
 };
-
 
 const toggleProductStatus = async (req, res) => {
     const productId = req.params.id;
@@ -353,7 +353,6 @@ const loadProfile = async (req, res) => {
         res.send(error)
     }
 }
-
 
 const logout = async (req, res) => {
     delete req.session.admin

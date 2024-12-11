@@ -155,6 +155,74 @@
             margin-top: 50px;
             margin-bottom: 50px;
         }
+
+        #filters {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #filters .left,
+        #filters .right {
+            width: 48%;
+        }
+
+        #filters label {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: inline-block;
+            color: #333;
+        }
+
+        #filters input[type="date"],
+        #filters select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        #filters input[type="date"]:hover,
+        #filters select:hover {
+            border-color: #888;
+        }
+
+        #filters input[type="date"]:focus,
+        #filters select:focus {
+            border-color: #0056b3;
+            outline: none;
+        }
+
+        @media (max-width: 768px) {
+            #filters {
+                flex-direction: column;
+                max-width: 100%;
+            }
+
+            #filters .left,
+            #filters .right {
+                width: 100%;
+            }
+
+            #filters label {
+                font-size: 13px;
+            }
+
+            #filters input[type="date"],
+            #filters select {
+                font-size: 13px;
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
     </style>
 </head>
 
@@ -185,20 +253,16 @@
         <div id="filters">
             <label for="fromDate">From Date</label>
             <input type="date" name="fromDate" id="fromDate">
+            <span id="fromDateError" style="color: red; display: none;"></span>
             <br>
 
             <label for="toDate">To Date</label>
             <input type="date" name="toDate" id="toDate">
-            <br>
+            <div id="toDateError" style="color: red; display: none;"></div>
+            <br><br>
 
-            <label for="singleDay"></label>
-            <input type="date" name="singleDay" id="singleDay">
-            <br>
-
-            <label for="quickRange"></label>
             <select name="quickRange" id="quickRange">
                 <option value="">Select</option>
-                <option value="1day">Last Day</option>
                 <option value="1week">Last Week</option>
                 <option value="1month">Last Month</option>
             </select>
@@ -256,76 +320,96 @@
             </div>
         </div>
     </div>
+<script>
 
+document.addEventListener('DOMContentLoaded', () => {
+    const salesReportBody = document.getElementById('salesReportBody');
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const salesReportBody = document.getElementById('salesReportBody');
-
-            const updateSalesReport = (filter) => {
-                fetch('/admin/salesReport', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(filter),
-                })
-                    .then((response) => {
-                        if (!response.ok) throw new Error('Failed to fetch sales report data');
-                        return response.json();
-                    })
-                    .then((data) => {
-                        salesReportBody.innerHTML = '';
-                        if (data.dailyReport && data.dailyReport.length > 0) {
-                            data.dailyReport.forEach((report) => {
-                                const row = `
+    const updateSalesReport = (filter) => {
+        fetch('/admin/salesReport', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(filter),
+        })
+            .then((response) => {
+                if (!response.ok) throw new Error('Failed to fetch sales report data');
+                return response.json();
+            })
+            .then((data) => {
+                salesReportBody.innerHTML = '';
+                if (data.dailyReport && data.dailyReport.length > 0) {
+                    data.dailyReport.forEach((report) => {
+                        const row = `
                             <tr>
                                 <td>${new Date(report.date).toLocaleDateString("en-US", {
                                     year: "numeric",
                                     month: "long",
-                                    day: "numeric"
-                                })}
-                                </td>
+                                    day: "numeric",
+                                })}</td>
                                 <td>${report.totalOrders}</td>
                                 <td>${formatNumber(report.totalAmount)}</td>
                                 <td>${formatNumber(report.totalDiscount)}</td>
                                 <td>${formatNumber(report.netSales)}</td>
                             </tr>
                         `;
-                                salesReportBody.insertAdjacentHTML('beforeend', row);
-                            });
-                        } else {
-                            salesReportBody.innerHTML = '<tr><td colspan="5">No data available for the selected range.</td></tr>';
-                        }
-                    })
-                    .catch((error) => console.error('Error:', error));
-            };
+                        salesReportBody.insertAdjacentHTML('beforeend', row);
+                    });
+                } else {
+                    salesReportBody.innerHTML = '<tr><td colspan="5">No data available for the selected range.</td></tr>';
+                }
+            })
+            .catch((error) => console.error('Error:', error));
+    };
 
-            document.getElementById('singleDay').addEventListener('change', (event) => {
+    const formatNumber = (num) => {
+        return new Intl.NumberFormat().format(num);
+    };
+
+    const addEventListeners = () => {
+        const singleDayElement = document.getElementById('singleDay');
+        if (singleDayElement) {
+            singleDayElement.addEventListener('change', (event) => {
                 const singleDay = event.target.value;
                 updateSalesReport({ specificDay: singleDay });
             });
+        }
 
-            document.getElementById('quickRange').addEventListener('change', (event) => {
+        const quickRangeElement = document.getElementById('quickRange');
+        if (quickRangeElement) {
+            quickRangeElement.addEventListener('change', (event) => {
                 const quickRange = event.target.value;
                 updateSalesReport({ quickRange });
             });
+        }
 
-            document.getElementById('fromDate').addEventListener('change', (event) => {
+        const fromDateElement = document.getElementById('fromDate');
+        const toDateElement = document.getElementById('toDate');
+
+        if (fromDateElement) {
+            fromDateElement.addEventListener('change', (event) => {
                 const fromDate = event.target.value;
-                const toDate = document.getElementById('toDate').value;
+                const toDate = toDateElement ? toDateElement.value : '';
                 updateSalesReport({ fromDate, toDate });
             });
+        }
 
-            document.getElementById('toDate').addEventListener('change', (event) => {
+        if (toDateElement) {
+            toDateElement.addEventListener('change', (event) => {
                 const toDate = event.target.value;
-                const fromDate = document.getElementById('fromDate').value;
+                const fromDate = fromDateElement ? fromDateElement.value : '';
                 updateSalesReport({ fromDate, toDate });
             });
+        }
+    };
 
-            const formatNumber = (num) => {
-                return new Intl.NumberFormat().format(num);
-            };
-        });
-    </script>
+    // Check if the sales report body exists
+    if (salesReportBody) {
+        addEventListeners();
+    } else {
+        console.error("Sales report body element not found in DOM");
+    }
+});
+</script>
 
 
     <!--=================downold pdf======================-->
@@ -390,5 +474,68 @@
             });
             return data;
         }
+
+    </script>
+
+    <!--================validate end and start date ==========-->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const fromDateInput = document.getElementById("fromDate");
+            const toDateInput = document.getElementById("toDate");
+            const fromDateError = document.getElementById("fromDateError");
+            const toDateError = document.getElementById("toDateError");
+
+            const today = new Date().toISOString().split("T")[0];
+            fromDateInput.setAttribute("max", today);
+            toDateInput.setAttribute("max", today);
+
+            function validateDates() {
+                let isValid = true;
+
+                if (!fromDateInput.value) {
+                    fromDateError.style.display = "inline";
+                    fromDateError.textContent = "";
+                    isValid = false;
+                } else if (new Date(fromDateInput.value) > new Date(today)) {
+                    fromDateError.style.display = "inline";
+                    fromDateError.textContent = "From Date cannot be greater than today.";
+                    isValid = false;
+                } else {
+                    fromDateError.style.display = "none";
+                }
+
+                if (!toDateInput.value) {
+                    toDateError.style.display = "inline";
+                    toDateError.textContent = "";
+                    isValid = false;
+                } else if (new Date(toDateInput.value) > new Date(today)) {
+                    toDateError.style.display = "inline";
+                    toDateError.textContent = "To Date cannot be greater than today.";
+                    isValid = false;
+                } else {
+                    toDateError.style.display = "none";
+                }
+
+                if (fromDateInput.value && toDateInput.value) {
+                    const fromDate = new Date(fromDateInput.value);
+                    const toDate = new Date(toDateInput.value);
+
+                    if (fromDate > toDate) {
+                        toDateError.textContent = "To Date must be later than From Date.";
+                        toDateError.style.display = "inline";
+                        isValid = false;
+                    } else {
+                        toDateError.style.display = "none";
+                    }
+                }
+
+                return isValid;
+            }
+
+            fromDateInput.addEventListener("change", validateDates);
+            toDateInput.addEventListener("change", validateDates);
+
+            validateDates();
+        });
 
     </script>

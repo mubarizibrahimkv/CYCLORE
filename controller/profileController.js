@@ -13,7 +13,7 @@ const loadProfile = async (req, res) => {
     const id = req.session.user
     try {
         const user = await userModel.findOne({ _id: id });
-        const addresses = await addressModel.find({ user: id })
+        const addresses = await addressModel.find({ user: id,isListed:true })
         const isGoogleUser = !!user.googleId;
         res.render("user/profile", { user, addresses,isGoogleUser })
     } catch (error) {
@@ -93,7 +93,7 @@ const updateAddress = async (req, res) => {
 const deleteAddress = async (req, res) => {
     const addressId = req.params.id
     try {
-        await addressModel.findByIdAndDelete(addressId)
+        await addressModel.findByIdAndUpdate(addressId,{isListed:false})
         res.redirect("/profile")
     } catch (error) {
         console.error(error);
@@ -193,60 +193,58 @@ const cancelOrder = async (req, res) => {
     const { cancellationReason } = req.body;
 
     try {
-        const order = await orderModel.findById(orderId);        
+        const order = await orderModel.findById(orderId);
         if (!order) {
             return res.status(404).send('Order not found');
         }
 
-        const product = order.products.find(p => p.productId.toString() === productId);        
-
+        const product = order.products.find(p => p.productId.toString() === productId);
         if (!product) {
             return res.status(404).send('Product not found');
         }
 
-        product.status = 'Cancelled';  
-        order.total=order.total-product.price;
-        product.cancellationReason =cancellationReason
-        
-        await order.save()
-        
-        if (order.paymentMethod === 'Razorpay'||order.paymentMethod==="Wallet") {
-            const refundAmount = product.discountedPrice
-                ? product.discountedPrice * product.quantity
-                : product.price * product.quantity; 
-                
-            let wallet = await walletModel.findOne({userId: order.userId});
+        product.status = 'Cancelled';
+        product.cancellationReason = cancellationReason;
 
-            if (!wallet) {
-                wallet = new walletModel({
-                    userId: order.userId,
-                    balance: refundAmount,
-                    transactions: [
-                        {
-                            type: 'refund',
-                            amount: refundAmount,
-                            description: `Refund for canceled product (${product.name}) in order ${orderId}`
-                        }
-                    ]
-                });
-            } else {
-                wallet.balance += refundAmount;
-                wallet.transactions.push({
-                    type: 'refund',
-                    amount: refundAmount,
-                    description: `Refund for canceled product (${product.name}) in order ${orderId}`
-                });
+        order.total -= product.discountedPrice;
+
+        const allProductsCancelled = order.products.every((p) => p.status === "Cancelled");
+        let refundAmount = product.discountedPrice * product.quantity;
+
+        let wallet = await walletModel.findOne({ userId: order.userId });
+        if (allProductsCancelled) {
+            order.status = "Cancelled";
+            if (order.couponDiscount > 0) {                
+                refundAmount -= order.couponDiscount;                 
+                order.total += order.couponDiscount;                 
             }
-
-            await wallet.save(); 
+            
         }
 
-        const allProductCancelled=order.products.every((p)=>p.status==="Cancelled")
-        if(allProductCancelled){
-            order.status="Cancelled"
+        if (!wallet) {
+            wallet = new walletModel({
+                userId: order.userId,
+                balance: refundAmount,
+                transactions: [
+                    {
+                        type: 'refund',
+                        amount: refundAmount,
+                        description: `Refund for canceled product (${product.name}) in order ${orderId}`
+                    }
+                ]
+            });
+        } else {
+            wallet.balance += refundAmount;
+            wallet.transactions.push({
+                type: 'refund',
+                amount: refundAmount,
+                description: `Refund for canceled product (${product.name}) in order ${orderId}`
+            });
         }
 
+        await wallet.save(); 
         await order.save(); 
+
         res.redirect('/profile/order');
     } catch (error) {
         console.error('Error canceling order:', error);
@@ -436,44 +434,78 @@ const loadWallet = async (req, res) => {
 
         const wallet = await walletModel.findOne({userId});        
 
-        if (!wallet) {
-            return res.status(404).send('Wallet not found');
-        }
-
-        res.render('user/wallet', {
-            balance: wallet.balance,
-            transactions: wallet.transactions,
-        });
+        res.render('user/wallet', {wallet});
     } catch (error) {
         console.error(error);
         res.status(500).send('Server Error');
     }
 };
 
-const returnProduct=async(req,res)=>{
-    const { orderId,productId } = req.params;
+const returnProduct = async (req, res) => {
+    const { orderId, productId } = req.params;
     const { reason } = req.body;
+    
     try {
         const order = await orderModel.findById(orderId);        
         if (!order) {
             return res.status(404).send('Order not found');
         }
-        const product = order.products.find(p => p.productId.toString() === productId);        
 
+        const product = order.products.find(p => p.productId.toString() === productId);
         if (!product) {
             return res.status(404).send('Product not found');
         }
-        product.status="Returned";
+
+        product.status = "Returned";
         product.returnReason = reason;
+        order.total-=product.discountedPrice;
 
-        await order.save();  
+        let refundAmount = product.discountedPrice * product.quantity;
 
-        res.status(200).json({ success: true, message: 'Product returned successfully' });
+        const lastProduct = order.products[order.products.length - 1];
+        const isLastProductReturned = lastProduct.productId.toString() === productId;
+
+        
+        if (isLastProductReturned) {
+            if (order.couponDiscount > 0) {
+                refundAmount -= order.couponDiscount; 
+                order.total += order.couponDiscount; 
+            }
+        }
+
+        let wallet = await walletModel.findOne({ userId: order.userId });
+
+        if (!wallet) {
+            wallet = new walletModel({
+                userId: order.userId,
+                balance: refundAmount,
+                transactions: [
+                    {
+                        type: 'refund',
+                        amount: refundAmount,
+                        description: `Refund for returned product (${product.name}) in order ${orderId}`
+                    }
+                ]
+            });
+        } else {
+            wallet.balance += refundAmount;
+            wallet.transactions.push({
+                type: 'refund',
+                amount: refundAmount,
+                description: `Refund for returned product (${product.name}) in order ${orderId}`
+            });
+        }
+
+        await wallet.save();
+        await order.save();
+
+        res.status(200).json({ success: true, message: 'Product returned successfully and refund processed.' });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, message: 'An error occurred' });
+        console.error('Error returning product:', error);
+        res.status(500).json({ success: false, message: 'An error occurred while processing the return.' });
     }
-}
+};
+
 
 module.exports = {
     loadProfile,

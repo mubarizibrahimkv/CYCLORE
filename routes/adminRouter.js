@@ -9,7 +9,7 @@ router.get('/login',adminAuth.isLogin,adminController.loadLogin)
 router.post("/login",adminController.login)
 
 
-router.get("/dashboard",dashboardController.loadDashboard)
+router.get("/dashboard",adminAuth.checkSession,dashboardController.loadDashboard)
 router.get("/sales-data",dashboardController.getSalesData)
 
 router.get("/users",adminAuth.checkSession,adminController.loadUserManagement);

@@ -228,6 +228,11 @@
                 <td>Price: ₹{{#if product.discountedPrice}}{{product.discountedPrice}}{{else}}{{product.price}}{{/if}}</td>
                 <td>Total Price: ₹{{#if product.discountedPrice}}{{multiply product.discountedPrice product.quantity}}{{else}}{{multiply product.productId.price product.quantity}}{{/if}}</td>
             </tr>
+            {{#if (gt order.couponDiscount 0)}}
+            <tr>
+                <td>Coupon Discount to Order: {{order.couponDiscount}}</td>
+            </tr>
+            {{/if}}
         </tbody>
     </table>
 </div>

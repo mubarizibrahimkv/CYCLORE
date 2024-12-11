@@ -176,15 +176,17 @@
 
 
     <div class="wallet-container">
+         {{#if (gt wallet.balance 0)}}
         <header class="wallet-header">
             <h1>User Wallet</h1>
             <p>Manage your balance and transactions</p>
         </header>
 
+       
         <section class="wallet-balance">
             <h2>Balance</h2>
             <div class="balance">
-                <span>₹</span><span>{{balance}}</span>
+                <span>₹</span><span>{{wallet.balance}}</span>
             </div>
         </section>
 
@@ -200,7 +202,7 @@
                     </tr>
                 </thead>
                 <tbody id="transaction-list">
-                    {{#each transactions}}
+                    {{#each wallet.transactions}}
                     <tr>
                         <td>{{this.type}}</td>
                         <td>₹{{this.amount}}</td>
@@ -211,6 +213,9 @@
                 </tbody>
             </table>
         </section>
+        {{else}}
+        <p style="color: #d6aa19;"><strong>Wallet is Empty!</strong></p>
+        {{/if}}
     </div>
 
 

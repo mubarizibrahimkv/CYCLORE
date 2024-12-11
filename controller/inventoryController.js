@@ -3,7 +3,7 @@ const productModel = require("../Model/productModel")
 
 const loadInventory = async (req, res) => {
     try {
-        const inventory = await productModel.find()
+        const inventory = await productModel.find().populate("categories")
         res.render("admin/inventory", { inventory });
     } catch (error) {
         console.error("Error loading inventory:", error);

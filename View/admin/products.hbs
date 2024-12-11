@@ -203,7 +203,7 @@
                     <td>{{this.stock}}</td>
                     <td>
                         <button class="btn btn-warning"
-                            onclick="openEditModal('{{this._id}}', '{{this.name}}', '{{this.category}}','{{this.price}}', '{{this.stock}}','{{this.description}}','{{json this.images}}')">
+                            onclick="openEditModal('{{this._id}}', '{{this.name}}', '{{this.categories.name}}','{{this.price}}', '{{this.stock}}','{{this.description}}','{{json this.images}}')">
                             Edit
                         </button>
                     </td>
@@ -291,7 +291,6 @@
     </div>
 
     <!-- Edit Product Modal -->
-
     <div class="modal fade" id="editProductModal" tabindex="-1" role="dialog" aria-labelledby="editProductModalLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -313,12 +312,7 @@
                         </div>
                         <div class="form-group">
                             <label for="editProductCategory">Category</label>
-                            <select class="form-control" id="editProductCategory" name="category">
-                                <option value="">Select Category</option>
-                                {{#each categories}}
-                                <option value="{{this._id}}">{{this.name}}</option>
-                                {{/each}}
-                            </select>
+                            <input class="form-control" id="editProductCategory" name="category">
                             <small class="text-danger" id="editProductCategoryError"></small>
                         </div>
                         <div class="form-group">
@@ -355,8 +349,6 @@
             </div>
         </div>
     </div>
-
-
 
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -444,80 +436,65 @@
 
     <!--========form validation edit product======-->
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener("DOMContentLoaded", function () {
             const form = document.getElementById("editProductForm");
 
-            form.addEventListener("submit", (e) => {
-                let isValid = true;
+            const nameInput = document.getElementById("editProductName");
+            const categoryInput = document.getElementById("editProductCategory");
+            const priceInput = document.getElementById("editProductPrice");
+            const stockInput = document.getElementById("editProductStock");
+            const descriptionInput = document.getElementById("editProductDescription");
 
-                const productName = document.getElementById("editProductName");
-                const productNameError = document.getElementById("editProductNameError");
-                if (!productName.value.trim()) {
-                    productNameError.textContent = "Product name is required.";
-                    isValid = false;
-                } else {
-                    productNameError.textContent = "";
+            const nameError = document.getElementById("editProductNameError");
+            const categoryError = document.getElementById("editProductCategoryError");
+            const priceError = document.getElementById("editProductPriceError");
+            const stockError = document.getElementById("editProductStockError");
+            const descriptionError = document.getElementById("editProductDescriptionError");
+
+            function resetErrors() {
+                nameError.textContent = "";
+                categoryError.textContent = "";
+                priceError.textContent = "";
+                stockError.textContent = "";
+                descriptionError.textContent = "";
+            }
+
+            form.addEventListener("submit", function (event) {
+                let formValid = true;
+
+                resetErrors();
+
+                if (nameInput.value.trim() === "") {
+                    nameError.textContent = "Product name is required.";
+                    formValid = false;
                 }
 
-                const productCategory = document.getElementById("editProductCategory");
-                const productCategoryError = document.getElementById("editProductCategoryError");
-                if (!productCategory.value) {
-                    productCategoryError.textContent = "Please select a category.";
-                    isValid = false;
-                } else {
-                    productCategoryError.textContent = "";
+                if (categoryInput.value === "") {
+                    categoryError.textContent = "Please select a category.";
+                    formValid = false;
                 }
 
-                const productPrice = document.getElementById("editProductPrice");
-                const productPriceError = document.getElementById("editProductPriceError");
-                if (!productPrice.value || productPrice.value <= 0) {
-                    productPriceError.textContent = "Enter a valid price.";
-                    isValid = false;
-                } else {
-                    productPriceError.textContent = "";
+                if (priceInput.value <= 0) {
+                    priceError.textContent = "Price must be greater than 0.";
+                    formValid = false;
                 }
 
-                const productStock = document.getElementById("editProductStock");
-                const productStockError = document.getElementById("editProductStockError");
-                if (!productStock.value || productStock.value <= 0) {
-                    productStockError.textContent = "Enter a valid stock quantity.";
-                    isValid = false;
-                } else {
-                    productStockError.textContent = "";
+                if (stockInput.value <= 0) {
+                    stockError.textContent = "Stock must be greater than 0.";
+                    formValid = false;
                 }
 
-                const productDescription = document.getElementById("editProductDescription");
-                const productDescriptionError = document.getElementById("editProductDescriptionError");
-                if (!productDescription.value.trim()) {
-                    productDescriptionError.textContent = "Description is required.";
-                    isValid = false;
-                } else {
-                    productDescriptionError.textContent = "";
+                if (descriptionInput.value.trim() === "") {
+                    descriptionError.textContent = "Description is required.";
+                    formValid = false;
                 }
 
-                const productImage = document.getElementById("editProductImage");
-                const productImageError = document.getElementById("editProductImageError");
-                if (!productImage.files.length) {
-                    productImageError.textContent = "At least one image is required.";
-                    isValid = false;
-                } else {
-                    productImageError.textContent = "";
+                if (!formValid) {
+                    event.preventDefault();
                 }
-
-                if (!isValid) {
-                    e.preventDefault();
-                }
-            });
-
-            document.querySelectorAll("input, textarea, select").forEach((field) => {
-                field.addEventListener("input", () => {
-                    const errorField = document.getElementById(`${field.id}Error`);
-                    if (field.value.trim()) {
-                        errorField.textContent = "";
-                    }
-                });
             });
         });
+
     </script>
 
     <script>
@@ -600,6 +577,23 @@
                             viewMode: 1,
                         });
                     });
+                    document.getElementById('cropButton').addEventListener('click', function () {
+                        if (cropper) {
+                            const canvas = cropper.getCroppedCanvas(); 
+                            const croppedImage = canvas.toDataURL(); 
+                            currentImageElement.src = croppedImage;
+                            closeCropperModal(); 
+                        }
+                    });
+
+                    function closeCropperModal() {
+                        const cropperModal = document.getElementById('imageCropperModal');
+                        cropperModal.style.display = 'none';
+                        if (cropper) {
+                            cropper.destroy(); 
+                            cropper = null; 
+                        }
+                    }
                 };
 
                 reader.readAsDataURL(file);
@@ -745,8 +739,6 @@
                 });
             }
         });
-
-
     </script>
 
 </body>

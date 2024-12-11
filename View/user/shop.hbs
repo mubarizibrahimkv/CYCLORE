@@ -73,7 +73,6 @@
 		<div class="main_menu">
 			<nav class="navbar navbar-expand-lg navbar-light main_box">
 				<div class="container">
-					<!-- Brand and toggle get grouped for better mobile display -->
 					<a class="navbar-brand logo_h" href="/"><img src="img/logo.png" alt=""></a>
 					<button class="navbar-toggler" type="button" data-toggle="collapse"
 						data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
@@ -138,11 +137,6 @@
 			<div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
 				<div class="col-first">
 					<h1>Shop Category page</h1>
-					<nav class="d-flex align-items-center">
-						<a href="index.html">Home<span class="lnr lnr-arrow-right"></span></a>
-						<a href="#">Shop<span class="lnr lnr-arrow-right"></span></a>
-						<a href="category.html">Fashon Category</a>
-					</nav>
 				</div>
 			</div>
 		</div>
@@ -152,43 +146,78 @@
 		<div class="row">
 			<div class="col-xl-3 col-lg-4 col-md-5">
 				<div class="sidebar-filter mt-50">
+					<div class="filter-summary">
+						<p>Filters Applied:</p>
+						{{#if selectedCategory}}
+						<p>Category: {{selectedCategory}}</p>
+						{{/if}}
+						{{#if minPrice}}
+						<p>Min Price: {{minPrice}}</p>
+						{{/if}}
+						{{#if maxPrice}}
+						<p>Max Price: {{maxPrice}}</p>
+						{{/if}}
+						{{#if sortOption}}
+						<p>Sort by: {{sortOption}}</p>
+						{{/if}}
+					</div>
 					<div class="top-filter-head">Product Filters</div>
 					<form action="/shop" method="get">
+						<!-- Category Filter -->
 						<div class="common-filter">
 							<div class="head">Category</div>
 							<ul>
 								{{#each categories}}
 								<li class="filter-list">
 									<input class="pixel-radio" type="radio" id="{{this._id}}" name="category"
-										value="{{this.name}}">
-									<label for="{{this._id}}">{{this.name}}</label>
+										value="{{this.name}}" {{#if (eq this.name selectedCategory)}} checked="checked"
+										{{/if}}>
+									<label for="{{this._id}}">
+										{{this.name}}
+										{{#if (eq this.name selectedCategory)}}
+										<span class="selected-icon">✓</span>
+										{{/if}}
+									</label>
 								</li>
 								{{/each}}
 							</ul>
 						</div>
+
+						<!-- Sort Filter -->
 						<div class="common-filter">
 							<div class="head">Sort by</div>
 							<ul>
-								<li class="filter-list"><input class="pixel-radio" type="radio" value="az" name="sort">A
-									- Z</li>
-								<li class="filter-list"><input class="pixel-radio" type="radio" value="za" name="sort">Z
-									- A</li>
-								<li class="filter-list"><input class="pixel-radio" type="radio" value="new-arrivals"
-										name="sort">New Arrivals</li>
+								<li class="filter-list">
+									<input class="pixel-radio" type="radio" value="az" name="sort" {{#if (eq
+										sortOption "az" )}} checked="checked" {{/if}}> A - Z
+								</li>
+								<li class="filter-list">
+									<input class="pixel-radio" type="radio" value="za" name="sort" {{#if (eq
+										sortOption "za" )}} checked="checked" {{/if}}> Z - A
+								</li>
+								<li class="filter-list">
+									<input class="pixel-radio" type="radio" value="new-arrivals" name="sort" {{#if (eq
+										sortOption "new-arrivals" )}} checked="checked" {{/if}}> New Arrivals
+								</li>
 							</ul>
 						</div>
+
+						<!-- Price Filter -->
 						<div class="common-filter">
 							<div class="head1">Price</div>
-							<input type="number" name="minPrice" placeholder="Min Price" />
-							<input type="number" name="maxPrice" placeholder="Max Price" />
+							<input type="number" name="minPrice" placeholder="Min Price" value="{{minPrice}}" />
+							<input type="number" name="maxPrice" placeholder="Max Price" value="{{maxPrice}}" />
 						</div>
+
+					
+
 						<button class="buttonApply" type="submit">Apply Filters</button>
 					</form>
 				</div>
 			</div>
 			<div class="col-xl-9 col-lg-8 col-md-7">
 				<!-- Start Filter Bar -->
-				<div class="filter-bar d-flex flex-wrap align-items-center">
+				{{!-- <div class="filter-bar d-flex flex-wrap align-items-center">
 					<div class="pagination">
 						<a href="#" class="prev-arrow"><i class="fa fa-long-arrow-left" aria-hidden="true"></i></a>
 						<a href="#" class="active">1</a>
@@ -198,7 +227,7 @@
 						<a href="#">6</a>
 						<a href="#" class="next-arrow"><i class="fa fa-long-arrow-right" aria-hidden="true"></i></a>
 					</div>
-				</div>
+				</div> --}}
 				<!-- End Filter Bar -->
 
 				<!-- Start Best Seller -->
@@ -222,10 +251,17 @@
 											{{/if}}
 										</div>
 										<div class="prd-bottom">
+											{{#if (gt this.stock 0)}}
 											<a href="/cart/add/{{this._id}}" class="social-info">
 												<span class="ti-bag"></span>
 												<p class="hover-text">add to bag</p>
 											</a>
+											{{else}}
+											<a class="social-info">
+												<span class="ti-bag"></span>
+												<p class="hover-text">out of stock</p>
+											</a>
+											{{/if}}
 											<a href="/wishlist/add/{{this._id}}" class="social-info">
 												<span class="lnr lnr-heart"></span>
 												<p class="hover-text">Wishlist</p>
@@ -253,7 +289,7 @@
 				</section>
 				<!-- End Best Seller -->
 				<!-- Start Filter Bar -->
-				<div class="filter-bar d-flex flex-wrap align-items-center">
+				{{!-- <div class="filter-bar d-flex flex-wrap align-items-center">
 					<div class="sorting mr-auto">
 						<select>
 							<option value="1">Show 12</option>
@@ -270,7 +306,7 @@
 						<a href="#">6</a>
 						<a href="#" class="next-arrow"><i class="fa fa-long-arrow-right" aria-hidden="true"></i></a>
 					</div>
-				</div>
+				</div> --}}
 				<!-- End Filter Bar -->
 			</div>
 		</div>
@@ -596,7 +632,7 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
 
 
-<!--============search==========-->
+	<!--============search==========-->
 	<script>
 		function filterProducts() {
 			const input = document.getElementById('search_input');

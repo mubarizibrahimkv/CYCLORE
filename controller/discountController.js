@@ -5,7 +5,6 @@ const categoryModel = require("../Model/categoryModel")
 const mongoose = require("mongoose")
 
 
-
 const loadCoupon = async (req, res) => {
     try {
         const coupons = await couponModel.find()
@@ -23,9 +22,12 @@ const addCoupon = async (req, res) => {
             return res.status(400).send('All fields are required');
         }
 
-        if (discountValue > 100 || minPurchase > 100 || maxDiscount > 100) {
-            return res.status(400).send('Discount values, minimum purchase, and maximum discount must be below 100');
+        if (discountType === "percentage") {
+            if (discountValue > 100) {
+                return res.status(400).send('Discount values must be below 100');
+            }
         }
+
 
         const currentDate = new Date();
         const parsedExpiryDate = new Date(expiryDate);
@@ -70,8 +72,10 @@ const editCoupon = async (req, res) => {
             return res.status(400).send('All fields are required');
         }
 
-        if (discountValue > 100 || minPurchase > 100 || maxDiscount > 100) {
-            return res.status(400).send('Discount values, minimum purchase, and maximum discount must be below 100');
+        if (discountType === "percentage") {
+            if (discountValue > 100) {
+                return res.status(400).send('Discount values must be below 100');
+            }
         }
 
         const currentDate = new Date();
@@ -100,7 +104,6 @@ const editCoupon = async (req, res) => {
         res.status(500).send('Error editing coupon');
     }
 };
-
 
 const loadOffer = async (req, res) => {
     try {

@@ -83,7 +83,6 @@
             color: #2ecc71;
         }
 
-        /* Container to hold all product cards */
         .products-container {
             display: flex;
             flex-wrap: wrap;
@@ -119,11 +118,27 @@
             font-weight: bold;
             color: #2980b9;
         }
+        .back-button{
+            background-color: #b39513;
+            color: white;
+            width: 100px;
+            height: 30px;
+            border-radius: 5px;
+            border: none;
+        }
+        .back-button:hover{
+            background-color: #fffef9;
+            color: rgb(145, 132, 21);
+            width: 100px;
+            height: 30px;
+            border: #b39513;
+        }
     </style>
 </head>
 
 <body>
     <div class="order-container">
+        <a href="/admin/orders"><button class="back-button">Back</button></a>
         <h1>Order Details</h1>
 
         <!-- Order Info Card -->

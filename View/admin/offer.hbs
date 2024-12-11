@@ -420,8 +420,8 @@
             if (!discountValue || discountValue <= 0) {
                 document.getElementById('discountValueError').textContent = 'Discount value must be a positive number.';
                 isValid = false;
-            } else if (discountType === 'percentage' && (discountValue <= 0 || discountValue > 100)) {
-                document.getElementById('discountValueError').textContent = 'Percentage discount must be between 1 and 100.';
+            } else if (discountType === 'percentage' && (discountValue <= 0 || discountValue > 50)) {
+                document.getElementById('discountValueError').textContent = 'Percentage discount must be between 1 and 50.';
                 isValid = false;
             }
 
@@ -470,12 +470,10 @@
             form.addEventListener('submit', function (e) {
                 e.preventDefault();
 
-                // Clear all error messages
                 form.querySelectorAll('.text-dangerEdit').forEach((element) => {
                     element.textContent = '';
                 });
 
-                // Fetch input values
                 const offerName = form.querySelector('input[name="offerName"]').value.trim();
                 const applicableTo = form.querySelector('select[name="applicableTo"]').value;
                 const discountType = form.querySelector('select[name="discountType"]').value;
@@ -488,52 +486,45 @@
 
                 let isValid = true;
 
-                // Validate Offer Name
                 if (!offerName) {
                     const errorDiv = form.querySelector('#offerNameErrorEdit');
                     errorDiv.textContent = 'Offer name is required.';
                     isValid = false;
                 }
 
-                // Validate Applicable To
                 if (!['Product', 'Category'].includes(applicableTo)) {
                     const errorDiv = form.querySelector('#applicableToErrorEdit');
                     errorDiv.textContent = 'Applicable To must be either "Product" or "Category".';
                     isValid = false;
                 }
 
-                // Validate Product Selection
                 if (applicableTo === 'Product' && (!products || products.length === 0)) {
                     const errorDiv = form.querySelector('#productCategoryErrorEdit');
                     errorDiv.textContent = 'At least one product must be selected for a product-specific offer.';
                     isValid = false;
                 }
 
-                // Validate Category Selection
                 if (applicableTo === 'Category' && (!categories || categories.length === 0)) {
                     const errorDiv = form.querySelector('#productCategoryErrorEdit');
                     errorDiv.textContent = 'At least one category must be selected for a category-specific offer.';
                     isValid = false;
                 }
 
-                // Validate Discount Value
                 if (!discountValue || discountValue <= 0) {
                     const errorDiv = form.querySelector('#discountValueErrorEdit');
                     errorDiv.textContent = 'Discount value must be a positive number.';
                     isValid = false;
-                } else if (discountType === 'percentage' && discountValue > 100) {
-                    errorDiv.textContent = 'Percentage discount must not exceed 100%.';
+                } else if (discountType === 'percentage' && discountValue > 50) {
+                    errorDiv.textContent = 'Percentage discount must not exceed 50%.';
                     isValid = false;
                 }
 
-                // Validate Expiry Date
                 if (!expiryDate || new Date(expiryDate) < new Date()) {
                     const errorDiv = form.querySelector('#expiryDateErrorEdit');
                     errorDiv.textContent = 'Expiry date cannot be empty or in the past.';
                     isValid = false;
                 }
 
-                // Submit form if valid
                 if (isValid) {
                     form.submit();
                 }
