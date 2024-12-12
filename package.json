@@ -10,6 +10,7 @@
   "description": "",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "cloudinary": "^2.5.1",
     "connect-flash": "^0.1.1",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
@@ -29,6 +30,7 @@
     "pdfkit": "^0.15.1",
     "razorpay": "^2.9.5",
     "socket.io": "^4.8.1",
+    "streamifier": "^0.1.1",
     "xlsx": "^0.18.5"
   }
 }

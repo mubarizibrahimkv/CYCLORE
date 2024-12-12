@@ -498,7 +498,7 @@
     </script>
 
 
-<!--============================product image ================-->
+    <!--============================product image ================-->
     <script>
         document.getElementById('productImage').addEventListener('change', function (event) {
             const files = event.target.files;
@@ -581,19 +581,25 @@
                     });
                     document.getElementById('cropButton').addEventListener('click', function () {
                         if (cropper) {
-                            const canvas = cropper.getCroppedCanvas(); 
-                            const croppedImage = canvas.toDataURL(); 
+                            const canvas = cropper.getCroppedCanvas();
+                            const croppedImage = canvas.toDataURL();
                             currentImageElement.src = croppedImage;
-                            closeCropperModal(); 
+
+                            croppedImages[currentImageIndex] = croppedImage;
+
+                            updateProductImageInput();
+
+                            closeCropperModal();
                         }
                     });
+
 
                     function closeCropperModal() {
                         const cropperModal = document.getElementById('imageCropperModal');
                         cropperModal.style.display = 'none';
                         if (cropper) {
-                            cropper.destroy(); 
-                            cropper = null; 
+                            cropper.destroy();
+                            cropper = null;
                         }
                     }
                 };
@@ -619,6 +625,7 @@
             inputFile.files = dataTransfer.files;
         }
 
+
         function dataURLToFile(dataURL, filename) {
             const arr = dataURL.split(',');
             const mime = arr[0].match(/:(.*?);/)[1];
@@ -630,6 +637,7 @@
             }
             return new File([u8arr], filename, { type: mime });
         }
+
 
 
         let cropper, currentReplaceInput;
@@ -742,7 +750,6 @@
             }
         });
     </script>
-
 </body>
 
 </html>
