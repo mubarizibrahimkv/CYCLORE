@@ -21,10 +21,13 @@ const getSalesData = async (req, res) => {
 
     try {
         if (filter === 'yearly') {
+            const startYear = currentYear - 2; 
+            const years = [startYear, startYear + 1, startYear + 2];
+
             pipeline.push(
                 {
                     $match: {
-                        "products.status": { $nin: ['Cancelled'] }, 
+                        "products.status": { $nin: ['Cancelled', 'Returned'] }, 
                     },
                 },
                 {
@@ -68,7 +71,7 @@ const getSalesData = async (req, res) => {
                             $gte: new Date(currentYear, 0, 1),
                             $lt: new Date(currentYear + 1, 0, 1),
                         },
-                        "products.status": { $nin: ['Cancelled'] },
+                        "products.status": { $nin: ['Cancelled', 'Returned'] },
                     },
                 },
                 {
@@ -108,7 +111,7 @@ const getSalesData = async (req, res) => {
             pipeline.push(
                 {
                     $match: {
-                        "products.status": { $nin: ['Cancelled'] },
+                        "products.status": { $nin: ['Cancelled', 'Returned'] },
                     },
                 },
                 {
@@ -154,10 +157,14 @@ const getSalesData = async (req, res) => {
         const totalPrices = [];
 
         if (filter === 'yearly') {
-            orders.forEach((order) => {
-                labels.push(order._id); 
-                totalPrices.push(order.totalPrice);
+            const years = [currentYear - 2, currentYear - 1, currentYear];
+            const salesData = years.map((year) => {
+                const order = orders.find((order) => order._id === year);
+                return order ? order.totalPrice : 0; 
             });
+
+            labels.push(...years);
+            totalPrices.push(...salesData);
         } else if (filter === 'monthly') {
             const months = [
                 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -177,6 +184,7 @@ const getSalesData = async (req, res) => {
                 totalPrices.push(order.totalPrice);
             });
         }
+
         res.json({ labels, totalPrices });
     } catch (error) {
         console.error('Error fetching sales data:', error);
@@ -185,54 +193,78 @@ const getSalesData = async (req, res) => {
 };
 
 const bestSellingProductsPipeline = [
-    { $unwind: "$products" },
-    { $group: {
-        _id: "$products.productId",
-        totalSold: { $sum: "$products.quantity" },
-    }},
-    { $sort: { totalSold: -1 } },
-    { $limit: 10 },
-    { $lookup: {
-        from: "products",
-        localField: "_id",
-        foreignField: "_id",
-        as: "productDetails",
-    }},
-    { $unwind: "$productDetails" },
-    { $project: {
-        _id: 1,
-        totalSold: 1,
-        name: "$productDetails.name",
-        price: "$productDetails.price",
-    }},
+    { $unwind: "$products" }, // Deconstruct the products array
+    {
+        $match: {
+            "products.status": { $nin: ["Cancelled", "Returned"] }, // Exclude cancelled and returned
+        },
+    },
+    {
+        $group: {
+            _id: "$products.productId", // Group by productId
+            totalSold: { $sum: "$products.quantity" }, // Calculate total quantity sold
+        },
+    },
+    { $sort: { totalSold: -1 } }, // Sort by totalSold in descending order
+    { $limit: 10 }, // Limit to the top 10 best-selling products
+    {
+        $lookup: {
+            from: "products", // Lookup product details
+            localField: "_id",
+            foreignField: "_id",
+            as: "productDetails",
+        },
+    },
+    { $unwind: "$productDetails" }, // Unwind the productDetails array
+    {
+        $project: {
+            _id: 1,
+            totalSold: 1,
+            name: "$productDetails.name", // Include product name
+            price: "$productDetails.price", // Include product price
+        },
+    },
 ];
 
 const bestSellingCategoriesPipeline = [
     { $unwind: "$products" },
-    { $lookup: {
-        from: "products",
-        localField: "products.productId",
-        foreignField: "_id",
-        as: "productDetails",
-    }},
-    { $unwind: "$productDetails" },
-    { $lookup: {
-        from: "categories", 
-        localField: "productDetails.categories",
-        foreignField: "_id", 
-        as: "categoryDetails",
-    }},
-    { $unwind: "$categoryDetails" },
-    { $group: {
-        _id: "$categoryDetails.name", // Group by category name
-        totalSold: { $sum: "$products.quantity" },
-    }},
+    {
+        $match: {
+            "products.status": { $nin: ["Cancelled", "Returned"] },
+        },
+    },
+    {
+        $lookup: {
+            from: "products", 
+            localField: "products.productId",
+            foreignField: "_id",
+            as: "productDetails",
+        },
+    },
+    { $unwind: "$productDetails" }, 
+    {
+        $lookup: {
+            from: "categories", 
+            localField: "productDetails.categories",
+            foreignField: "_id",
+            as: "categoryDetails",
+        },
+    },
+    { $unwind: "$categoryDetails" }, 
+    {
+        $group: {
+            _id: "$categoryDetails.name",
+            totalSold: { $sum: "$products.quantity" },
+        },
+    },
     { $sort: { totalSold: -1 } },
     { $limit: 10 },
-    { $project: {
-        _id: 1,
-        totalSold: 1,
-    }},
+    {
+        $project: {
+            _id: 1,
+            totalSold: 1,
+        },
+    },
 ];
 
 module.exports={

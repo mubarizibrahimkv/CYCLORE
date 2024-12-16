@@ -45,11 +45,25 @@ const login = async (req, res) => {
 
 const loadUserManagement = async (req, res) => {
     try {
-        const users = await userModel.find({}); 
-        res.render("admin/users", { users });
+        const page = parseInt(req.query.page) || 1; 
+        const limit = 10; 
+        const skip = (page - 1) * limit;
+
+        const [users, totalUsers] = await Promise.all([
+            userModel.find({}).skip(skip).limit(limit),
+            userModel.countDocuments({})
+        ]);
+
+        const totalPages = Math.ceil(totalUsers / limit);
+
+        res.render("admin/users", { 
+            users, 
+            currentPage: page, 
+            totalPages 
+        });
     } catch (error) {
         console.error(error);
-        res.send("Error fetching user data");
+        res.status(500).send("Error fetching user data");
     }
 };
 
@@ -183,12 +197,29 @@ const toggleCategoryStatus = async (req, res) => {
 };
 
 const loadProducts = async (req, res) => {
-    const products = await productModel
-    .find({})
-    .populate('categories')
-    .lean();
-    const categories=await categoryModel.find()
-    res.render("admin/products", { products,categories })
+    try {
+        const page = parseInt(req.query.page) || 1; 
+        const limit = 7;
+        const skip = (page - 1) * limit;
+
+        const [products, totalProducts] = await Promise.all([
+            productModel.find({}).populate("categories").skip(skip).limit(limit).lean(),
+            productModel.countDocuments()
+        ]);
+
+        const totalPages = Math.ceil(totalProducts / limit);
+        const categories = await categoryModel.find().lean();
+
+        res.render("admin/products", { 
+            products, 
+            categories, 
+            currentPage: page, 
+            totalPages 
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error fetching products");
+    }
 };
 
 const addProduct = async (req, res) => {
@@ -329,6 +360,21 @@ const editProduct = async (req, res) => {
     }
 };
 
+const duplicateProductName=async(req,res)=>{
+    console.log("sdfgjsauidhfguiad");
+    
+    const { name } = req.query;
+    try {
+        const product = await productModel.findOne({ name: name.trim() });
+        if (product) {
+            return res.status(200).json({ exists: true });
+        }
+        return res.status(200).json({ exists: false });
+    } catch (err) {
+        return res.status(500).json({ error: "Server error" });
+    }
+}
+
 const toggleProductStatus = async (req, res) => {
     const productId = req.params.id;
     try {
@@ -377,5 +423,6 @@ module.exports = {
     toggleProductStatus,
     editProduct,
     loadProfile,
-    logout
+    logout,
+    duplicateProductName
 }

@@ -111,6 +111,32 @@
             width: 100%;
             z-index: 1000;
         }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .pagination a {
+            margin: 0 5px;
+            padding: 5px 10px;
+            text-decoration: none;
+            border: 1px solid #ccc;
+            color: #333;
+            border-radius: 5px;
+        }
+
+        .pagination a.active {
+            background-color: #a78015;
+            color: white;
+            border-color: #b9871a;
+        }
+
+        .pagination a:hover {
+            background-color: #d49714;
+            color: white;
+        }
     </style>
 </head>
 
@@ -166,6 +192,21 @@
                 {{/each}}
             </tbody>
         </table>
+
+        <!-- Pagination Controls -->
+        <nav class="pagination">
+            {{#if (gt currentPage 1)}}
+            <a href="?page={{subtract currentPage 1}}" class="prev">Previous</a>
+            {{/if}}
+
+            {{#each (range 1 totalPages)}}
+            <a href="?page={{this}}" class="{{#if (eq this ../currentPage)}}active{{/if}}">{{this}}</a>
+            {{/each}}
+
+            {{#if (lt currentPage totalPages)}}
+            <a href="?page={{add currentPage 1}}" class="next">Next</a>
+            {{/if}}
+        </nav>
     </div>
 </body>
 

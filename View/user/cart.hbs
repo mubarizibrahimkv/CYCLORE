@@ -104,7 +104,7 @@
                                 <a href="/shop" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
                                     aria-haspopup="true" aria-expanded="false">Shop</a>
                             </li>
-                            <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
                         </ul>
                         <ul class="nav navbar-nav navbar-right">
                             <li class="nav-item"><a href="#" class="cart"><span class="ti-bag"></span></a></li>
@@ -195,7 +195,8 @@
                                         <input type="text" name="qty" id="sst" maxlength="12" value="{{this.quantity}}"
                                             title="Quantity:" class="input-text qty"
                                             data-product-id="{{this.productId._id}}"
-                                            data-stock="{{this.productId.stock}}">
+                                            data-stock="{{this.productId.stock}}"
+                                            data-product-name="{{this.productId.name}}">
                                         <button onclick="updateQuantity('increase', '{{this.productId._id}}')"
                                             class="increase items-count" type="button">
                                             <i class="lnr lnr-chevron-up"></i>
@@ -407,8 +408,31 @@
             const input = document.querySelector(`input[data-product-id='${productId}']`);
             const priceElement = document.querySelector(`#price-${productId}`);
             const orderTotalElement = document.getElementById('order-total');
-            const maxStock = parseInt(input.getAttribute('data-stock'))
+            const maxStock = parseInt(input.getAttribute('data-stock'));
+            const productName = input.getAttribute('data-product-name');
             let currentQty = parseInt(input.value);
+
+            if (isNaN(currentQty) || currentQty < 1) {
+                swal.fire({
+                    title: "Invalid Quantity",
+                    text: "Quantity cannot be less than 1.",
+                    icon: "warning",
+                    button: "Okay",
+                });
+                input.value = 1;
+                return;
+            }
+
+            if (currentQty > maxStock) {
+                swal.fire({
+                    title: "Stock Limit Reached",
+                    text: `${productName} - Only ${maxStock} items available in stock.`,
+                    icon: "warning",
+                    button: "Okay",
+                });
+                input.value = maxStock;
+                return;
+            }
 
             if (action === 'increase') {
                 if (currentQty < maxStock) {
@@ -416,11 +440,11 @@
                 } else {
                     swal.fire({
                         title: "Stock Limit Reached",
-                        text: `Only ${maxStock} items available in stock.`,
+                        text: `${productName} - Only ${maxStock} items available in stock.`,
                         icon: "warning",
                         button: "Okay",
                     });
-                    return; 
+                    return;
                 }
             } else if (action === 'decrease' && currentQty > 1) {
                 currentQty--;
@@ -471,7 +495,15 @@
                     });
                 });
         }
+
+        document.querySelectorAll('input[data-product-id]').forEach(input => {
+            input.addEventListener('change', function () {
+                const productId = input.getAttribute('data-product-id');
+                updateQuantity(null, productId);
+            });
+        });
     </script>
+
 
 
     <!--========delete product============-->

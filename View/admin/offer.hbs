@@ -162,10 +162,10 @@
                             <td>{{this.discountValue}}</td>
                             <td>{{formatDate this.expiryDate}}</td>
                             <td>
-                                <button class="btn btn-success btn-sm" data-bs-toggle="modal"
+                                {{!-- <button class="btn btn-success btn-sm" data-bs-toggle="modal"
                                     data-bs-target="#editCouponModal-{{this._id}}">
                                     Edit
-                                </button>
+                                </button> --}}
                                 <form action="/admin/offers/delete/{{this._id}}" method="POST"
                                     style="display:inline-block;">
                                     <button type="submit" class="btn btn-danger btn-sm">Delete</button>
@@ -258,7 +258,7 @@
     </div>
 
     <!-- Edit Offer Modal -->
-    {{#each offerss}}
+    {{!-- {{#each offerss}}
     <div class="modal fade" id="editCouponModal-{{this._id}}" tabindex="-1"
         aria-labelledby="editOfferModalLabel-{{this._id}}" aria-hidden="true">
         <div class="modal-dialog">
@@ -349,7 +349,7 @@
             </div>
         </div>
     </div>
-    {{/each}}
+    {{/each}} --}}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -374,7 +374,7 @@
     </script>
 
     <!--==============add offer validation=========-->
-    <script>
+    {{!-- <script>
         document.getElementById('offerForm').addEventListener('submit', function (e) {
             e.preventDefault();
 
@@ -440,7 +440,7 @@
                 e.target.submit();
             }
         });
-    </script>
+    </script> --}}
 
 
     <!--======================edit======================-->

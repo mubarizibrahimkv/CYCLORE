@@ -14,8 +14,10 @@ const loadSalesReport = async (req, res) => {
         let overallNetSales = 0;
 
         orders.forEach(order => {
-            const validProducts = order.products.filter(product => product.status !== "Cancelled");
-
+            const validProducts = order.products.filter(product => 
+                product.status !== "Cancelled" && product.status !== "Returned"
+            );
+                        
             if (validProducts.length === 0) {
                 return;
             }
@@ -216,6 +218,12 @@ const filter = async (req, res) => {
         const dailyReport = await orderModel.aggregate([
             { $match: query },
             { $unwind: "$products" },
+            // Exclude cancelled and returned products
+            {
+                $match: {
+                    "products.status": { $nin: ["Cancelled", "Returned"] }
+                }
+            },
             {
                 $group: {
                     _id: {
@@ -267,6 +275,7 @@ const filter = async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 };
+
 
 module.exports = {
     loadSalesReport,

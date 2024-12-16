@@ -204,9 +204,9 @@
                             {{/if}}
                         </td>
                         <td>{{../paymentMethod}}</td>
-                        {{#if (eq ../paymentStatus  "Failed")}}
+                        {{#if (eq ../paymentStatus "Failed")}}
                         <td>
-                        <p style="color: red;">Payment Failed</p>
+                            <p style="color: red;">Payment Failed</p>
                         </td>
                         {{else}}
                         <td>
@@ -235,9 +235,12 @@
                         {{/if}}
                         <td>{{formatDate ../createdAt}}</td>
                         <td>
-                            <form action="/admin/order/cancelStatus/{{../_id}}/{{this.productId._id}}" method="POST">
-                                <button type="submit" class="btn btn-danger btn-sm" {{#if (eq this.status 'Delivered'
-                                    )}}disabled{{/if}}>Cancel</button>
+                            <form action="/admin/order/cancelStatus/{{../userId._id}}/{{../_id}}/{{this.productId._id}}"
+                                method="POST">
+                                <button type="submit" class="btn btn-danger btn-sm" {{#if (or (eq
+                                    this.status 'Delivered' ) (eq ../paymentStatus 'Failed' ))}}disabled{{/if}}>
+                                    Cancel
+                                </button>
                             </form>
                         </td>
                     </tr>

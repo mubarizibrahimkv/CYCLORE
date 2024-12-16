@@ -32,7 +32,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-
     <style>
         .section {
             display: flex;
@@ -228,7 +227,7 @@
                                 <a href="/shop" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
                                     aria-haspopup="true" aria-expanded="false">Shop</a>
                             </li>
-                            <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
                         </ul>
                         <ul class="nav navbar-nav navbar-right">
                             <li class="nav-item"><a href="/cart" class="cart"><span class="ti-bag"></span></a></li>
@@ -378,6 +377,7 @@
                         <div class="card-body">
                             <h5 class="card-title">Coupon Code: {{this.code}}</h5>
                             <p class="card-text">Discount: {{this.discountValue}}% </p>
+                            <p class="card-text">Maximum Discount:₹{{this.maxDiscount}}</p>
                             <p class="card-text">Expiry: {{formatDate this.expiryDate}}</p>
                             <form action="/remove-coupon/{{this._id}}" method="POST">
                             </form>
@@ -764,13 +764,13 @@ document.getElementById('addressForm').addEventListener('submit', function(event
 
     </script>
 
-    <!--==============check cod les than 10000 ==============-->
+    <!--==============check cod greater than 10000 ==============-->
     <script>
         const subtotalAmount={{subtotal}}
         const codRadioButton = document.getElementById("f-option5");
         const messageContainer=document.getElementById("messageContainer")
         function checkSubtotal(){
-            if(subtotalAmount >=10000){
+            if(subtotalAmount <=10000){
                 codRadioButton.disabled=true,
                 messageContainer.style.display="block"
             }else{
@@ -901,7 +901,7 @@ document.getElementById('addressForm').addEventListener('submit', function(event
 
         //------------------razorpay-------------------
         function createRazorpayOrder(orderData) {
-    fetch('/createRazorpayOrder', {
+        fetch('/createRazorpayOrder', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData)
@@ -1098,8 +1098,6 @@ function handlePaymentFailure(orderData, paymentStatus) {
         }
     </script>
 
-
-
 <!--=======apply coupon & remove coupon===========-->
 <script>
   function applyCoupon() {
@@ -1128,7 +1126,8 @@ function handlePaymentFailure(orderData, paymentStatus) {
     .then(data => {
         if (data.success) {
             const discount = parseFloat(data.discount);
-            const newTotal = parseFloat(data.newTotal);
+            const total = parseFloat(data.newTotal);
+            const newTotal = total+50;
 
             if (isNaN(newTotal)) {
                 Swal.fire({
@@ -1153,10 +1152,9 @@ function handlePaymentFailure(orderData, paymentStatus) {
                 confirmButtonText: 'OK'
             });
         } else {
-            // Display error message from the backend
             Swal.fire({
                 title: 'Error!',
-                text: data.message, // Use the message returned from the backend
+                text: data.message,
                 icon: 'error',
                 confirmButtonText: 'OK'
             });

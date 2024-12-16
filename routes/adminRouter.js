@@ -23,7 +23,8 @@ router.post("/categories/check-duplicate",adminController.checkDuplicateEditCate
 router.post('/categories/toggle-status/:id', adminController.toggleCategoryStatus);
 router.get("/products",adminAuth.checkSession,adminController.loadProducts)
 router.post("/products/toggle-status/:id",adminController.toggleProductStatus)
-router.post("/products/add",upload.array('images',3),adminController.addProduct)
+router.post("/products/add",upload.array('images',3),adminController.addProduct);
+router.get("/check-duplicate-name",adminController.duplicateProductName)
 router.post("/products/edit",upload.any('images',3),adminController.editProduct);
 router.get("/profile",adminAuth.checkSession,adminController.loadProfile)
 router.post("/profile",adminController.logout)

@@ -22,6 +22,18 @@ const userSchema = new mongoose.Schema({
         sparse:true,
         default:null
     },
+    usedCoupons: [
+        {
+            couponId: {
+                 type: mongoose.Schema.Types.ObjectId,
+                  ref: 'Coupon' 
+                },
+            usedAt: {
+                 type: Date,
+                  default: Date.now 
+                },
+        }
+    ],
     googleId:{
       type:String,
       required:false

@@ -265,7 +265,11 @@ const login = async (req, res) => {
 const loadShop = async (req, res) => {
     const user = req.session.user;
     try {
-        const { category, sort, minPrice, maxPrice } = req.query;
+        const { category, sort, minPrice, maxPrice, page = 1 } = req.query;
+
+        const limit = 9; 
+        const currentPage = parseInt(page);
+        const skip = (currentPage - 1) * limit;
 
         let filterQuery = { isListed: true };
         const listedCategories = await categoryModel.find({ isListed: true });
@@ -283,7 +287,9 @@ const loadShop = async (req, res) => {
                     selectedCategory: category,
                     sortOption: sort,
                     minPrice,
-                    maxPrice
+                    maxPrice,
+                    currentPage,
+                    totalPages: 0
                 });
             }
         } else {
@@ -305,12 +311,17 @@ const loadShop = async (req, res) => {
             sortQuery.createdAt = -1;
         }
 
-        const products = await productModel
-            .find(filterQuery)
-            .populate('offer')
-            .populate('categories')
-            .sort(sortQuery)
-            .lean();
+        const [products, totalProducts] = await Promise.all([
+            productModel
+                .find(filterQuery)
+                .populate('offer')
+                .populate('categories')
+                .sort(sortQuery)
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+            productModel.countDocuments(filterQuery)
+        ]);
 
         products.forEach((product) => {
             product.discountedPrice = product.price;
@@ -324,6 +335,8 @@ const loadShop = async (req, res) => {
             }
         });
 
+        const totalPages = Math.ceil(totalProducts / limit);
+
         res.render('user/shop', {
             products,
             categories: listedCategories,
@@ -331,7 +344,9 @@ const loadShop = async (req, res) => {
             selectedCategory: category,
             sortOption: sort,
             minPrice,
-            maxPrice
+            maxPrice,
+            currentPage,
+            totalPages
         });
     } catch (error) {
         console.error('Error fetching products:', error);
@@ -345,13 +360,24 @@ const loadSingleProduct = async (req, res) => {
         const productId = req.params.id;
 
         const product = await productModel
-            .findById(productId)
+            .findOne({ _id: productId, isListed: true }) 
             .populate("categories")
             .populate("offer");
 
         if (!product) {
-            return res.status(404).send("Product not found");
+            return res.redirect("/shop")
+        }        
+
+        const categoriesArray = Array.isArray(product.categories)
+            ? product.categories
+            : [product.categories];
+
+        const isCategoryListed = categoriesArray.some((category) => category.isListed);
+
+        if (!isCategoryListed) {
+            return res.redirect("/shop");
         }
+
 
         let discountedPrice = product.price;
 
@@ -478,6 +504,13 @@ const postNewPassword = async (req, res) => {
     }
 }
 
+const loadContact=async(req,res)=>{
+    try {
+        res.render("user/contact")
+    } catch (error) {
+        res.redirect("/pageNoteFound")
+    }
+}
 
 module.exports = {
     pageNotFound,
@@ -497,5 +530,6 @@ module.exports = {
     verifyForgotPassOtp,
     loadResetPassword,
     forgotResendOtp,
-    postNewPassword
+    postNewPassword,
+    loadContact
 }

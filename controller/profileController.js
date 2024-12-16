@@ -1,10 +1,10 @@
 const addressModel = require("../Model/addressModel")
 const userModel = require("../Model/userModel")
 const orderModel = require("../Model/orderModel")
-const wishlistModel=require("../Model/wishlistModel")
-const productModel=require("../Model/productModel")
+const wishlistModel = require("../Model/wishlistModel")
+const productModel = require("../Model/productModel")
 const bcrypt = require("bcrypt")
-const walletModel=require("../Model/walletModel")
+const walletModel = require("../Model/walletModel")
 const Razorpay = require('razorpay');
 require('dotenv').config();
 
@@ -13,15 +13,14 @@ const loadProfile = async (req, res) => {
     const id = req.session.user
     try {
         const user = await userModel.findOne({ _id: id });
-        const addresses = await addressModel.find({ user: id,isListed:true })
+        const addresses = await addressModel.find({ user: id, isListed: true })
         const isGoogleUser = !!user.googleId;
-        res.render("user/profile", { user, addresses,isGoogleUser })
+        res.render("user/profile", { user, addresses, isGoogleUser })
     } catch (error) {
         res.send(error)
     }
-}
+};
 
-//---------logout-----------------
 const userLogout = async (req, res) => {
     try {
         delete req.session.user;
@@ -32,7 +31,7 @@ const userLogout = async (req, res) => {
         console.error('Error during logout:', error);
         res.status(500).json({ success: false, message: 'An error occurred while logging out' });
     }
-}
+};
 
 const saveAddress = async (req, res) => {
     try {
@@ -88,33 +87,59 @@ const updateAddress = async (req, res) => {
         console.error(error);
         res.status(500).send('Error updating address');
     }
-}
+};
 
 const deleteAddress = async (req, res) => {
     const addressId = req.params.id
     try {
-        await addressModel.findByIdAndUpdate(addressId,{isListed:false})
+        await addressModel.findByIdAndUpdate(addressId, { isListed: false })
         res.redirect("/profile")
     } catch (error) {
         console.error(error);
         res.status(500).send('Error deleting address');
     }
-}
+};
 
-//-------------my oreders----------------
 const loadOrder = async (req, res) => {
-    const userId=req.session.user    
+    const userId = req.session.user;
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
     try {
-        const order = await orderModel.find({userId}).sort({createdAt:-1}).populate("userId").populate("products.productId").exec();        
-        res.render("user/myOrder", { order })
+        const [orders, totalOrders] = await Promise.all([
+            orderModel.find({ userId })
+                .skip(skip)
+                .limit(limit)
+                .sort({ createdAt: -1 })
+                .populate("userId")
+                .populate("products.productId")
+                .exec(),
+            orderModel.countDocuments({ userId })
+        ]);
+
+        const totalPages = Math.ceil(totalOrders / limit);
+        const pageNumbers = [];
+
+        for (let i = 1; i <= totalPages; i++) {
+            pageNumbers.push(i);
+        }
+
+        res.render("user/myOrder", {
+            order: orders,
+            currentPage: page,
+            totalPages: totalPages,
+            pageNumbers: pageNumbers
+        });
     } catch (error) {
-        res.send(error)
+        console.error(error);
+        res.send("Error loading orders");
     }
-}
+};
 
 const razorpayInstance = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID, 
-    key_secret: process.env.RAZORPAY_SECRET_KEY, 
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_SECRET_KEY,
 });
 
 const retryPayment = async (req, res) => {
@@ -127,14 +152,14 @@ const retryPayment = async (req, res) => {
         }
 
         const razorpayOrder = await razorpayInstance.orders.create({
-            amount: order.total * 100, 
+            amount: order.total * 100,
             currency: 'INR',
             receipt: orderId,
             payment_capture: 1,
         });
 
         order.paymentStatus = 'Pending';
-        order.paymentDetails = {}; 
+        order.paymentDetails = {};
         await order.save();
 
         res.status(200).json({
@@ -152,12 +177,12 @@ const retryPayment = async (req, res) => {
 
 const retryPaymentSuccess = async (req, res) => {
     try {
-        const order = await orderModel.findById(req.body.orderId); 
-        
+        const order = await orderModel.findById(req.body.orderId);
+
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
         }
-        
+
         return res.status(200).json({ message: 'Order placed successfully' });
 
     } catch (error) {
@@ -170,12 +195,12 @@ const updatePaymentFailure = async (req, res) => {
 
     try {
         const order = await orderModel.findById(orderId);
-        
+
         if (!order) {
             return res.status(404).json({ error: 'Order not found' });
         }
 
-        order.paymentStatus = 'Failed';        
+        order.paymentStatus = 'Failed';
         await order.save();
 
         res.status(200).json({ message: 'Payment status updated to Failed' });
@@ -199,11 +224,16 @@ const cancelOrder = async (req, res) => {
         }
 
         const product = order.products.find(p => p.productId.toString() === productId);
+
+        const currentProduct = await productModel.findById(productId)
         if (!product) {
             return res.status(404).send('Product not found');
         }
 
+
         product.status = 'Cancelled';
+        currentProduct.stock += product.quantity
+        currentProduct.save();
         product.cancellationReason = cancellationReason;
 
         order.total -= product.discountedPrice;
@@ -214,36 +244,37 @@ const cancelOrder = async (req, res) => {
         let wallet = await walletModel.findOne({ userId: order.userId });
         if (allProductsCancelled) {
             order.status = "Cancelled";
-            if (order.couponDiscount > 0) {                
-                refundAmount -= order.couponDiscount;                 
-                order.total += order.couponDiscount;                 
+            if (order.couponDiscount > 0) {
+                refundAmount -= order.couponDiscount;
+                order.total += order.couponDiscount;
             }
-            
         }
 
-        if (!wallet) {
-            wallet = new walletModel({
-                userId: order.userId,
-                balance: refundAmount,
-                transactions: [
-                    {
-                        type: 'refund',
-                        amount: refundAmount,
-                        description: `Refund for canceled product (${product.name}) in order ${orderId}`
-                    }
-                ]
-            });
-        } else {
-            wallet.balance += refundAmount;
-            wallet.transactions.push({
-                type: 'refund',
-                amount: refundAmount,
-                description: `Refund for canceled product (${product.name}) in order ${orderId}`
-            });
+        if (order.paymentMethod === "Razorpay" || order.paymentMethod === "Wallet") {
+            if (!wallet) {
+                wallet = new walletModel({
+                    userId: order.userId,
+                    balance: refundAmount,
+                    transactions: [
+                        {
+                            type: 'refund',
+                            amount: refundAmount,
+                            description: `Refund for canceled product (${product.name}) in order ${orderId}`
+                        }
+                    ]
+                });
+            } else {
+                wallet.balance += refundAmount;
+                wallet.transactions.push({
+                    type: 'refund',
+                    amount: refundAmount,
+                    description: `Refund for canceled product (${product.name}) in order ${orderId}`
+                });
+            }
         }
 
-        await wallet.save(); 
-        await order.save(); 
+        await wallet.save();
+        await order.save();
 
         res.redirect('/profile/order');
     } catch (error) {
@@ -257,40 +288,47 @@ const changePassword = async (req, res) => {
     const userId = req.session.user;
 
     if (!currentPassword || !newPassword || !confirmPassword) {
-        return res.render("user/profile", { 
-            message: 'All fields are required', 
-            showModal: true 
+        return res.render("user/profile", {
+            message: 'All fields are required',
+            showModal: true
         });
     }
 
+    if (newPassword === currentPassword) {
+        return res.render("user/profile", {
+            message: "The new password cannot be the same as the current password. Please choose a different password.",
+            showModal: true
+        })
+    }
+
     if (newPassword.length < 8) {
-        return res.render("user/profile", { 
-            message: 'Password must be at least 8 characters long', 
-            showModal: true 
+        return res.render("user/profile", {
+            message: 'Password must be at least 8 characters long',
+            showModal: true
         });
     }
 
     try {
         const user = await userModel.findById(userId);
         if (!user) {
-            return res.render("user/profile", { 
-                message: 'User not found', 
-                showModal: true 
+            return res.render("user/profile", {
+                message: 'User not found',
+                showModal: true
             });
         }
 
         const isMatch = await bcrypt.compare(currentPassword, user.password);
         if (!isMatch) {
-            return res.render("user/profile", { 
-                message: 'Current password is incorrect', 
-                showModal: true 
+            return res.render("user/profile", {
+                message: 'Current password is incorrect',
+                showModal: true
             });
         }
 
         if (newPassword !== confirmPassword) {
-            return res.render("user/profile", { 
-                message: 'New passwords do not match', 
-                showModal: true 
+            return res.render("user/profile", {
+                message: 'New passwords do not match',
+                showModal: true
             });
         }
 
@@ -298,19 +336,19 @@ const changePassword = async (req, res) => {
         user.password = passwordHash;
         await user.save();
 
-        return res.render("user/profile", { 
-            success: 'Password changed successfully!', 
-            showModal: true 
+        return res.render("user/profile", {
+            success: 'Password changed successfully!',
+            showModal: true
         });
     } catch (error) {
         console.error(error);
-        return res.render("user/profile", { 
-            message: 'An error occurred', 
-            error, 
-            showModal: true 
+        return res.render("user/profile", {
+            message: 'An error occurred',
+            error,
+            showModal: true
         });
     }
-}
+};
 
 const loadViewDetails = async (req, res) => {
     try {
@@ -339,7 +377,7 @@ const loadWishlist = async (req, res) => {
             .findOne({ userId })
             .populate({
                 path: "products.productId",
-                match: { isListed: true }, 
+                match: { isListed: true },
             });
 
         if (!wishlist || wishlist.products.length === 0) {
@@ -353,9 +391,9 @@ const loadWishlist = async (req, res) => {
     }
 };
 
-const addWishlist=async(req,res)=>{
-    const productId=req.params.id
-    const userId=req.session.user
+const addWishlist = async (req, res) => {
+    const productId = req.params.id
+    const userId = req.session.user
     try {
         const product = await productModel.findById(productId);
         if (!product) {
@@ -373,7 +411,7 @@ const addWishlist=async(req,res)=>{
         );
 
         if (isProductInWishlist) {
-            return res.status(400).json({ message: "Product already in wishlist" });
+            res.redirect("/shop")
         }
 
         wishlist.products.push({
@@ -393,16 +431,16 @@ const addWishlist=async(req,res)=>{
         }
         return res.status(500).json({ message: "Internal server error" });
 
-        
+
     }
 };
 
-const removeWishlist=async(req,res)=>{
+const removeWishlist = async (req, res) => {
     const productId = req.params.id;
-    const userId = req.session.user; 
+    const userId = req.session.user;
 
     try {
-        
+
         const wishlist = await wishlistModel.findOne({ userId });
 
         if (!wishlist) {
@@ -421,7 +459,7 @@ const removeWishlist=async(req,res)=>{
 
         await wishlist.save();
 
-       res.redirect("/wishlist")
+        res.redirect("/wishlist")
     } catch (error) {
         console.error("Error removing product from wishlist:", error);
         res.status(500).json({ message: "Internal server error" });
@@ -430,11 +468,34 @@ const removeWishlist=async(req,res)=>{
 
 const loadWallet = async (req, res) => {
     try {
-        const userId = req.session.user        
+        const userId = req.session.user;
 
-        const wallet = await walletModel.findOne({userId});        
+        const wallet = await walletModel.findOne({ userId });
 
-        res.render('user/wallet', {wallet});
+        if (!wallet) {
+            return res.render('user/wallet', { wallet: null });
+        }
+
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10;
+        const skip = (page - 1) * limit;
+
+        const sortedTransactions = wallet.transactions.sort((a, b) => {
+            return new Date(b.date) - new Date(a.date);
+        });
+
+        const transactions = sortedTransactions.slice(skip, skip + limit);
+        const totalTransactions = sortedTransactions.length;
+        const totalPages = Math.ceil(totalTransactions / limit);
+
+        res.render('user/wallet', {
+            wallet: {
+                ...wallet.toObject(),
+                transactions,
+            },
+            currentPage: page,
+            totalPages,
+        });
     } catch (error) {
         console.error(error);
         res.status(500).send('Server Error');
@@ -444,9 +505,8 @@ const loadWallet = async (req, res) => {
 const returnProduct = async (req, res) => {
     const { orderId, productId } = req.params;
     const { reason } = req.body;
-    
     try {
-        const order = await orderModel.findById(orderId);        
+        const order = await orderModel.findById(orderId);
         if (!order) {
             return res.status(404).send('Order not found');
         }
@@ -458,18 +518,18 @@ const returnProduct = async (req, res) => {
 
         product.status = "Returned";
         product.returnReason = reason;
-        order.total-=product.discountedPrice;
+        order.total -= product.discountedPrice;
 
         let refundAmount = product.discountedPrice * product.quantity;
 
         const lastProduct = order.products[order.products.length - 1];
         const isLastProductReturned = lastProduct.productId.toString() === productId;
 
-        
+
         if (isLastProductReturned) {
             if (order.couponDiscount > 0) {
-                refundAmount -= order.couponDiscount; 
-                order.total += order.couponDiscount; 
+                refundAmount -= order.couponDiscount;
+                order.total += order.couponDiscount;
             }
         }
 
@@ -505,7 +565,6 @@ const returnProduct = async (req, res) => {
         res.status(500).json({ success: false, message: 'An error occurred while processing the return.' });
     }
 };
-
 
 module.exports = {
     loadProfile,

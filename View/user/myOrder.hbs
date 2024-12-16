@@ -440,7 +440,7 @@
                             <li class="nav-item ">
                                 <a href="/shop" class="nav-link dropdown-toggle" role="button">Shop</a>
                             </li>
-                            <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
                         </ul>
                         <ul class="nav navbar-nav navbar-right">
                             <li class="nav-item"><a href="/cart" class="cart"><span class="ti-bag"></span></a></li>
@@ -554,6 +554,25 @@
                 {{/each}}
             </tbody>
         </table>
+
+        <div class="pagination">
+            {{#if (gt currentPage 1)}}
+            <!-- Previous Button -->
+            <a href="/profile/order?page={{subtract currentPage 1}}" class="prev">Previous</a>
+            {{/if}}
+
+            <!-- Pagination Number Links -->
+            {{#each pageNumbers}}
+            <a href="/profile/order?page={{this}}" class="{{#if (eq this ../currentPage)}}active{{/if}}">
+                {{this}}
+            </a>
+            {{/each}}
+
+            {{#if (lt currentPage totalPages)}}
+            <!-- Next Button -->
+            <a href="/profile/order?page={{add currentPage 1}}" class="next">Next</a>
+            {{/if}}
+        </div>
         {{else}}
         <p>No orders found.<a href="/shop">Start shopping now!</a></p>
         {{/if}}
