@@ -268,10 +268,10 @@
         }
 
         function phoneValidateChecking() {
-            const phoneval = phoneId.value;
-            const phonepattern = /^[0-9]{10}$/;
+            const phoneval = phoneId.value.trim();
+            const phonepattern = /^(?!0{10})[0-9]{10}$/;
             if (!phonepattern.test(phoneval)) {
-                error3.innerHTML = "Phone number must be 10 digits.";
+                error3.innerHTML = "Invalid phone number.";
                 error3.style.display = "block";
                 return false;
             } else {
@@ -281,20 +281,48 @@
             }
         }
 
+
         function passwordValidateChecking() {
             const passwordval = passwordId.value;
-            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-            if (!passwordPattern.test(passwordval)) {
-                error4.innerHTML = "Password must be at least 8 characters long, and include one uppercase letter, one lowercase letter, one number, and one special character.";
+            const minLength = 8;
+            const hasUppercase = /[A-Z]/.test(passwordval);
+            const hasLowercase = /[a-z]/.test(passwordval);
+            const hasNumber = /\d/.test(passwordval);
+            const hasSpecialChar = /[@$!%*?&]/.test(passwordval);
+
+            if (passwordval.length < minLength) {
+                error4.innerHTML = "Password must be at least 8 characters long.";
                 error4.style.display = "block";
                 return false;
-            } else {
-                error4.innerHTML = "";
-                error4.style.display = "none";
-                return true;
             }
+            if (!hasUppercase) {
+                error4.innerHTML = "Password must include at least one uppercase letter.";
+                error4.style.display = "block";
+                return false;
+            }
+            if (!hasLowercase) {
+                error4.innerHTML = "Password must include at least one lowercase letter.";
+                error4.style.display = "block";
+                return false;
+            }
+            if (!hasNumber) {
+                error4.innerHTML = "Password must include at least one number.";
+                error4.style.display = "block";
+                return false;
+            }
+            if (!hasSpecialChar) {
+                error4.innerHTML = "Password must include at least one special character.";
+                error4.style.display = "block";
+                return false;
+            }
+
+            // If all conditions are met
+            error4.innerHTML = "";
+            error4.style.display = "none";
+            return true;
         }
+
 
         function confirmPasswordValidateChecking() {
             if (passwordId.value !== confirmPassword.value) {

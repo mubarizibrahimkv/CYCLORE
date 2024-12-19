@@ -169,6 +169,7 @@
         .right-side a:hover {
             text-decoration: underline;
         }
+
         .google-signup {
             width: 100%;
             background-color: white;
@@ -204,6 +205,9 @@
             <h2>Log in to Enter</h2>
             <form action="/login" method="post">
                 <input type="text" id="message" value="{{{message}}}" name="message" hidden>
+                {{#if message}}
+                <div class="alert alert-danger">{{message}}</div>
+                {{/if}}
                 <div class="floating-label">
                     <input type="text" id="email" name="email" placeholder=" " required>
                     <label for="email">Email</label>
@@ -211,18 +215,16 @@
                 <div class="floating-label">
                     <input type="password" id="password" name="password" placeholder=" " required>
                     <label for="password">Password</label>
-                    {{#if message}}
-                    <div class="alert alert-danger">{{message}}</div>
-                    {{/if}}
                 </div>
                 <button type="submit">Log In</button>
                 <a href="/forgot-password">Forgot Password?</a>
             </form>
             <a href="/auth/google">
-            <div class="google-signup">
-                <img src="https://i.pinimg.com/236x/39/21/6d/39216d73519bca962bd4a01f3e8f4a4b.jpg" alt="Google Logo">
-                Sign Up with Google
-            </div>
+                <div class="google-signup">
+                    <img src="https://i.pinimg.com/236x/39/21/6d/39216d73519bca962bd4a01f3e8f4a4b.jpg"
+                        alt="Google Logo">
+                    Sign Up with Google
+                </div>
             </a>
             <a href="/register" class="signup-button">Sign Up</a>
         </div>

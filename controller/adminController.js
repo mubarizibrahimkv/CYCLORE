@@ -4,7 +4,7 @@ const productModel = require("../Model/productModel")
 const categoryModel = require("../Model/categoryModel");
 const mongoose = require("mongoose")
 const bcrypt = require("bcrypt");
-const upload=require("../controller/imageController")
+const upload = require("../controller/imageController")
 const path = require('path');
 
 
@@ -45,25 +45,52 @@ const login = async (req, res) => {
 
 const loadUserManagement = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1; 
-        const limit = 10; 
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10;
         const skip = (page - 1) * limit;
 
+        const searchQuery = req.query.query || '';
+
+        const searchFilter = {
+            $or: [
+                { username: { $regex: searchQuery, $options: 'i' } }, 
+                { email: { $regex: searchQuery, $options: 'i' } } 
+            ]
+        };
+
         const [users, totalUsers] = await Promise.all([
-            userModel.find({}).skip(skip).limit(limit),
-            userModel.countDocuments({})
+            userModel.find(searchFilter).skip(skip).limit(limit),
+            userModel.countDocuments(searchFilter)
         ]);
 
         const totalPages = Math.ceil(totalUsers / limit);
 
-        res.render("admin/users", { 
-            users, 
-            currentPage: page, 
-            totalPages 
+        res.render("admin/users", {
+            users,
+            currentPage: page,
+            totalPages,
+            query: searchQuery 
         });
     } catch (error) {
         console.error(error);
         res.status(500).send("Error fetching user data");
+    }
+};
+
+const searchUsers = async (req, res) => {
+    try {
+        const query = req.query.query || '';
+        const users = await userModel.find({
+            $or: [
+                { username: { $regex: query, $options: 'i' } },
+                { email: { $regex: query, $options: 'i' } }
+            ]
+        });
+
+        res.json({ users });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error searching users');
     }
 };
 
@@ -128,14 +155,14 @@ const checkDuplicateAddCategory = async (req, res) => {
 
         if (name) {
             const existingCategory = await categoryModel.findOne({
-                name: { $regex: `^${name.trim()}$`, $options: "i" } 
+                name: { $regex: `^${name.trim()}$`, $options: "i" }
             });
             return res.json({ isDuplicate: !!existingCategory });
         }
 
         if (variant) {
             const existingVariant = await categoryModel.findOne({
-                variant: { $regex: `^${variant.trim()}$`, $options: "i" } 
+                variant: { $regex: `^${variant.trim()}$`, $options: "i" }
             });
             return res.json({ isDuplicate: !!existingVariant });
         }
@@ -152,15 +179,15 @@ const checkDuplicateEditCategory = async (req, res) => {
         const { id, name } = req.body;
 
         const duplicate = await categoryModel.findOne({
-            name: { $regex: `^${name.trim()}$`, $options: "i" }, 
-            _id: { $ne: id }  
+            name: { $regex: `^${name.trim()}$`, $options: "i" },
+            _id: { $ne: id }
         });
 
         if (duplicate) {
-            return res.json({ success: false });  
+            return res.json({ success: false });
         }
 
-        res.json({ success: true }); 
+        res.json({ success: true });
     } catch (error) {
         console.error("Error checking duplicate category name:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
@@ -189,7 +216,7 @@ const toggleCategoryStatus = async (req, res) => {
         const category = await categoryModel.findById(categoryId);
         const newStatus = !category.isListed;
         await categoryModel.findByIdAndUpdate(categoryId, { isListed: newStatus });
-        res.redirect("/admin/categories"); 
+        res.redirect("/admin/categories");
     } catch (error) {
         console.error('Error toggling category status:', error);
         res.status(500).send('Internal Server Error');
@@ -198,7 +225,7 @@ const toggleCategoryStatus = async (req, res) => {
 
 const loadProducts = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1; 
+        const page = parseInt(req.query.page) || 1;
         const limit = 7;
         const skip = (page - 1) * limit;
 
@@ -210,11 +237,11 @@ const loadProducts = async (req, res) => {
         const totalPages = Math.ceil(totalProducts / limit);
         const categories = await categoryModel.find().lean();
 
-        res.render("admin/products", { 
-            products, 
-            categories, 
-            currentPage: page, 
-            totalPages 
+        res.render("admin/products", {
+            products,
+            categories,
+            currentPage: page,
+            totalPages
         });
     } catch (error) {
         console.error(error);
@@ -253,7 +280,7 @@ const addProduct = async (req, res) => {
         const images = req.files && Array.isArray(req.files)
             ? req.files.map(file => path.join('uploads', path.basename(file.path)))
             : [];
-            
+
         if (images.length === 0) {
             validationErrors.push("At least one product image is required.");
         }
@@ -314,10 +341,10 @@ const editProduct = async (req, res) => {
             if (!categoryDoc) {
                 validationErrors.push("Invalid category.");
             } else {
-                updateData.categories = categoryDoc._id; 
+                updateData.categories = categoryDoc._id;
             }
         }
-        
+
 
         if (price) {
             if (isNaN(price) || price <= 0) {
@@ -344,7 +371,7 @@ const editProduct = async (req, res) => {
             const newImages = images.map(file => `uploads/${file.filename}`);
             updateData.images = newImages;
         } else {
-            updateData.images = product.images; 
+            updateData.images = product.images;
         }
 
         if (validationErrors.length > 0) {
@@ -360,9 +387,9 @@ const editProduct = async (req, res) => {
     }
 };
 
-const duplicateProductName=async(req,res)=>{
+const duplicateProductName = async (req, res) => {
     console.log("sdfgjsauidhfguiad");
-    
+
     const { name } = req.query;
     try {
         const product = await productModel.findOne({ name: name.trim() });
@@ -424,5 +451,6 @@ module.exports = {
     editProduct,
     loadProfile,
     logout,
-    duplicateProductName
+    duplicateProductName,
+    searchUsers
 }

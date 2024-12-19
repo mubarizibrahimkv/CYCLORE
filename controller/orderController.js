@@ -57,7 +57,7 @@ const cancelOrder = async (req, res) => {
 
         currentProduct.stock += product.quantity;
         await currentProduct.save();
-
+        order.total -= product.discountedPrice;
         let wallet = await walletModel.findOne({ userId });
 
         let refundAmount = product.discountedPrice * product.quantity;
@@ -69,8 +69,13 @@ const cancelOrder = async (req, res) => {
 
             if (order.couponDiscount > 0) {
                 refundAmount -= order.couponDiscount;
+                order.total += order.couponDiscount;
             }
         }
+        if (order.total <= 50) {
+            order.total = 0;
+        }
+        
         if (order.paymentMethod === 'Razorpay' || order.paymentMethod === 'Wallet') {
 
             if (!wallet) {
@@ -136,6 +141,7 @@ const updateProductStatus = async (req, res) => {
         if (status === 'Cancelled') {
             currentProduct.stock += product.quantity;
             await currentProduct.save();
+            order.total += order.couponDiscount;
 
             let refundAmount = product.discountedPrice * product.quantity;
 
@@ -146,6 +152,7 @@ const updateProductStatus = async (req, res) => {
 
                 if (order.couponDiscount > 0) {
                     refundAmount -= order.couponDiscount;
+                    order.total += order.couponDiscount;
                 }
             }
 
@@ -173,21 +180,31 @@ const updateProductStatus = async (req, res) => {
                 }
             }
             await wallet.save();
+            await order.save();
         } else {
             currentProduct.stock += product.quantity;
             await currentProduct.save();
         }
 
-        const allProductCancelled = order.products.every(e => e.status === "Cancelled");
+        const allProductsDelivered = order.products.every(p => p.status === "Delivered");
+        const allProductsCancelled = order.products.every(p => p.status === "Cancelled");
+        const allProductsShipped = order.products.every(p => p.status === "Shipped");
+        const allProductsPending = order.products.every(p => p.status === "Pending");
+        const anyProductShipped = order.products.some(p => p.status === "Shipped");
+        const anyProductPending = order.products.some(p => p.status === "Pending");
 
-        if (allProductCancelled) {
-            order.status = "Cancelled";
-        } else if (order.products.some(e => e.status === "Pending")) {
-            order.status = "Pending";
-        } else if (order.products.some(e => e.status === "Shipped")) {
-            order.status = "Shipped";
-        } else if (order.products.every(e => e.status === "Delivered")) {
+        if (allProductsDelivered) {
             order.status = "Delivered";
+        } else if (allProductsCancelled) {
+            order.status = "Cancelled";
+        } else if (allProductsShipped) {
+            order.status = "Shipped";
+        } else if (allProductsPending) {
+            order.status = "Pending";
+        } else if (anyProductPending) {
+            order.status = "Pending";
+        } else if (anyProductShipped) {
+            order.status = "Shipped";
         }
 
         await order.save();

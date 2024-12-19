@@ -210,6 +210,9 @@
                         </td>
                         {{else}}
                         <td>
+                            {{#if (eq this.status "Returned")}}
+                            <p>Returned</p>
+                            {{else}}
                             <form action="/admin/orders/status/{{../_id}}/{{this.productId._id}}" method="POST">
                                 <select class="form-select" name="status" onchange="this.form.submit()">
                                     <option value="Pending" {{#if (eq this.status 'Pending' )}}selected{{/if}} {{#if (or
@@ -231,6 +234,7 @@
                                     </option>
                                 </select>
                             </form>
+                            {{/if}}
                         </td>
                         {{/if}}
                         <td>{{formatDate ../createdAt}}</td>

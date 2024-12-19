@@ -4,6 +4,7 @@ const userController=require("../controller/userController")
 const userAuth=require("../middlewares/userAuth")
 const passport=require("passport")
 
+
 router.get("/auth/google",passport.authenticate("google",{scope:["profile","email", "openid"]}))
 router.get("/auth/google/callback",passport.authenticate("google", { failureRedirect: "/signup" }),userController.googleAuth);
 //-------end googleAuthentication----------------------
@@ -25,6 +26,5 @@ router.get("/reset-password",userController.loadResetPassword)
 router.post("/resend-forgot-otp",userController.forgotResendOtp)
 router.post("/reset-password",userController.postNewPassword)
 router.get("/contact",userAuth.checkSession,userController.loadContact)
-
 
 module.exports=router

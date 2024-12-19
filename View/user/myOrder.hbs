@@ -536,7 +536,7 @@
                     <td colspan="6" style="text-align: right; font-weight: bold;  color: rgb(44, 97, 44);">ORDER TOTAL:
                         ₹{{total}}</td>
                     <td class="invoice">
-                        {{#if (eq status 'Cancelled')}}
+                        {{#if (or (eq this.status 'Cancelled') (eq this.status 'Returned'))}}
                         <button class="btn btn-sm" disabled>Download Invoice</button>
                         {{else}}
                         <button onclick="downloadInvoice('{{this._id}}')" class="btn btn-success btn-sm">Download
@@ -557,11 +557,9 @@
 
         <div class="pagination">
             {{#if (gt currentPage 1)}}
-            <!-- Previous Button -->
             <a href="/profile/order?page={{subtract currentPage 1}}" class="prev">Previous</a>
             {{/if}}
 
-            <!-- Pagination Number Links -->
             {{#each pageNumbers}}
             <a href="/profile/order?page={{this}}" class="{{#if (eq this ../currentPage)}}active{{/if}}">
                 {{this}}
@@ -569,7 +567,6 @@
             {{/each}}
 
             {{#if (lt currentPage totalPages)}}
-            <!-- Next Button -->
             <a href="/profile/order?page={{add currentPage 1}}" class="next">Next</a>
             {{/if}}
         </div>

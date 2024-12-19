@@ -13,6 +13,7 @@ router.get("/dashboard",adminAuth.checkSession,dashboardController.loadDashboard
 router.get("/sales-data",dashboardController.getSalesData)
 
 router.get("/users",adminAuth.checkSession,adminController.loadUserManagement);
+router.get('/users/search', adminAuth.checkSession, adminController.searchUsers);
 router.post("/users/block/:id", adminAuth.checkSession, adminController.blockUser); 
 router.post("/users/unblock/:id", adminAuth.checkSession, adminController.unblockUser); 
 router.get("/categories",adminAuth.checkSession,adminController.loadCategories)

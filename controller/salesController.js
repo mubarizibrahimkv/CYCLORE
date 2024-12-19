@@ -111,6 +111,7 @@ const addCart = async (req, res) => {
                 });
             }
         }
+        
 
         const newStock = product.stock - 1;
         await productModel.findByIdAndUpdate(productId, { stock: newStock });
@@ -151,14 +152,14 @@ const updateCartQuantity = async (req, res) => {
 
         const currentQuantity = cart.products[productIndex].quantity;
         const availableStock = product.stock;
-        const maxAllowedQuantity = availableStock + currentQuantity;
+        const maxAllowedQuantity = availableStock;
 
         const quantityDifference = quantity - currentQuantity;
 
         if (quantity >maxAllowedQuantity) {
             return res.json({
                 success: false,
-                message: `Only ${availableStock + currentQuantity} units available for this product`
+                message: `Only ${availableStock + currentQuantity+1} units available for this product`
             });
         }
 

@@ -7,7 +7,7 @@ const checkSession = async (req, res, next) => {
 
             if (!user || user.status === false) {
                 delete req.session.user;
-                return res.redirect('/');
+                return res.render("user/login", { message: "User is blocked by admin" })
             }
             next();
         } else {

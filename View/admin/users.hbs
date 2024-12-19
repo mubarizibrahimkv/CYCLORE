@@ -137,9 +137,29 @@
             background-color: #d49714;
             color: white;
         }
+
+        #searchInput {
+            width: 97%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+            transition: width 0.4s ease;
+        }
+
+        @media (max-width: 768px) {
+            #searchInput {
+                width: 100%;
+                margin-right: 0;
+            }
+
+            .container {
+                padding: 10px;
+            }
+        }
     </style>
 </head>
-
 <body>
     <div class="header">
         <nav class="navbar">
@@ -162,6 +182,7 @@
     </div>
     <div class="container">
         <h1>User Management</h1>
+        <input type="text" id="searchInput" placeholder="Search by Username or Email" oninput="searchProducts()">
         <table>
             <thead>
                 <tr>
@@ -209,5 +230,48 @@
         </nav>
     </div>
 </body>
+
+<script>
+    const searchProducts = () => {
+        const query = document.getElementById('searchInput').value;
+
+        fetch(`/admin/users/search?query=${query}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                updateTable(data.users);
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    };
+
+    const updateTable = (users) => {
+        const tbody = document.querySelector("tbody");
+        tbody.innerHTML = ''; 
+
+        users.forEach(user => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+            <td>${user.username}</td>
+            <td>${user.email}</td>
+            <td>${user.status ? 'Active' : 'Blocked'}</td>
+            <td>
+                ${user.status ?
+                    `<form action="/admin/users/block/${user._id}" method="POST">
+                        <button type="submit" class="block-button">Block</button>
+                    </form>` :
+                    `<form action="/admin/users/unblock/${user._id}" method="POST">
+                        <button type="submit" class="unblock-button">Unblock</button>
+                    </form>`
+                }
+            </td>
+        `;
+            tbody.appendChild(row);
+        });
+    };
+</script>
 
 </html>

@@ -52,6 +52,7 @@ const checkBlockStatus = async (req, res) => {
 
         if (user.status === false) {
             delete req.session.user;
+            res.redirect("/login")
             console.log("Session deleted due to block status.");
             return res.json({ success: false, notBlocked: false });
         }
@@ -184,8 +185,7 @@ const verifyOtp = async (req, res) => {
             })
 
             await saveUserData.save()
-            req.session.user = saveUserData._id
-            res.json({ success: true, redirectUrl: "/" });
+            res.json({ success: true, redirectUrl: "/login" });
         } else {
             console.log("OTP mismatch or missing data.");
             res.status(400).json({ success: false, message: "Invalid OTP, Please try again" });
@@ -219,7 +219,6 @@ const resendOtp = async (req, res) => {
     }
 };
 
-// ----------Login-----------------
 const loadLogin = (req, res) => {
     try {
         if (!req.session.user) {
@@ -261,7 +260,6 @@ const login = async (req, res) => {
     }
 };
 
-//------------Shop-----------
 const loadShop = async (req, res) => {
     const user = req.session.user;
     try {
@@ -354,7 +352,6 @@ const loadShop = async (req, res) => {
     }
 };
 
-//--------------single product-------------
 const loadSingleProduct = async (req, res) => {
     try {
         const productId = req.params.id;
@@ -375,9 +372,11 @@ const loadSingleProduct = async (req, res) => {
         const isCategoryListed = categoriesArray.some((category) => category.isListed);
 
         if (!isCategoryListed) {
-            return res.redirect("/shop");
+            return res.render("user/shop", { 
+                alertMessage: "No products available for the selected category." 
+            });
         }
-
+        
 
         let discountedPrice = product.price;
 

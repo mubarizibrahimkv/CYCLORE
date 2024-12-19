@@ -31,7 +31,6 @@
     <link rel="stylesheet" href="/css/main.css">
 
     <style>
-        /* Main zoom container */
         .zoom-container {
             width: 100%;
             max-width: 400px;
@@ -39,21 +38,17 @@
             overflow: hidden;
             margin: 20px auto;
             --zoom-level: 200%;
-            /* Zoom scale */
         }
 
         .zoom-container.zoom-active {
             background-image: var(--url);
             background-size: var(--zoom-level);
-            /* Zoom level applied here */
             background-position: var(--zoom-x) var(--zoom-y);
             background-repeat: no-repeat;
         }
 
-        /* Hide the main image to use as the background in zoom mode */
         .zoom-container.zoom-active .zoom-image {
             opacity: 0;
-            /* Hide original image */
             visibility: hidden;
         }
     </style>
@@ -126,6 +121,11 @@
             <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
                 <div class="col-first">
                     <h1>Product Details Page</h1>
+                    <nav class="d-flex align-items-center">
+                        <a href="/">Home<span class="lnr lnr-arrow-right"></span></a>
+                        <a href="/Shop">Shop<span class="lnr lnr-arrow-right"></span></span></a>
+                        <a href="/singleProduct">Product Details Page</a>
+                    </nav>
                 </div>
             </div>
         </div>

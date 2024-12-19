@@ -16,10 +16,7 @@
 	<meta charset="UTF-8">
 	<!-- Site Title -->
 	<title>CYCLORE</title>
-
-	<!--
-            CSS
-            ============================================= -->
+	<!-- ======================CSS======================= -->
 	<link rel="stylesheet" href="/css/linearicons.css">
 	<link rel="stylesheet" href="/css/owl.carousel.css">
 	<link rel="stylesheet" href="/css/font-awesome.min.css">
@@ -28,6 +25,7 @@
 	<link rel="stylesheet" href="/css/nouislider.min.css">
 	<link rel="stylesheet" href="/css/bootstrap.css">
 	<link rel="stylesheet" href="/css/main.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.min.css">
 	<style>
 		.head1 {
 			font-size: 20px;
@@ -62,6 +60,14 @@
 			color: #888;
 			margin-top: 20px;
 			margin-left: 20px;
+		}
+
+		.single-product img {
+			width: 100%;
+			height: 180px;
+			object-fit: cover;
+			object-position: center;
+			border-radius: 8px;
 		}
 	</style>
 </head>
@@ -137,20 +143,23 @@
 			<div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
 				<div class="col-first">
 					<h1>Shop Category page</h1>
+					<nav class="d-flex align-items-center">
+						<a href="/">Home<span class="lnr lnr-arrow-right"></span></a>
+						<a href="/Shop">Shop</a>
+					</nav>
 				</div>
 			</div>
 		</div>
 	</section>
 	<!-- End Banner Area -->
+
+	<!--======Start Filter Area===========-->
 	<div class="container">
 		<div class="row">
 			<div class="col-xl-3 col-lg-4 col-md-5">
 				<div class="sidebar-filter mt-50">
 					<div class="filter-summary">
-					</div>
-					<div class="top-filter-head">Product Filters</div>
-					<form action="/shop" method="get">
-					<p>Filters Applied:</p>
+						<p>Filters Applied:</p>
 						{{#if selectedCategory}}
 						<p>Category: {{selectedCategory}}</p>
 						{{/if}}
@@ -163,6 +172,11 @@
 						{{#if sortOption}}
 						<p>Sort by: {{sortOption}}</p>
 						{{/if}}
+					</div>
+					<div class="top-filter-head">
+						<p>Product Filters</p>
+					</div>
+					<form action="/shop" method="get">
 						<!-- Category Filter -->
 						<div class="common-filter">
 							<div class="head">Category</div>
@@ -188,16 +202,13 @@
 							<div class="head">Sort by</div>
 							<ul>
 								<li class="filter-list">
-									<input class="pixel-radio" type="radio" value="az" name="sort" {{#if (eq
-										sortOption "az" )}} checked="checked" {{/if}}> A - Z
+									<input class="pixel-radio" type="radio" value="az" name="sort"> A - Z
 								</li>
 								<li class="filter-list">
-									<input class="pixel-radio" type="radio" value="za" name="sort" {{#if (eq
-										sortOption "za" )}} checked="checked" {{/if}}> Z - A
+									<input class="pixel-radio" type="radio" value="za" name="sort"> Z - A
 								</li>
 								<li class="filter-list">
-									<input class="pixel-radio" type="radio" value="new-arrivals" name="sort" {{#if (eq
-										sortOption "new-arrivals" )}} checked="checked" {{/if}}> New Arrivals
+									<input class="pixel-radio" type="radio" value="new-arrivals" name="sort" > New Arrivals
 								</li>
 							</ul>
 						</div>
@@ -208,9 +219,6 @@
 							<input type="number" name="minPrice" placeholder="Min Price" value="{{minPrice}}" />
 							<input type="number" name="maxPrice" placeholder="Max Price" value="{{maxPrice}}" />
 						</div>
-
-
-
 						<button class="buttonApply" type="submit">Apply Filters</button>
 					</form>
 				</div>
@@ -218,14 +226,15 @@
 			<div class="col-xl-9 col-lg-8 col-md-7">
 				{{!-- <div class="filter-bar d-flex flex-wrap align-items-center">
 					<div class="sorting">
-						<select>
+						<select id="sortDropdown">
 							<option value="">Sorting</option>
-							<option value="1">Sort By : New Arrivals</option>
-							<option value="1">Sort By : A-Z</option>
-							<option value="1">Sort By : Z-A</option>
+							<option value="new">Sort By: New Arrivals</option>
+							<option value="asc">Sort By: A-Z</option>
+							<option value="desc">Sort By: Z-A</option>
 						</select>
 					</div>
 				</div> --}}
+
 
 				<!-- Start Best Seller -->
 				<section class="lattest-product-area pb-40 category-list">
@@ -233,9 +242,12 @@
 						{{#if products.length}}
 						{{#each products}}
 						<a href="/singleProduct/{{this._id}}">
-							<div class="col-lg-4 col-md-6 product-card">
+							<div class="col-lg-4 col-md-6 product-card" data-name="{{this.name}}"
+								data-createdAt="{{this.createdAt}}">
 								<div class="single-product">
-									<img class="img-fluid" src="{{this.images.[0]}}" alt="{{this.name}}">
+									<div style="padding: 30px;">
+										<img class="img-fluid" src="{{this.images.[0]}}" alt="{{this.name}}">
+									</div>
 									<div class="product-details">
 										<h6>{{this.name}}</h6>
 										<p>{{this.description}}</p>
@@ -649,7 +661,44 @@
 	<script src="/js/gmaps.min.js"></script>
 	<script src="/js/main.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+
+	<!--========sort==========-->
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			document.getElementById('sortDropdown').addEventListener('change', function () {
+				console.log("jdfksjadgksjdfh")
+				console.log(this.value);
+				const sortValue = this.value;
+				const productCards = Array.from(document.querySelectorAll('.product-card')); 
+				const productContainer = document.querySelector('.category-list .row');
+				if (sortValue === 'asc') {
+					productCards.sort((a, b) => a.dataset.name.localeCompare(b.dataset.name));
+				} else if (sortValue === 'desc') {
+					productCards.sort((a, b) => b.dataset.name.localeCompare(a.dataset.name));
+				} else if (sortValue === 'new') {
+					productCards.sort((a, b) => new Date(b.dataset.createdat) - new Date(a.dataset.createdat));
+				}
+
+				productContainer.innerHTML = '';
+				productCards.forEach(card => productContainer.appendChild(card));
+			});
+		})
+	</script>
+
+
+	<!--========alert==========-->
+	<script>
+		const alertMessage = "{{alertMessage}}";
+		if (alertMessage) {
+			Swal.fire({
+				icon: 'warning',
+				title: 'Oops...',
+				text: alertMessage,
+			});
+		}
+	</script>
 
 	<!--============search==========-->
 	<script>
@@ -670,7 +719,6 @@
 			});
 		}
 	</script>
-
 
 </body>
 

@@ -249,6 +249,9 @@ const cancelOrder = async (req, res) => {
                 order.total += order.couponDiscount;
             }
         }
+        if(order.total<=50){
+            order.total=0;
+        }
 
         if (order.paymentMethod === "Razorpay" || order.paymentMethod === "Wallet") {
             if (!wallet) {
@@ -398,7 +401,7 @@ const addWishlist = async (req, res) => {
         const product = await productModel.findById(productId);
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
-        }
+        };
 
         let wishlist = await wishlistModel.findOne({ userId });
 
@@ -532,6 +535,9 @@ const returnProduct = async (req, res) => {
                 order.total += order.couponDiscount;
             }
         }
+        if(order.total<=50){
+            order.total=0;
+        }
 
         let wallet = await walletModel.findOne({ userId: order.userId });
 
@@ -557,6 +563,10 @@ const returnProduct = async (req, res) => {
         }
 
         await wallet.save();
+        const allProductsReturned = order.products.every(p => p.status === "Returned");
+        if (allProductsReturned) {
+            order.status = "Returned";
+        }
         await order.save();
 
         res.status(200).json({ success: true, message: 'Product returned successfully and refund processed.' });
