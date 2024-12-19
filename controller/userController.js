@@ -146,7 +146,6 @@ const registerUser = async (req, res) => {
 const googleAuth = async (req, res) => {
     try {
         const user = req.user;
-
         if (!user) {
             return res.redirect("/register");
         }
