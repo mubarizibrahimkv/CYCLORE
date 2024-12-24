@@ -232,19 +232,19 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="/admin/categories/add" method="POST">
+                    <form id="addCategoryForm" action="/admin/categories/add" method="POST">
                         <div class="form-group">
                             <label for="categoryName">Category</label>
                             <input class="form-control" id="categoryName" name="name">
                             <small id="categoryNameError" class="form-text text-danger"></small>
-                            <!-- Variant Input -->
-                            <div class="form-group">
-                                <label for="categoryVariant">Variant</label>
-                                <input type="text" class="form-control" id="categoryVariant" name="variant">
-                                <small id="categoryVariantError" class="form-text text-danger"></small>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Add Category</button>
                         </div>
+                        <div class="form-group">
+                            <label for="categoryVariant">Variant</label>
+                            <input type="text" class="form-control" id="categoryVariant" name="variant">
+                            <small id="categoryVariantError" class="form-text text-danger"></small>
+                        </div>
+                        <button id="addCategoryButton" type="submit" class="btn btn-primary" disabled>Add
+                            Category</button>
                     </form>
                 </div>
             </div>
@@ -290,7 +290,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    
+
     <!--========show modal====-->
     <script>
         function openEditModal(id, name, variant) {
@@ -308,7 +308,7 @@
             const categoryVariantInput = document.getElementById("categoryVariant");
             const categoryNameError = document.getElementById("categoryNameError");
             const categoryVariantError = document.getElementById("categoryVariantError");
-            const addCategoryButton = document.getElementById("addCategoryButton");
+            const addCategoryButton = document.querySelector("#addCategoryForm button[type='submit']");
             const form = document.getElementById("addCategoryForm");
 
             async function validateCategoryName() {
@@ -322,7 +322,7 @@
                 } else {
                     const isDuplicate = await checkDuplicate("name", value);
                     if (isDuplicate) {
-                        categoryNameError.textContent = "Category name give defferent.";
+                        categoryNameError.textContent = "Category name must be unique.";
                         return false;
                     }
                     categoryNameError.textContent = "";
@@ -336,6 +336,8 @@
                     categoryVariantError.textContent = "Variant is required.";
                     return false;
                 }
+                categoryVariantError.textContent = "";
+                return true;
             }
 
             async function checkDuplicate(field, value) {
@@ -348,18 +350,26 @@
                     return false;
                 }
             }
+
             async function validateForm() {
                 const isCategoryNameValid = await validateCategoryName();
                 const isCategoryVariantValid = await validateCategoryVariant();
-                addCategoryButton.disabled = !(isCategoryNameValid && isCategoryVariantValid);
+                return isCategoryNameValid && isCategoryVariantValid;
             }
 
-            categoryNameInput.addEventListener("input", validateForm);
-            categoryVariantInput.addEventListener("input", validateForm);
+            categoryNameInput.addEventListener("input", async () => {
+                const isValid = await validateForm();
+                addCategoryButton.disabled = !isValid;
+            });
+
+            categoryVariantInput.addEventListener("input", async () => {
+                const isValid = await validateForm();
+                addCategoryButton.disabled = !isValid;
+            });
 
             form.addEventListener("submit", async function (event) {
-                await validateForm();
-                if (addCategoryButton.disabled) {
+                const isFormValid = await validateForm();
+                if (!isFormValid) {
                     event.preventDefault();
                 }
             });
@@ -414,7 +424,7 @@
                     const data = await response.json();
 
                     if (!data.success) {
-                        nameError.textContent = "Category name  give different.";
+                        nameError.textContent = "Category name must be unique.";
                         nameError.style.display = "block";
                         return false;
                     }
@@ -437,7 +447,7 @@
                 const isVariantValid = validateEditCategoryVariant();
 
                 if (!isNameValid || !isVariantValid) {
-                    event.preventDefault(); 
+                    event.preventDefault();
                 }
             });
         });

@@ -379,8 +379,6 @@
                             <p class="card-text">Discount: {{this.discountValue}}% </p>
                             <p class="card-text">Maximum Discount:₹{{this.maxDiscount}}</p>
                             <p class="card-text">Expiry: {{formatDate this.expiryDate}}</p>
-                            <form action="/remove-coupon/{{this._id}}" method="POST">
-                            </form>
                         </div>
                     </div>
                     {{/each}}
@@ -1186,6 +1184,8 @@ function removeCoupon() {
         text: 'Coupon removed. No discount applied.',
         icon: 'success',
         confirmButtonText: 'OK'
+    }).then(() => {
+        location.reload();
     });
 }
 

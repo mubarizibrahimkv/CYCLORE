@@ -193,35 +193,35 @@ const getSalesData = async (req, res) => {
 };
 
 const bestSellingProductsPipeline = [
-    { $unwind: "$products" }, // Deconstruct the products array
+    { $unwind: "$products" },
     {
         $match: {
-            "products.status": { $nin: ["Cancelled", "Returned"] }, // Exclude cancelled and returned
+            "products.status": { $nin: ["Cancelled", "Returned"] }, 
         },
     },
     {
         $group: {
-            _id: "$products.productId", // Group by productId
-            totalSold: { $sum: "$products.quantity" }, // Calculate total quantity sold
+            _id: "$products.productId",
+            totalSold: { $sum: "$products.quantity" },
         },
     },
-    { $sort: { totalSold: -1 } }, // Sort by totalSold in descending order
-    { $limit: 10 }, // Limit to the top 10 best-selling products
+    { $sort: { totalSold: -1 } },
+    { $limit: 10 }, 
     {
         $lookup: {
-            from: "products", // Lookup product details
+            from: "products", 
             localField: "_id",
             foreignField: "_id",
             as: "productDetails",
         },
     },
-    { $unwind: "$productDetails" }, // Unwind the productDetails array
+    { $unwind: "$productDetails" }, 
     {
         $project: {
             _id: 1,
             totalSold: 1,
-            name: "$productDetails.name", // Include product name
-            price: "$productDetails.price", // Include product price
+            name: "$productDetails.name",
+            price: "$productDetails.price",
         },
     },
 ];
