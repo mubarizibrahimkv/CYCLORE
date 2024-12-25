@@ -27,8 +27,10 @@ const loadHomePage = async (req, res) => {
             '/img/banner/lectro10.png'
         ];
 
+        const product=await productModel.find({isListed:true}).sort({createdAt:-1}).limit(4)
+
         const randomImage = bannerImages[Math.floor(Math.random() * bannerImages.length)];
-        return res.render("user/home", { user, bannerImagePath: randomImage })
+        return res.render("user/home", { user,product, bannerImagePath: randomImage })
     } catch (error) {
         res.send(error)
     }
