@@ -421,7 +421,6 @@ const createWalletOrder=async(req,res)=>{
     const { totalAfterDiscount,addressId, cartItems, subtotal, shippingCost, total, paymentMethod, couponCode, paymentStatus, paymentDetails,couponDiscount } = req.body;
     
     try {
-
         const finalTotal=totalAfterDiscount?totalAfterDiscount:total;
         
         const wallet=await wallerModel.findOne({userId})
@@ -535,22 +534,19 @@ const applyCoupon = async (req, res) => {
     try {
         const trimmedCouponCode = couponCode.trim();
 
-        // Check if the coupon exists and is not expired
         const coupon = await couponModel.findOne({ code: trimmedCouponCode });
         if (!coupon || new Date(coupon.expiryDate) < new Date()) {
             return res.status(400).json({ message: 'Invalid or expired coupon code.' });
         }
 
-        // Ensure userId is valid (ensure session is present)
         if (!userId) {
             return res.status(400).json({ message: 'User is not logged in.' });
         }
 
-        // Check if the user has already used this coupon in any of their orders
         const previousOrders = await orderModel.find({
             userId: userId,
             couponCode: trimmedCouponCode
-        }).lean(); // Using .lean() to ensure we get a plain JavaScript object.
+        }).lean(); 
 
         if (previousOrders && previousOrders.length > 0) {
             return res.status(400).json({
@@ -558,14 +554,12 @@ const applyCoupon = async (req, res) => {
             });
         }
 
-        // Ensure subtotal meets the minimum purchase requirement
         if (coupon.minPurchase && subtotal < coupon.minPurchase) {
             return res.status(400).json({
                 message: `Subtotal must be at least ₹${coupon.minPurchase} to apply this coupon.`,
             });
         }
 
-        // Calculate the discount
         let discount = 0;
         if (coupon.discountType === 'percentage') {
             discount = (coupon.discountValue / 100) * subtotal;
@@ -573,14 +567,12 @@ const applyCoupon = async (req, res) => {
             discount = coupon.discountValue;
         }
 
-        // Enforce maximum discount limit
         if (coupon.maxDiscount && discount > coupon.maxDiscount) {
             discount = coupon.maxDiscount;
         }
 
         const newTotal = subtotal - discount;
 
-        // Update the user's used coupons list
         const user = await userModel.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found.' });
@@ -592,7 +584,6 @@ const applyCoupon = async (req, res) => {
         });
         await user.save();
 
-        // Respond with the discount and new total
         return res.status(200).json({
             success: true,
             message: 'Coupon applied successfully!',

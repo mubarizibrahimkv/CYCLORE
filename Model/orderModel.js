@@ -80,7 +80,7 @@ const orderSchema = new mongoose.Schema({
     paymentStatus: {
         type: String,
         enum: ['Pending', 'Completed', 'Failed'],
-        default: 'Pending'
+        default: 'Pending',
     },
     createdAt: {
         type: Date,
@@ -90,7 +90,6 @@ const orderSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
-
 }, { timestamps: true });
 
 const orderModel = mongoose.model('order', orderSchema);
