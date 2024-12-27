@@ -143,8 +143,8 @@
 
         <!-- Order Info Card -->
         <div class="card">
-            <h2>Order ID: <span id="orderId">{{order._id}}</span></h2>
-            <p><strong>User ID:</strong> <span id="userId">{{order.address.user}}</span></p>
+            <h2>Order ID: <span id="orderId">{{order.mainId}}</span></h2>
+            <p><strong>User Name:</strong> <span id="userId">{{order.address.firstName}} {{order.address.lastName}}</span></p>
             <p><strong>Payment Status:</strong> <span id="paymentStatus">{{order.paymentStatus}}</span></p>
             <p><strong>Payment Method:</strong> <span id="paymentMethod">{{order.paymentMethod}}</span></p>
             <p><strong>Coupon Applyied Price:</strong> <span id="couponCode">{{order.couponDiscount}}</span></p>

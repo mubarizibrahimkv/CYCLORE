@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
+    mainId: {
+        type: String,
+        required: true,
+        unique: true
+    },
     userId: {
         type: mongoose.Schema.ObjectId,
         ref: 'user',
@@ -30,16 +35,16 @@ const orderSchema = new mongoose.Schema({
         },
         status: {
             type: String,
-            enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled','Returned'],
+            enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled', 'Returned'],
             default: 'Pending'
         },
         cancellationReason: {
             type: String,
             required: false
         },
-        returnReason:{
-            type:String,
-            required:false,
+        returnReason: {
+            type: String,
+            required: false,
         },
     }
     ],
@@ -50,7 +55,7 @@ const orderSchema = new mongoose.Schema({
     },
     couponDiscount: {
         type: Number,
-        required:true,
+        required: true,
     },
     total: {
         type: Number,
@@ -58,7 +63,7 @@ const orderSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled','Returned'],
+        enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled', 'Returned'],
         default: 'Pending'
     },
     paymentMethod: {

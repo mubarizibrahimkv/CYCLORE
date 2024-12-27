@@ -536,7 +536,9 @@
                                     'Deleted!',
                                     'Your product has been removed from the cart.',
                                     'success'
-                                );
+                                ).then(() => {
+                                    location.reload();
+                                });
                             } else {
                                 Swal.fire(
                                     'Error!',

@@ -331,10 +331,6 @@ const loadOrderSuccess = async (req, res) => {
     }
 }
 
-function generateOtp() {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
 const saveOrder = async (req, res) => {
     const userId = req.session.user;
     const { addressId, cartItems, subtotal, shippingCost, total, paymentMethod, couponCode, paymentStatus, paymentDetails,couponDiscount } = req.body;    
@@ -368,6 +364,13 @@ const saveOrder = async (req, res) => {
         }
     }
 
+    const generateOrderId = () => {
+        const randomNum = Math.floor(10000000 + Math.random() * 90000000);
+        return randomNum.toString();
+    };
+
+    const orderId = generateOrderId();    
+
     const orderProducts = cartItems.map(item => {
         const discountedPrice = item.discountedPrice || item.price;
         return {
@@ -383,6 +386,7 @@ const saveOrder = async (req, res) => {
     const finalPaymentStatus = paymentStatus || 'Pending';
 
     const newOrder = new orderModel({
+        mainId:orderId,
         userId: userId,
         address: addressId,
         products: orderProducts,
@@ -432,6 +436,13 @@ const createWalletOrder=async(req,res)=>{
             return res.status(400).json({ error: 'Insufficient wallet balance' });
         }        
 
+        const generateOrderId = () => {
+            const randomNum = Math.floor(10000000 + Math.random() * 90000000);
+            return randomNum.toString();
+        };
+    
+        const orderId = generateOrderId();   
+
         const orderProducts = cartItems.map(item => {
             const discountedPrice = item.discountedPrice || item.price;
             return {
@@ -447,6 +458,7 @@ const createWalletOrder=async(req,res)=>{
         const finalPaymentStatus = paymentStatus || 'Pending';
         
         const newOrder = new orderModel({
+            mainId:orderId,
             userId: userId,
             address: addressId,
             products: orderProducts,
@@ -464,6 +476,14 @@ const createWalletOrder=async(req,res)=>{
         const order = await newOrder.save();
 
         wallet.balance -= finalTotal;
+
+        wallet.transactions.push({
+            type: 'purchase',
+            amount: finalTotal,
+            description: `Order ID: ${order.mainId}`,
+            date: new Date()
+        });
+
         
         await wallet.save();
 

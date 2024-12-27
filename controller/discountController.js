@@ -18,7 +18,7 @@ const addCoupon = async (req, res) => {
     try {
         const { code, discountType, discountValue, minPurchase, maxDiscount, expiryDate } = req.body;
 
-        if (!code || !discountType || !discountValue || !minPurchase || !maxDiscount || !expiryDate) {
+        if (!code || !discountType || !discountValue || !minPurchase || !expiryDate) {
             return res.status(400).send('All fields are required');
         }
 
@@ -68,7 +68,7 @@ const editCoupon = async (req, res) => {
     const { code, discountType, discountValue, minPurchase, maxDiscount, expiryDate } = req.body;
 
     try {
-        if (!code || !discountType || !discountValue || !minPurchase || !maxDiscount || !expiryDate) {
+        if (!code || !discountType || !discountValue || !minPurchase || !expiryDate) {
             return res.status(400).send('All fields are required');
         }
 
@@ -312,5 +312,5 @@ module.exports = {
     loadOffer,
     addOffer,
     editOffer,
-    deleteOffer
+    deleteOffer,
 }

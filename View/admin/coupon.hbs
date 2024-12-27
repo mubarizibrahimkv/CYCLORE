@@ -192,7 +192,7 @@
                             <label for="minPurchase" class="form-label">Minimum Purchase</label>
                             <input type="number" class="form-control" name="minPurchase" id="minPurchase">
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-3" id="maxDiscountField">
                             <label for="maxDiscount" class="form-label">Maximum Discount</label>
                             <input type="number" class="form-control" name="maxDiscount" id="maxDiscount">
                         </div>
@@ -267,11 +267,25 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-
     <!--=============add modal validation===============-->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.querySelector('#addCouponModal form');
+            const discountTypeField = form.querySelector('#discountType');
+            const maxDiscountField = form.querySelector('#maxDiscount');
+
+            const toggleMaxDiscountField = () => {
+                if (discountTypeField.value === 'fixed') {
+                    maxDiscountField.parentElement.style.display = 'none';
+                    maxDiscountField.value = '';
+                } else {
+                    maxDiscountField.parentElement.style.display = 'block';
+                }
+            };
+
+            toggleMaxDiscountField();
+
+            discountTypeField.addEventListener('change', toggleMaxDiscountField);
 
             form.addEventListener('submit', (event) => {
                 let isValid = true;
@@ -303,7 +317,7 @@
                     isValid = false;
                 }
 
-                if (maxDiscount < 500) {
+                if (discountType !== 'fixed' && maxDiscount < 500) {
                     showError('#maxDiscount', 'Maximum discount must be greater than 500.');
                     isValid = false;
                 }
@@ -329,8 +343,8 @@
                 }
             }
         });
-
     </script>
+
 
     <!--=============edit modal validation===============-->
     <script>
@@ -338,14 +352,29 @@
             const editForms = document.querySelectorAll('form[action^="/admin/coupons/edit/"]');
 
             editForms.forEach((form) => {
-                form.addEventListener('submit', (event) => {
-                    const formId = form.getAttribute('action').split('/').pop();
+                const formId = form.getAttribute('action').split('/').pop();
+                const discountTypeField = form.querySelector(`#discountType-${formId}`);
+                const maxDiscountField = form.querySelector(`#maxDiscount-${formId}`);
 
-                    const discountType = form.querySelector(`#discountType-${formId}`).value;
+                const toggleMaxDiscountField = () => {
+                    if (discountTypeField.value === 'fixed') {
+                        maxDiscountField.parentElement.style.display = 'none';
+                        maxDiscountField.value = '';
+                    } else {
+                        maxDiscountField.parentElement.style.display = 'block';
+                    }
+                };
+
+                toggleMaxDiscountField();
+
+                discountTypeField.addEventListener('change', toggleMaxDiscountField);
+
+                form.addEventListener('submit', (event) => {
+                    const discountType = discountTypeField.value;
                     const code = form.querySelector(`#code-${formId}`).value.trim();
                     const discountValue = parseFloat(form.querySelector(`#discountValue-${formId}`).value) || 0;
                     const minPurchase = parseFloat(form.querySelector(`#minPurchase-${formId}`).value) || 0;
-                    const maxDiscount = parseFloat(form.querySelector(`#maxDiscount-${formId}`).value) || 0;
+                    const maxDiscount = parseFloat(maxDiscountField.value) || 0;
                     const expiryDate = form.querySelector(`#expiryDate-${formId}`).value;
 
                     form.querySelectorAll('.text-danger').forEach((el) => el.remove());
@@ -372,7 +401,7 @@
                         isValid = false;
                     }
 
-                    if (maxDiscount < 500) {
+                    if (discountType !== 'fixed' && maxDiscount < 500) {
                         showError(form, `#maxDiscount-${formId}`, 'Maximum discount must be greater than 500.');
                         isValid = false;
                     }
