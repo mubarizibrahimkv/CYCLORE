@@ -27,10 +27,10 @@ const loadHomePage = async (req, res) => {
             '/img/banner/lectro10.png'
         ];
 
-        const product=await productModel.find({isListed:true}).sort({createdAt:-1}).limit(4)
+        const product = await productModel.find({ isListed: true }).sort({ createdAt: -1 }).limit(4)
 
         const randomImage = bannerImages[Math.floor(Math.random() * bannerImages.length)];
-        return res.render("user/home", { user,product, bannerImagePath: randomImage })
+        return res.render("user/home", { user, product, bannerImagePath: randomImage })
     } catch (error) {
         res.send(error)
     }
@@ -261,18 +261,33 @@ const login = async (req, res) => {
     }
 };
 
+const searchProducts= async (req, res) => {
+    try {
+        const query = req.query.query || '';
+        
+        const products = await productModel.find({
+            name: { $regex: query, $options: 'i' }, 
+        });
+        res.json({ products });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error searching products');
+    }
+}
+
 const loadShop = async (req, res) => {
     const user = req.session.user;
     try {
         const { category, sort, minPrice, maxPrice, page = 1 } = req.query;
 
-        const limit = 9; 
+        const limit = 9;
         const currentPage = parseInt(page);
         const skip = (currentPage - 1) * limit;
 
-        let filterQuery = { isListed: true };
         const listedCategories = await categoryModel.find({ isListed: true });
         const listedCategoryIds = listedCategories.map(cat => cat._id);
+
+        let filterQuery = { isListed: true, categories: { $in: listedCategoryIds } };        
 
         if (category) {
             const categoryDoc = await categoryModel.findOne({ name: category, isListed: true });
@@ -284,15 +299,10 @@ const loadShop = async (req, res) => {
                     categories: listedCategories,
                     user,
                     selectedCategory: category,
-                    sortOption: sort,
-                    minPrice,
-                    maxPrice,
                     currentPage,
                     totalPages: 0
                 });
             }
-        } else {
-            filterQuery.categories = { $in: listedCategoryIds };
         }
 
         if (minPrice || maxPrice) {
@@ -303,18 +313,25 @@ const loadShop = async (req, res) => {
 
         let sortQuery = {};
         if (sort === 'az') {
-            sortQuery.name = 1;
+            sortQuery.name = 1; 
         } else if (sort === 'za') {
-            sortQuery.name = -1;
+            sortQuery.name = -1; 
         } else if (sort === 'new-arrivals') {
-            sortQuery.createdAt = -1;
+            sortQuery.createdAt = -1; 
+        } else if (sort === 'price-asc') {
+            sortQuery.price = 1;
+        } else if (sort === 'price-desc') {
+            sortQuery.price = -1;
         }
+
+        const collation = { locale: 'en', strength: 2 }
 
         const [products, totalProducts] = await Promise.all([
             productModel
                 .find(filterQuery)
                 .populate('offer')
                 .populate('categories')
+                .collation(collation) 
                 .sort(sortQuery)
                 .skip(skip)
                 .limit(limit)
@@ -323,7 +340,7 @@ const loadShop = async (req, res) => {
         ]);
 
         products.forEach((product) => {
-            product.discountedPrice = product.price;
+            product.discountedPrice = product.price && !isNaN(product.price) ? product.price : 0;
             if (product.offer) {
                 const discountValue = product.offer.discountValue || 0;
                 if (product.offer.discountType === 'percentage') {
@@ -358,13 +375,13 @@ const loadSingleProduct = async (req, res) => {
         const productId = req.params.id;
 
         const product = await productModel
-            .findOne({ _id: productId, isListed: true }) 
+            .findOne({ _id: productId, isListed: true })
             .populate("categories")
             .populate("offer");
 
         if (!product) {
             return res.redirect("/shop")
-        }        
+        }
 
         const categoriesArray = Array.isArray(product.categories)
             ? product.categories
@@ -373,11 +390,11 @@ const loadSingleProduct = async (req, res) => {
         const isCategoryListed = categoriesArray.some((category) => category.isListed);
 
         if (!isCategoryListed) {
-            return res.render("user/shop", { 
-                alertMessage: "No products available for the selected category." 
+            return res.render("user/shop", {
+                alertMessage: "No products available for the selected category."
             });
         }
-        
+
 
         let discountedPrice = product.price;
 
@@ -504,7 +521,7 @@ const postNewPassword = async (req, res) => {
     }
 }
 
-const loadContact=async(req,res)=>{
+const loadContact = async (req, res) => {
     try {
         res.render("user/contact")
     } catch (error) {
@@ -527,6 +544,7 @@ module.exports = {
     checkBlockStatus,
     forgotPasswordPage,
     forgotEmailValid,
+    searchProducts,
     verifyForgotPassOtp,
     loadResetPassword,
     forgotResendOtp,

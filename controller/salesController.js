@@ -331,6 +331,10 @@ const loadOrderSuccess = async (req, res) => {
     }
 }
 
+function generateOtp() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
 const saveOrder = async (req, res) => {
     const userId = req.session.user;
     const { addressId, cartItems, subtotal, shippingCost, total, paymentMethod, couponCode, paymentStatus, paymentDetails,couponDiscount } = req.body;    
