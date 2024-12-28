@@ -1,5 +1,5 @@
-const orderModel=require("../Model/orderModel")
-const productModel=require("../Model/productModel")
+const orderModel = require("../Model/orderModel")
+const productModel = require("../Model/productModel")
 
 
 const loadDashboard = async (req, res) => {
@@ -8,26 +8,26 @@ const loadDashboard = async (req, res) => {
             orderModel.aggregate(bestSellingProductsPipeline),
             orderModel.aggregate(bestSellingCategoriesPipeline),
         ]);
-        res.render("admin/dashboard",{bestProducts,bestCategories})
+        res.render("admin/dashboard", { bestProducts, bestCategories })
     } catch (error) {
         res.send(error)
     }
 }
 
 const getSalesData = async (req, res) => {
-    const filter = req.query.filter || 'yearly'; 
+    const filter = req.query.filter || 'yearly';
     const currentYear = new Date().getFullYear();
     const pipeline = [];
 
     try {
         if (filter === 'yearly') {
-            const startYear = currentYear - 2; 
+            const startYear = currentYear - 2;
             const years = [startYear, startYear + 1, startYear + 2];
 
             pipeline.push(
                 {
                     $match: {
-                        "products.status": { $nin: ['Cancelled', 'Returned'] }, 
+                        "products.status": { $nin: ['Cancelled', 'Returned'] },
                     },
                 },
                 {
@@ -57,11 +57,11 @@ const getSalesData = async (req, res) => {
                 },
                 {
                     $group: {
-                        _id: "$year", 
+                        _id: "$year",
                         totalPrice: { $sum: "$totalPrice" },
                     },
                 },
-                { $sort: { _id: 1 } } 
+                { $sort: { _id: 1 } }
             );
         } else if (filter === 'monthly') {
             pipeline.push(
@@ -76,7 +76,7 @@ const getSalesData = async (req, res) => {
                 },
                 {
                     $project: {
-                        month: { $month: "$createdAt" }, 
+                        month: { $month: "$createdAt" },
                         totalPrice: {
                             $sum: {
                                 $map: {
@@ -105,7 +105,7 @@ const getSalesData = async (req, res) => {
                         totalPrice: { $sum: "$totalPrice" },
                     },
                 },
-                { $sort: { _id: 1 } } 
+                { $sort: { _id: 1 } }
             );
         } else if (filter === 'weekly') {
             pipeline.push(
@@ -145,7 +145,7 @@ const getSalesData = async (req, res) => {
                         totalPrice: { $sum: "$totalPrice" },
                     },
                 },
-                { $sort: { _id: 1 } } 
+                { $sort: { _id: 1 } }
             );
         } else {
             return res.status(400).send('Invalid filter type');
@@ -160,7 +160,7 @@ const getSalesData = async (req, res) => {
             const years = [currentYear - 2, currentYear - 1, currentYear];
             const salesData = years.map((year) => {
                 const order = orders.find((order) => order._id === year);
-                return order ? order.totalPrice : 0; 
+                return order ? order.totalPrice : 0;
             });
 
             labels.push(...years);
@@ -192,11 +192,65 @@ const getSalesData = async (req, res) => {
     }
 };
 
+const categoryGraph = async (req, res) => {
+    try {
+        const pipeline = [
+            { $unwind: "$products" },
+            { $match: { "products.status": { $nin: ["Cancelled", "Returned"] } } },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "products.productId",
+                    foreignField: "_id",
+                    as: "productDetails",
+                },
+            },
+            { $unwind: "$productDetails" },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "productDetails.categories",
+                    foreignField: "_id",
+                    as: "categoryDetails",
+                },
+            },
+            { $unwind: "$categoryDetails" },
+            {
+                $group: {
+                    _id: "$categoryDetails.name",
+                    totalSold: { $sum: "$products.quantity" },
+                },
+            },
+            { $sort: { totalSold: -1 } },
+            { $limit: 10 },
+            {
+                $project: {
+                    category: "$_id",
+                    totalSold: 1,
+                    _id: 0,
+                },
+            },
+        ];
+
+        const data = await orderModel.aggregate(pipeline);
+        res.status(200).json({
+            success: true,
+            data,
+        });
+    } catch (error) {
+        console.error("Error fetching category graph data:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch category graph data.",
+        });
+    }
+}
+
 const bestSellingProductsPipeline = [
     { $unwind: "$products" },
     {
         $match: {
-            "products.status": { $nin: ["Cancelled", "Returned"] }, 
+            "products.status": { $nin: ["Cancelled", "Returned"] },
         },
     },
     {
@@ -206,16 +260,16 @@ const bestSellingProductsPipeline = [
         },
     },
     { $sort: { totalSold: -1 } },
-    { $limit: 10 }, 
+    { $limit: 10 },
     {
         $lookup: {
-            from: "products", 
+            from: "products",
             localField: "_id",
             foreignField: "_id",
             as: "productDetails",
         },
     },
-    { $unwind: "$productDetails" }, 
+    { $unwind: "$productDetails" },
     {
         $project: {
             _id: 1,
@@ -235,22 +289,22 @@ const bestSellingCategoriesPipeline = [
     },
     {
         $lookup: {
-            from: "products", 
+            from: "products",
             localField: "products.productId",
             foreignField: "_id",
             as: "productDetails",
         },
     },
-    { $unwind: "$productDetails" }, 
+    { $unwind: "$productDetails" },
     {
         $lookup: {
-            from: "categories", 
+            from: "categories",
             localField: "productDetails.categories",
             foreignField: "_id",
             as: "categoryDetails",
         },
     },
-    { $unwind: "$categoryDetails" }, 
+    { $unwind: "$categoryDetails" },
     {
         $group: {
             _id: "$categoryDetails.name",
@@ -267,7 +321,8 @@ const bestSellingCategoriesPipeline = [
     },
 ];
 
-module.exports={
+module.exports = {
     loadDashboard,
-    getSalesData
+    getSalesData,
+    categoryGraph
 }

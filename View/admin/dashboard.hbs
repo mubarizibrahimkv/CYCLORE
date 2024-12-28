@@ -218,6 +218,8 @@
             .card {
                 max-width: 90%;
             }
+
+            
         }
     </style>
 </head>
@@ -249,21 +251,25 @@
             </header>
 
             <section class="filter-section">
-            <label for="filter">Filter:</label>
-            <select id="filter" onchange="updateSalesChart()">
-                <option value="yearly">yearly</option>
-                <option value="monthly">Monthly</option>
-                <option value="weekly">Weekly</option>
-            </select>
-        </section>
+                <label for="filter">Filter:</label>
+                <select id="filter" onchange="updateSalesChart()">
+                    <option value="yearly">yearly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="weekly">Weekly</option>
+                </select>
+            </section>
 
             <section class="charts-section">
                 <div class="chart-container">
                     <h3>Sales Chart</h3>
                     <canvas id="salesChart"></canvas>
+                    <p>Category graph</p>
                 </div>
             </section>
 
+            <div style="width: 70%; height: 400px; margin-top: 50 px;">
+                <canvas id="categorySalesChart"></canvas>
+            </div>
 
             <section class="best-selling-section">
                 <h2>Top 10 Best Selling Products</h2>
@@ -360,6 +366,57 @@
             }
         }
         document.getElementById("filter").addEventListener("change", updateSalesChart);
+    </script>
+
+    <!--=================category graph===========-->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('/admin/saless-data')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const labels = data.data.map(item => item.category); 
+                        const values = data.data.map(item => item.totalSold);
+
+                        const ctx = document.getElementById('categorySalesChart').getContext('2d');
+                        new Chart(ctx, {
+                            type: 'bar', 
+                            data: {
+                                labels: labels, 
+                                datasets: [{
+                                    label: 'Total Sold Quantity',
+                                    data: values,
+                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                    borderColor: 'rgba(75, 192, 192, 1)', 
+                                    borderWidth: 1,
+                                }],
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                    },
+                                },
+                                plugins: {
+                                    legend: {
+                                        position: 'top',
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function (context) {
+                                                return context.raw; 
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        });
+                    }
+                })
+                .catch(error => console.error('Error fetching category data:', error));
+        });
     </script>
 </body>
 
