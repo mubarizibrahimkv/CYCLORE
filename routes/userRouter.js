@@ -18,7 +18,6 @@ router.post("/register",userController.registerUser);
 router.post("/verify-otp",userController.verifyOtp)
 router.post("/resend-otp",userController.resendOtp)
 router.get("/shop",userController.loadShop)
-router.get('/shop/search',userController.searchProducts);
 router.get("/singleProduct/:id",userAuth.checkSession,userController.loadSingleProduct)
 router.get("/forgot-password",userController.forgotPasswordPage)
 router.post("/forget-email-valid",userController.forgotEmailValid)

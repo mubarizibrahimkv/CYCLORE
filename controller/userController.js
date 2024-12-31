@@ -261,24 +261,11 @@ const login = async (req, res) => {
     }
 };
 
-const searchProducts= async (req, res) => {
-    try {
-        const query = req.query.query || '';
-        
-        const products = await productModel.find({
-            name: { $regex: query, $options: 'i' }, 
-        });
-        res.json({ products });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error searching products');
-    }
-}
 
 const loadShop = async (req, res) => {
     const user = req.session.user;
     try {
-        const { category, sort, minPrice, maxPrice, page = 1 } = req.query;
+        const { category, sort, minPrice, maxPrice, page = 1, search = '' } = req.query;
 
         const limit = 9;
         const currentPage = parseInt(page);
@@ -287,7 +274,7 @@ const loadShop = async (req, res) => {
         const listedCategories = await categoryModel.find({ isListed: true });
         const listedCategoryIds = listedCategories.map(cat => cat._id);
 
-        let filterQuery = { isListed: true, categories: { $in: listedCategoryIds } };        
+        let filterQuery = { isListed: true, categories: { $in: listedCategoryIds } };
 
         if (category) {
             const categoryDoc = await categoryModel.findOne({ name: category, isListed: true });
@@ -311,27 +298,34 @@ const loadShop = async (req, res) => {
             if (maxPrice) filterQuery.price.$lte = parseFloat(maxPrice);
         }
 
+        if (search) {
+            filterQuery.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } }
+            ];
+        }
+
         let sortQuery = {};
         if (sort === 'az') {
-            sortQuery.name = 1; 
+            sortQuery.name = 1;
         } else if (sort === 'za') {
-            sortQuery.name = -1; 
+            sortQuery.name = -1;
         } else if (sort === 'new-arrivals') {
-            sortQuery.createdAt = -1; 
+            sortQuery.createdAt = -1;
         } else if (sort === 'price-asc') {
             sortQuery.price = 1;
         } else if (sort === 'price-desc') {
             sortQuery.price = -1;
         }
 
-        const collation = { locale: 'en', strength: 2 }
+        const collation = { locale: 'en', strength: 2 };
 
         const [products, totalProducts] = await Promise.all([
             productModel
                 .find(filterQuery)
                 .populate('offer')
                 .populate('categories')
-                .collation(collation) 
+                .collation(collation)
                 .sort(sortQuery)
                 .skip(skip)
                 .limit(limit)
@@ -353,6 +347,10 @@ const loadShop = async (req, res) => {
 
         const totalPages = Math.ceil(totalProducts / limit);
 
+        if (req.xhr) {
+            return res.json({ products, totalPages });
+        }
+
         res.render('user/shop', {
             products,
             categories: listedCategories,
@@ -362,7 +360,8 @@ const loadShop = async (req, res) => {
             minPrice,
             maxPrice,
             currentPage,
-            totalPages
+            totalPages,
+            searchQuery: search
         });
     } catch (error) {
         console.error('Error fetching products:', error);
@@ -544,10 +543,9 @@ module.exports = {
     checkBlockStatus,
     forgotPasswordPage,
     forgotEmailValid,
-    searchProducts,
     verifyForgotPassOtp,
     loadResetPassword,
     forgotResendOtp,
     postNewPassword,
-    loadContact
+    loadContact,
 }

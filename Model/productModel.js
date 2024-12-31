@@ -4,7 +4,8 @@ const productSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
+        unique: true
     },
     price: {
         type: Number,
@@ -44,5 +45,6 @@ const productSchema = new mongoose.Schema({
         default: true, 
     }
 });
+productSchema.index({ name: 'text', description: 'text' });
 
 module.exports = mongoose.model('Product', productSchema);

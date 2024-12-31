@@ -308,7 +308,7 @@ const addProduct = async (req, res) => {
 };
 
 const editProduct = async (req, res) => {
-    const { id, name, category, price, stock, description } = req.body;
+    const { id, name, category, price, stock, description  } = req.body;
 
     const images = req.files;
 

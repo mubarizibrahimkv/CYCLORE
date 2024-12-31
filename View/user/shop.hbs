@@ -154,13 +154,26 @@
 						<ul class="nav navbar-nav navbar-right">
 							<li class="nav-item"><a href="/cart" class="cart"><span class="ti-bag"></span></a></li>
 							<li class="nav-item">
-								<div class="search-container">
-									<button class="search">
-										<span class="lnr lnr-magnifier" id="searchIcon"></span>
-									</button>
-									<input type="text" id="searchInput" class="search-input"
-										placeholder="Search products..." style="display: none;">
-								</div>
+								<!-- Search Form -->
+								<!-- Search Form -->
+								<!-- Search Form -->
+								<form id="searchForm" method="GET" action="/shop">
+									<div class="search-container">
+										<!-- Button to show/hide the search input -->
+										<button type="button" class="search" id="searchIcon">
+											<span class="lnr lnr-magnifier"></span>
+										</button>
+
+										<!-- Search input field -->
+										<input type="text" id="searchInput" name="search" class="search-input"
+											placeholder="Search products..." style="display: none;">
+
+										<!-- Submit button -->
+										<button type="submit" id="submitSearch" class="submit-search"
+											style="display: none;">Search</button>
+									</div>
+								</form>
+
 							</li>
 							<li class="nav-item">
 								<a href="/profile"><button class="search"><span>👤</span></a>
@@ -175,13 +188,6 @@
 					</div>
 				</div>
 			</nav>
-		</div>
-		<div class="search_input" id="search_input_box">
-			<div class="container">
-				<input type="text" class="form-control" id="search_input" placeholder="Search Here"
-					onkeyup="filterProducts()">
-				<span class="lnr lnr-cross" id="close_search" title="Close Search"></span>
-			</div>
 		</div>
 	</header>
 	<!-- End Header Area -->
@@ -726,80 +732,21 @@
 
 	<!--============search==========-->
 	<script>
-		// Toggle the search input field visibility
-document.getElementById('searchIcon').addEventListener('click', function() {
-    const searchInput = document.getElementById('searchInput');
-    
-    // Toggle visibility of the input field
-    if (searchInput.style.display === 'none' || searchInput.style.display === '') {
-        searchInput.style.display = 'inline-block'; // Show the input field
-        searchInput.focus(); // Focus on the input field
-    } else {
-        searchInput.style.display = 'none'; // Hide the input field
-    }
-});
+		document.getElementById('searchIcon').addEventListener('click', function () {
+			const searchInput = document.getElementById('searchInput');
+			const submitButton = document.getElementById('submitSearch');
 
-// When "Enter" is pressed, send the search query to the backend
-document.getElementById('searchInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        const query = e.target.value.trim();
-        if (query !== '') {
-            // Send a request to search products by query
-            fetch(`/shop/search?query=${encodeURIComponent(query)}`)
-                .then(response => response.json())
-                .then(data => {
-                    // Call a function to display the search results
-                    updateProductList(data.products);
-                })
-                .catch(error => console.error('Error fetching products:', error));
-        }
-    }
-});
-
-// Function to update the product list dynamically
-function updateProductList(products) {
-    const productList = document.getElementById('product-list');
-    productList.innerHTML = ''; // Clear previous results
-
-    if (products.length === 0) {
-        productList.innerHTML = '<p>No products found.</p>';
-    } else {
-        products.forEach(product => {
-            const productCard = document.createElement('div');
-            productCard.className = 'col-lg-4 col-md-6 product-card';
-            productCard.innerHTML = `
-                <a href="/singleProduct/${product._id}">
-                    <div class="single-product">
-                        <div style="padding: 30px;">
-                            <img class="img-fluid" src="${product.images[0]}" alt="${product.name}">
-                        </div>
-                        <div class="product-details">
-                            <h6>${product.name}</h6>
-                            <p>${product.description}</p>
-                            <div class="price">
-                                ${product.offer ? 
-                                    `<h6 class="price-value"><s>₹${product.price}</s></h6><h6 class="price-value">₹${product.discountedPrice}</h6>` : 
-                                    `<h6 class="price-value">₹${product.price}</h6>`}
-                            </div>
-                            <div class="prd-bottom">
-                                ${product.stock > 0 ? 
-                                    `<a href="/cart/add/${product._id}" class="social-info"><span class="ti-bag"></span><p class="hover-text">add to bag</p></a>` : 
-                                    `<a class="social-info"><span class="ti-bag"></span><p class="hover-text">out of stock</p></a>`}
-                                <a href="/wishlist/add/${product._id}" class="social-info">
-                                    <span class="lnr lnr-heart"></span>
-                                    <p class="hover-text">Wishlist</p>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            `;
-            productList.appendChild(productCard);
-        });
-    }
-}
-
+			if (searchInput.style.display === 'none' || searchInput.style.display === '') {
+				searchInput.style.display = 'inline-block';
+				submitButton.style.display = 'inline-block'; 
+				searchInput.focus();
+			} else {
+				searchInput.style.display = 'none';
+				submitButton.style.display = 'none'; 
+			}
+		});
 	</script>
+
 
 </body>
 

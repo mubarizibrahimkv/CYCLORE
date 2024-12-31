@@ -9,7 +9,7 @@ router.get('/login',adminAuth.isLogin,adminController.loadLogin)
 router.post("/login",adminController.login)
 
 
-router.get("/dashboard",dashboardController.loadDashboard)
+router.get("/dashboard",adminAuth.checkSession,dashboardController.loadDashboard)
 router.get("/sales-data",dashboardController.getSalesData)
 router.get("/saless-data",dashboardController.categoryGraph)
 
@@ -23,7 +23,7 @@ router.get('/categories/check-duplicate',adminController.checkDuplicateAddCatego
 router.post("/categories/edit",adminController.editCategory)
 router.post("/categories/check-duplicate",adminController.checkDuplicateEditCategory)
 router.post('/categories/toggle-status/:id', adminController.toggleCategoryStatus);
-router.get("/products",adminAuth.checkSession,adminController.loadProducts)
+router.get("/products",adminController.loadProducts)
 router.post("/products/toggle-status/:id",adminController.toggleProductStatus)
 router.post("/products/add",upload.array('images',3),adminController.addProduct);
 router.get("/check-duplicate-name",adminController.duplicateProductName)

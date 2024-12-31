@@ -155,6 +155,7 @@
             margin: 0;
             padding: 0;
         }
+
         .pagination {
             display: flex;
             justify-content: center;
@@ -388,6 +389,7 @@
             </div>
         </div>
     </div>
+
 
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -677,8 +679,6 @@
             return new File([u8arr], filename, { type: mime });
         }
 
-
-
         let cropper, currentReplaceInput;
 
         function openEditModal(id, name, category, price, stock, description, imagesJson) {
@@ -741,6 +741,7 @@
 
             $('#editProductModal').modal('show');
         }
+
 
         function openCropper(input, index) {
             const file = input.files[0];
