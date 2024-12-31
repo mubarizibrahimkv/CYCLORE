@@ -18,31 +18,35 @@ const userSchema = new mongoose.Schema({
     phone: {
         type: String,
         required: false,
-        unique:false,
-        sparse:true,
-        default:null
+        unique: false,
+        sparse: true,
+        default: null
+    },
+    referralCode: {
+        type: String,
+        unique: true
     },
     usedCoupons: [
         {
             couponId: {
-                 type: mongoose.Schema.Types.ObjectId,
-                  ref: 'Coupon' 
-                },
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Coupon'
+            },
             usedAt: {
-                 type: Date,
-                  default: Date.now 
-                },
+                type: Date,
+                default: Date.now
+            },
         }
     ],
-    googleId:{
-      type:String,
-      required:false
+    googleId: {
+        type: String,
+        required: false
     },
     status: {
         type: Boolean,
         default: true
     }
-}); 
+});
 
 module.exports = mongoose.model("user", userSchema)
 

@@ -35,7 +35,7 @@
 
     <style>
         .account-container {
-            margin-left: 200px;
+            margin-left: 110px;
             width: 1000px;
             background-color: #fff;
             padding: 20px;
@@ -339,6 +339,9 @@
             display: block;
             margin-top: 5px;
         }
+        .referralCode{
+            text-align: end;
+        }
     </style>
 </head>
 
@@ -421,6 +424,9 @@
                         Password</button>
                 </div>
                 {{/if}}
+            </div>
+            <div class="referralCode">
+                <p>Your referral code: <strong>{{user.referralCode}}</strong></p>
             </div>
         </div>
 
@@ -870,7 +876,7 @@
                 });
 
                 if (isValid) {
-                    form.submit(); 
+                    form.submit();
                 }
             });
         });

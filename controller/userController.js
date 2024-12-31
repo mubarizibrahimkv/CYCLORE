@@ -6,7 +6,7 @@ const offerModel = require("../Model/offerModel")
 require("dotenv").config()
 const session = require("express-session")
 const categoryModel = require("../Model/categoryModel")
-
+const walletModel=require("../Model/walletModel")
 
 
 const pageNotFound = async (req, res) => {
@@ -109,7 +109,7 @@ async function sendVerificationEmail(email, otp) {
 
 const registerUser = async (req, res) => {
     try {
-        const { username, phone, email, password, "confirm-password": Cpassword } = req.body;
+        const { username, phone, email, password, "confirm-password": Cpassword,referralCode} = req.body;        
 
         if (!username || !phone || !email || !password || !Cpassword) {
             console.log("All fields are required");
@@ -127,6 +127,7 @@ const registerUser = async (req, res) => {
             return res.render("user/register", { message: "User with this email already exists" });
         }
 
+
         const otp = generateOtp();
         const emailSent = await sendVerificationEmail(email, otp);
         if (!emailSent) {
@@ -135,7 +136,7 @@ const registerUser = async (req, res) => {
         }
 
         req.session.userOtp = otp;
-        req.session.userData = { username, phone, email, password };
+        req.session.userData = { username, phone, email, password,referralCode };
         res.render("user/verify-otp");
         console.log("Generated OTP:", otp);
 
@@ -178,14 +179,69 @@ const verifyOtp = async (req, res) => {
         if (otp.trim() === req.session.userOtp.toString().trim()) {
             const user = req.session.userData
             const passwordHash = await securePassword(user.password);
+            const generateReferralCode = () => {
+                return Math.random().toString(36).substring(2, 8).toUpperCase();
+            };            
+            newReferralCode = generateReferralCode();
+
             const saveUserData = new userModel({
                 email: user.email,
                 phone: user.phone,
                 password: passwordHash,
-                username: user.username
+                username: user.username,
+                referralCode: newReferralCode
             })
 
-            await saveUserData.save()
+
+
+            //refferer get fund
+            const referrer = await userModel.findOne({ referralCode: user.referralCode });
+            
+            if (referrer) {
+                let wallet = await walletModel.findOne({userId:referrer._id});
+                
+                if (!wallet) {
+                    wallet = new walletModel({
+                        userId: referrer._id,
+                        balance: 100,
+                        transactions: [
+                            {
+                                type: 'refferal',
+                                amount: 100,
+                                description: `Referral bonus of ₹100`
+                            }
+                        ]
+                    });
+                } else {
+                    wallet.balance += 100;
+                    wallet.transactions.push({
+                        type: 'refferal',
+                        amount: 100,
+                        description: `Referral bonus of ₹100`
+                    });
+                }
+                await wallet.save();
+            }
+
+
+            const savedUser = await saveUserData.save();
+
+
+            // new user get referrer
+            const newUserWallet = new walletModel({
+                userId: savedUser._id,
+                balance: 100,
+                transactions: [
+                    {
+                        type: 'refferal',
+                        amount: 100,
+                        description: 'Welcome bonus credited',
+                    },
+                ],
+            });
+
+            await newUserWallet.save();
+
             res.json({ success: true, redirectUrl: "/login" });
         } else {
             console.log("OTP mismatch or missing data.");
