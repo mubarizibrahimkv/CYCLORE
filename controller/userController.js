@@ -127,6 +127,18 @@ const registerUser = async (req, res) => {
             return res.render("user/register", { message: "User with this email already exists" });
         }
 
+        let isValidReferral = false;
+        if (referralCode) {
+            const referrer = await userModel.findOne({ referralCode });
+            if (referrer) {
+                isValidReferral = true;
+                console.log("Valid referral code");
+            } else {
+                console.log("Invalid referral code");
+                return res.render("user/register", { message: "Invalid referral code" });
+            }
+        }
+
 
         const otp = generateOtp();
         const emailSent = await sendVerificationEmail(email, otp);
