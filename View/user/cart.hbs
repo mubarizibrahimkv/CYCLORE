@@ -408,15 +408,11 @@
             const input = document.querySelector(`input[data-product-id='${productId}']`);
             const priceElement = document.querySelector(`#price-${productId}`);
             const orderTotalElement = document.getElementById('order-total');
-
             const maxStock = parseInt(input.getAttribute('data-stock'));
-            const currentQty = parseInt(input.getAttribute('data-current-qty')) || 0;
             const productName = input.getAttribute('data-product-name');
+            let currentQty = parseInt(input.value);
 
-            let inputQty = parseInt(input.value);
-            console.log(inputQty,"inputQty")
-
-            if (isNaN(inputQty) || inputQty < 1) {
+            if (isNaN(currentQty) || currentQty < 1) {
                 swal.fire({
                     title: "Invalid Quantity",
                     text: "Quantity cannot be less than 1.",
@@ -427,46 +423,38 @@
                 return;
             }
 
-            console.log(maxStock, "maxstock")
-            console.log(currentQty, "currentQty")
-
-            const effectiveMaxQty = maxStock + inputQty;
-
-            console.log(effectiveMaxQty, "effectiveMaxQty")
-
-
-            if (inputQty > effectiveMaxQty) {
+            if (currentQty > maxStock) {
                 swal.fire({
                     title: "Stock Limit Reached",
-                    text: `${productName} - Only ${effectiveMaxQty} items available.`,
+                    text: `${productName} - Only ${maxStock} items available in stock.`,
                     icon: "warning",
                     button: "Okay",
                 });
-                input.value = effectiveMaxQty;
+                input.value = maxStock;
                 return;
             }
 
             if (action === 'increase') {
-                if (inputQty < effectiveMaxQty) {
-                    inputQty++;
+                if (currentQty < maxStock) {
+                    currentQty++;
                 } else {
                     swal.fire({
                         title: "Stock Limit Reached",
-                        text: `${productName} - Only ${effectiveMaxQty} items available.`,
+                        text: `${productName} - Only ${maxStock} items available in stock.`,
                         icon: "warning",
                         button: "Okay",
                     });
                     return;
                 }
-            } else if (action === 'decrease' && inputQty > 1) {
-                inputQty--;
+            } else if (action === 'decrease' && currentQty > 1) {
+                currentQty--;
             }
 
-            input.value = inputQty;
+            input.value = currentQty;
 
             const data = {
                 productId: productId,
-                quantity: inputQty
+                quantity: currentQty
             };
 
             fetch('/updateCart', {
