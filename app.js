@@ -69,7 +69,7 @@ app.use("/admin", salesReportRouter)
 app.use("/", userRouter)
 app.use("/", profileRouter)
 app.use("/", salesRouter)
-  
+
 
 connectDB()
 
