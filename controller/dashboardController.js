@@ -193,10 +193,47 @@ const getSalesData = async (req, res) => {
 };
 
 const categoryGraph = async (req, res) => {
+
     try {
+        const { startDate, endDate } = req.query;
+
+        let startDateObj = null;
+        let endDateObj = null;
+
+        if (startDate) {
+            startDateObj = new Date(startDate);
+            if (isNaN(startDateObj)) {
+                throw new Error("Invalid startDate format");
+            }
+        }
+
+        if (endDate) {
+            endDateObj = new Date(endDate);
+            if (isNaN(endDateObj)) {
+                throw new Error("Invalid endDate format");
+            }
+        }
+
+        console.log("Converted Start Date:", startDateObj);
+        console.log("Converted End Date:", endDateObj);
+
+        if (endDateObj) {
+            endDateObj.setHours(23, 59, 59, 999);
+        }
+
         const pipeline = [
+            {
+                $match: {
+                    "products.status": { $nin: ["Cancelled", "Returned"] },
+                    ...(startDateObj && endDateObj && {
+                        "createdAt": {
+                            $gte: startDateObj,
+                            $lte: endDateObj
+                        }
+                    })
+                }
+            },
             { $unwind: "$products" },
-            { $match: { "products.status": { $nin: ["Cancelled", "Returned"] } } },
             {
                 $lookup: {
                     from: "products",
@@ -233,6 +270,9 @@ const categoryGraph = async (req, res) => {
         ];
 
         const data = await orderModel.aggregate(pipeline);
+
+        console.log("Category Data:", data);
+
         res.status(200).json({
             success: true,
             data,
@@ -244,7 +284,7 @@ const categoryGraph = async (req, res) => {
             message: "Failed to fetch category graph data.",
         });
     }
-}
+};
 
 const bestSellingProductsPipeline = [
     { $unwind: "$products" },
