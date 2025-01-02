@@ -214,9 +214,6 @@ const categoryGraph = async (req, res) => {
             }
         }
 
-        console.log("Converted Start Date:", startDateObj);
-        console.log("Converted End Date:", endDateObj);
-
         if (endDateObj) {
             endDateObj.setHours(23, 59, 59, 999);
         }
@@ -270,8 +267,6 @@ const categoryGraph = async (req, res) => {
         ];
 
         const data = await orderModel.aggregate(pipeline);
-
-        console.log("Category Data:", data);
 
         res.status(200).json({
             success: true,

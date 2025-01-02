@@ -7,6 +7,7 @@
     <title>Dashboard</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="/css/dashboard.css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
     <style>
         .navbar {
@@ -218,8 +219,72 @@
             .card {
                 max-width: 90%;
             }
+        }
 
+        .filter-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px;
+        }
 
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-label {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .filter-input {
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 150px;
+        }
+
+        .filter-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 150px;
+            margin-top: 10px;
+        }
+
+        .filter-btn:hover {
+            background-color: #45a049;
+        }
+
+        @media (max-width: 600px) {
+            .filter-container {
+                align-items: center;
+            }
+
+            .input-group {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .filter-input,
+            .filter-btn {
+                width: 100%;
+            }
+        }
+
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
         }
     </style>
 </head>
@@ -271,15 +336,20 @@
             <hr>
             <hr>
 
+            <div class="filter-container">
+                <div class="input-group">
+                    <label for="startDate" class="filter-label">Start Date:</label>
+                    <input type="date" id="startDate" name="startDate" class="filter-input">
+                    <span id="startDateError" class="error-message"></span> <!-- Error message for Start Date -->
+                </div>
 
-            <div>
-                <label for="startDate">Start Date:</label>
-                <input type="date" id="startDate" name="startDate">
+                <div class="input-group">
+                    <label for="endDate" class="filter-label">End Date:</label>
+                    <input type="date" id="endDate" name="endDate" class="filter-input">
+                    <span id="endDateError" class="error-message"></span> <!-- Error message for End Date -->
+                </div>
 
-                <label for="endDate">End Date:</label>
-                <input type="date" id="endDate" name="endDate">
-
-                <button id="filterBtn">Apply Filter</button>
+                <button id="filterBtn" class="filter-btn">Apply Filter</button>
             </div>
 
             <div style="width: 70%; height: 400px; margin-top: 50px;">
@@ -318,6 +388,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("filter").value = "yearly";
@@ -395,16 +466,12 @@
                 fetch(url)
                     .then(response => response.json())
                     .then(data => {
-                        console.log("Category Data from Backend:", data);
 
                         if (data.success && data.data.length > 0) {
                             const labels = data.data.map(item => item.category);
                             const values = data.data.map(item => item.totalSold);
 
-                            console.log("Chart Data:", { labels, values });
-
                             const ctx = document.getElementById('categorySalesChart').getContext('2d');
-                            console.log("Chart Context:", ctx);
 
                             if (ctx) {
                                 new Chart(ctx, {
@@ -445,7 +512,14 @@
                                 console.error("Failed to get chart context.");
                             }
                         } else {
-                            alert('No data available for the selected date range');
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'No Data Available',
+                                text: 'No data available for the selected date range.',
+                                showConfirmButton: false,
+                                timer: 1000,
+                                timerProgressBar: true,
+                            });
                         }
                     })
 
@@ -460,13 +534,86 @@
                 const endDate = document.getElementById('endDate').value;
 
                 if (startDate && endDate) {
-                    fetchCategoryData(startDate, endDate); 
+                    fetchCategoryData(startDate, endDate);
                 } else {
-                    alert('Please select both start and end dates');
+                    console.log('Please select both start and end dates');
                 }
             });
             fetchCategoryData('', '');
         });
+    </script>
+
+
+    <!--=============== validation ================-->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const filterBtn = document.getElementById('filterBtn');
+
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+
+            const startDateError = document.getElementById('startDateError');
+            const endDateError = document.getElementById('endDateError');
+
+            const validateDates = () => {
+                let isValid = true;
+
+                startDateError.textContent = '';
+                endDateError.textContent = '';
+                startDateError.style.display = 'none';
+                endDateError.style.display = 'none';
+
+                const today = new Date().setHours(0, 0, 0, 0);
+                const startDate = new Date(startDateInput.value);
+                const endDate = new Date(endDateInput.value);
+
+                if (!startDateInput.value) {
+                    startDateError.textContent = 'Start date is required';
+                    startDateError.style.display = 'block';
+                    isValid = false;
+                } else if (isNaN(startDate)) {
+                    startDateError.textContent = 'Invalid start date format';
+                    startDateError.style.display = 'block';
+                    isValid = false;
+                } else if (startDate > today) {
+                    startDateError.textContent = 'Start date cannot be in the future';
+                    startDateError.style.display = 'block';
+                    isValid = false;
+                }
+
+                if (!endDateInput.value) {
+                    endDateError.textContent = 'End date is required';
+                    endDateError.style.display = 'block';
+                    isValid = false;
+                } else if (isNaN(endDate)) {
+                    endDateError.textContent = 'Invalid end date format';
+                    endDateError.style.display = 'block';
+                    isValid = false;
+                } else if (endDate > today) {
+                    endDateError.textContent = 'End date cannot be in the future';
+                    endDateError.style.display = 'block';
+                    isValid = false;
+                }
+
+                if (startDateInput.value && endDateInput.value && startDate > endDate) {
+                    endDateError.textContent = 'End date cannot be earlier than start date';
+                    endDateError.style.display = 'block';
+                    isValid = false;
+                }
+
+                return isValid;
+            };
+
+            filterBtn.addEventListener('click', function (event) {
+                event.preventDefault();
+                if (validateDates()) {
+                    const startDate = startDateInput.value;
+                    const endDate = endDateInput.value;
+                    fetchCategoryData(startDate, endDate);
+                }
+            });
+        });
+
     </script>
 
 </body>
