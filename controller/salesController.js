@@ -193,7 +193,6 @@ const updateCartQuantity = async (req, res) => {
     }
 }
 
-
 const cancelProduct = async (req, res) => {
     try {
         const { productId } = req.params;
@@ -493,6 +492,7 @@ const createWalletOrder=async(req,res)=>{
         wallet.transactions.push({
             type: 'purchase',
             amount: finalTotal,
+            orderId: order.mainId,
             description: `Order ID: ${order.mainId}`,
             date: new Date()
         });

@@ -29,6 +29,10 @@ const walletSchema = new Schema({
             },
             description: {
                 type: String
+            },
+            orderId: {  
+                type: String,
+                required: false
             }
         }
     ]

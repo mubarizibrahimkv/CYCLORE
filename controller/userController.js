@@ -328,7 +328,6 @@ const login = async (req, res) => {
     }
 };
 
-
 const loadShop = async (req, res) => {
     const user = req.session.user;
     try {
@@ -341,8 +340,12 @@ const loadShop = async (req, res) => {
         const listedCategories = await categoryModel.find({ isListed: true });
         const listedCategoryIds = listedCategories.map(cat => cat._id);
 
-        let filterQuery = { isListed: true, categories: { $in: listedCategoryIds } };
+        let filterQuery = {
+            isListed: true,
+            categories: { $in: listedCategoryIds },
+        };
 
+        // Apply category filter if available
         if (category) {
             const categoryDoc = await categoryModel.findOne({ name: category, isListed: true });
             if (categoryDoc) {
@@ -354,52 +357,57 @@ const loadShop = async (req, res) => {
                     user,
                     selectedCategory: category,
                     currentPage,
-                    totalPages: 0
+                    totalPages: 0,
                 });
             }
         }
 
+        // Apply price filter if available
         if (minPrice || maxPrice) {
             filterQuery.price = {};
             if (minPrice) filterQuery.price.$gte = parseFloat(minPrice);
             if (maxPrice) filterQuery.price.$lte = parseFloat(maxPrice);
         }
 
+        // Apply search filter if available
         if (search) {
             filterQuery.$or = [
                 { name: { $regex: search, $options: 'i' } },
-                { description: { $regex: search, $options: 'i' } }
+                { description: { $regex: search, $options: 'i' } },
             ];
         }
 
+        // Define the sorting query
         let sortQuery = {};
         if (sort === 'az') {
-            sortQuery.name = 1;
+            sortQuery.name = 1; // Sort by name ascending
         } else if (sort === 'za') {
-            sortQuery.name = -1;
+            sortQuery.name = -1; // Sort by name descending
         } else if (sort === 'new-arrivals') {
-            sortQuery.createdAt = -1;
+            sortQuery.createdAt = -1; // Sort by newest first
         } else if (sort === 'price-asc') {
-            sortQuery.price = 1;
+            sortQuery.price = 1; // Sort by price ascending
         } else if (sort === 'price-desc') {
-            sortQuery.price = -1;
+            sortQuery.price = -1; // Sort by price descending
         }
 
         const collation = { locale: 'en', strength: 2 };
 
+        // Execute query with combined filter and sorting
         const [products, totalProducts] = await Promise.all([
             productModel
                 .find(filterQuery)
                 .populate('offer')
                 .populate('categories')
                 .collation(collation)
-                .sort(sortQuery)
+                .sort(sortQuery)  // Sorting after applying filters
                 .skip(skip)
                 .limit(limit)
                 .lean(),
-            productModel.countDocuments(filterQuery)
+            productModel.countDocuments(filterQuery), // Count documents matching filter
         ]);
 
+        // Calculate discounted prices if offers exist
         products.forEach((product) => {
             product.discountedPrice = product.price && !isNaN(product.price) ? product.price : 0;
             if (product.offer) {
@@ -412,12 +420,14 @@ const loadShop = async (req, res) => {
             }
         });
 
-        const totalPages = Math.ceil(totalProducts / limit);
+        const totalPages = Math.ceil(totalProducts / limit); // Calculate total pages
 
+        // If this is an AJAX request, return JSON response
         if (req.xhr) {
             return res.json({ products, totalPages });
         }
 
+        // Render the shop page
         res.render('user/shop', {
             products,
             categories: listedCategories,
@@ -428,7 +438,7 @@ const loadShop = async (req, res) => {
             maxPrice,
             currentPage,
             totalPages,
-            searchQuery: search
+            searchQuery: search,
         });
     } catch (error) {
         console.error('Error fetching products:', error);

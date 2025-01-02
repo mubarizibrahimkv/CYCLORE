@@ -112,6 +112,65 @@
 			outline: none;
 			border: 1px solid #ccc;
 		}
+		/* General styling for the search container */
+.search-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    gap: 10px;
+}
+
+/* Styling for the search input */
+.search-container input[type="text"] {
+    width: 100%;
+    max-width: 400px; /* Adjust the width as needed */
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.search-container input[type="text"]:focus {
+    border-color: #007bff; /* Highlight color on focus */
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Styling for the search button */
+.search-container .buttonApply1 {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.search-container .buttonApply1:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+/* Styling for the filter heading */
+.top-filter-head {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+.top-filter-head p {
+    margin: 0;
+    padding: 5px 0;
+    border-bottom: 2px solid #007bff; /* Adds a bottom border */
+    display: inline-block; /* Keeps the border under text */
+}
+
 	</style>
 </head>
 
@@ -154,26 +213,6 @@
 						<ul class="nav navbar-nav navbar-right">
 							<li class="nav-item"><a href="/cart" class="cart"><span class="ti-bag"></span></a></li>
 							<li class="nav-item">
-								<!-- Search Form -->
-								<!-- Search Form -->
-								<!-- Search Form -->
-								<form id="searchForm" method="GET" action="/shop">
-									<div class="search-container">
-										<!-- Button to show/hide the search input -->
-										<button type="button" class="search" id="searchIcon">
-											<span class="lnr lnr-magnifier"></span>
-										</button>
-
-										<!-- Search input field -->
-										<input type="text" id="searchInput" name="search" class="search-input"
-											placeholder="Search products..." style="display: none;">
-
-										<!-- Submit button -->
-										<button type="submit" id="submitSearch" class="submit-search"
-											style="display: none;">Search</button>
-									</div>
-								</form>
-
 							</li>
 							<li class="nav-item">
 								<a href="/profile"><button class="search"><span>👤</span></a>
@@ -213,12 +252,14 @@
 		<div class="row">
 			<div class="col-xl-3 col-lg-4 col-md-5">
 				<div class="sidebar-filter mt-50">
-					<div class="filter-summary">
-					</div>
-					<div class="top-filter-head">
-						<p>Product Filters</p>
-					</div>
 					<form id="filterForm" action="/shop" method="get">
+						<div class="search-container">
+							<input type="text" name="search" placeholder="Search products...">
+							<button class="buttonApply1" type="submit">Search</button>
+						</div>
+						<div class="top-filter-head">
+							<p>Product Filters</p>
+						</div>
 						<!-- Category Filter -->
 						<div class="common-filter">
 							<div class="head">Category</div>
@@ -738,11 +779,11 @@
 
 			if (searchInput.style.display === 'none' || searchInput.style.display === '') {
 				searchInput.style.display = 'inline-block';
-				submitButton.style.display = 'inline-block'; 
+				submitButton.style.display = 'inline-block';
 				searchInput.focus();
 			} else {
 				searchInput.style.display = 'none';
-				submitButton.style.display = 'none'; 
+				submitButton.style.display = 'none';
 			}
 		});
 	</script>

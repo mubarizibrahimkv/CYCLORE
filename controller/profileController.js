@@ -262,6 +262,7 @@ const cancelOrder = async (req, res) => {
                         {
                             type: 'refund',
                             amount: refundAmount,
+                            orderId: order.mainId,
                             description: `Refund for canceled product (${product.name}) in order ${order.mainId}`
                         }
                     ]
@@ -271,7 +272,8 @@ const cancelOrder = async (req, res) => {
                 wallet.transactions.push({
                     type: 'refund',
                     amount: refundAmount,
-                    description: `Refund for canceled product (${product.name}) in order ${order.mainId}`
+                    orderId: order.mainId,
+                    description: `Refund for canceled product (${product.name})`
                 });
             }
         }
