@@ -563,7 +563,9 @@
                 startDateError.style.display = 'none';
                 endDateError.style.display = 'none';
 
-                const today = new Date().setHours(0, 0, 0, 0);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
                 const startDate = new Date(startDateInput.value);
                 const endDate = new Date(endDateInput.value);
 
@@ -589,10 +591,6 @@
                     endDateError.textContent = 'Invalid end date format';
                     endDateError.style.display = 'block';
                     isValid = false;
-                } else if (endDate > today) {
-                    endDateError.textContent = 'End date cannot be in the future';
-                    endDateError.style.display = 'block';
-                    isValid = false;
                 }
 
                 if (startDateInput.value && endDateInput.value && startDate > endDate) {
@@ -613,9 +611,7 @@
                 }
             });
         });
-
     </script>
-
 </body>
 
 

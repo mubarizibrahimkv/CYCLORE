@@ -405,103 +405,86 @@
     <!---update Quantity---->
     <script>
         function updateQuantity(action, productId) {
-            const input = document.querySelector(`input[data-product-id='${productId}']`);
-            const priceElement = document.querySelector(`#price-${productId}`);
-            const orderTotalElement = document.getElementById('order-total');
-            const maxStock = parseInt(input.getAttribute('data-stock'));
-            const productName = input.getAttribute('data-product-name');
-            let currentQty = parseInt(input.value);
+    const input = document.querySelector(`input[data-product-id='${productId}']`);
+    const priceElement = document.querySelector(`#price-${productId}`);
+    const orderTotalElement = document.getElementById('order-total');
+    const maxStock = parseInt(input.getAttribute('data-stock'));
+    const productName = input.getAttribute('data-product-name');
+    let currentQty = parseInt(input.value);
 
-            if (isNaN(currentQty) || currentQty < 1) {
-                swal.fire({
-                    title: "Invalid Quantity",
-                    text: "Quantity cannot be less than 1.",
-                    icon: "warning",
-                    button: "Okay",
-                });
-                input.value = 1;
-                return;
-            }
+    if (isNaN(currentQty) || currentQty < 0) {
+        swal.fire({
+            title: "Invalid Quantity",
+            text: "Quantity cannot be negative.",
+            icon: "warning",
+            button: "Okay",
+        });
+        input.value = 0;
+        return;
+    }
 
-            if (currentQty > maxStock) {
-                swal.fire({
-                    title: "Stock Limit Reached",
-                    text: `${productName} - Only ${maxStock} items available in stock.`,
-                    icon: "warning",
-                    button: "Okay",
-                });
-                input.value = maxStock;
-                return;
-            }
-
-            if (action === 'increase') {
-                if (currentQty < maxStock) {
-                    currentQty++;
-                } else {
-                    swal.fire({
-                        title: "Stock Limit Reached",
-                        text: `${productName} - Only ${maxStock} items available in stock.`,
-                        icon: "warning",
-                        button: "Okay",
-                    });
-                    return;
-                }
-            } else if (action === 'decrease' && currentQty > 1) {
-                currentQty--;
-            }
-
-            input.value = currentQty;
-
-            const data = {
-                productId: productId,
-                quantity: currentQty
-            };
-
-            fetch('/updateCart', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const oldPrice = parseFloat(priceElement.textContent.replace("₹", ""));
-                        const newPrice = data.newPrice;
-
-                        priceElement.textContent = `₹${data.newPrice}`;
-
-                        const currentOrderTotal = parseFloat(orderTotalElement.textContent.replace("₹", ""));
-                        const priceDifference = newPrice - oldPrice;
-                        const updatedOrderTotal = currentOrderTotal + priceDifference;
-
-                        orderTotalElement.textContent = `₹${updatedOrderTotal.toFixed(2)}`;
-                    } else {
-                        swal.fire({
-                            title: "Error!",
-                            text: data.message,
-                            icon: "error",
-                            button: "Okay",
-                        });
-                    }
-                })
-                .catch(error => {
-                    swal.fire({
-                        title: "Server Error!",
-                        text: "Something went wrong while updating the cart. Please try again later.",
-                        icon: "error",
-                        button: "Okay",
-                    });
-                });
+    if (action === 'increase') {
+        if (currentQty < maxStock) {
+            currentQty++;
+        } else {
+            swal.fire({
+                title: "Stock Limit Reached",
+                text: `${productName} - Only ${maxStock} items available in stock.`,
+                icon: "warning",
+                button: "Okay",
+            });
+            return;
         }
+    } else if (action === 'decrease' && currentQty > 0) {
+        currentQty--;
+    }
 
-        document.querySelectorAll('input[data-product-id]').forEach(input => {
-            input.addEventListener('change', function () {
-                const productId = input.getAttribute('data-product-id');
-                updateQuantity(null, productId);
+    input.value = currentQty;
+
+    const data = {
+        productId: productId,
+        quantity: currentQty
+    };
+
+    fetch('/updateCart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const oldPrice = parseFloat(priceElement.textContent.replace("₹", ""));
+                const newPrice = data.newPrice;
+
+                priceElement.textContent = `₹${data.newPrice}`;
+
+                const currentOrderTotal = parseFloat(orderTotalElement.textContent.replace("₹", ""));
+                const priceDifference = newPrice - oldPrice;
+                const updatedOrderTotal = currentOrderTotal + priceDifference;
+
+                orderTotalElement.textContent = `₹${updatedOrderTotal.toFixed(2)}`;
+            } else {
+                swal.fire({
+                    title: "Error!",
+                    text: data.message,
+                    icon: "error",
+                    button: "Okay",
+                });
+            }
+        })
+        .catch(error => {
+            swal.fire({
+                title: "Server Error!",
+                text: "Something went wrong while updating the cart. Please try again later.",
+                icon: "error",
+                button: "Okay",
             });
         });
+}
+
     </script>
 
 

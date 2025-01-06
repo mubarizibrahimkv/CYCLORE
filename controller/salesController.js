@@ -171,7 +171,7 @@ const updateCartQuantity = async (req, res) => {
         if (quantity >(maxAllowedQuantity + currentQuantity)) {
             return res.json({
                 success: false,
-                message: `Only ${maxAllowedQuantity + currentQuantity} units available for this product`
+                message: `Only ${maxAllowedQuantity + currentQuantity} units  backend available for this product`
             });
         }
 
