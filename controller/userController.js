@@ -345,7 +345,6 @@ const loadShop = async (req, res) => {
             categories: { $in: listedCategoryIds },
         };
 
-        // Apply category filter if available
         if (category) {
             const categoryDoc = await categoryModel.findOne({ name: category, isListed: true });
             if (categoryDoc) {
@@ -362,14 +361,12 @@ const loadShop = async (req, res) => {
             }
         }
 
-        // Apply price filter if available
         if (minPrice || maxPrice) {
             filterQuery.price = {};
             if (minPrice) filterQuery.price.$gte = parseFloat(minPrice);
             if (maxPrice) filterQuery.price.$lte = parseFloat(maxPrice);
         }
 
-        // Apply search filter if available
         if (search) {
             filterQuery.$or = [
                 { name: { $regex: search, $options: 'i' } },
@@ -377,37 +374,34 @@ const loadShop = async (req, res) => {
             ];
         }
 
-        // Define the sorting query
         let sortQuery = {};
         if (sort === 'az') {
-            sortQuery.name = 1; // Sort by name ascending
+            sortQuery.name = 1; 
         } else if (sort === 'za') {
-            sortQuery.name = -1; // Sort by name descending
+            sortQuery.name = -1; 
         } else if (sort === 'new-arrivals') {
-            sortQuery.createdAt = -1; // Sort by newest first
+            sortQuery.createdAt = -1; 
         } else if (sort === 'price-asc') {
-            sortQuery.price = 1; // Sort by price ascending
+            sortQuery.price = 1; 
         } else if (sort === 'price-desc') {
-            sortQuery.price = -1; // Sort by price descending
+            sortQuery.price = -1; 
         }
 
         const collation = { locale: 'en', strength: 2 };
 
-        // Execute query with combined filter and sorting
         const [products, totalProducts] = await Promise.all([
             productModel
                 .find(filterQuery)
                 .populate('offer')
                 .populate('categories')
                 .collation(collation)
-                .sort(sortQuery)  // Sorting after applying filters
+                .sort(sortQuery) 
                 .skip(skip)
                 .limit(limit)
                 .lean(),
-            productModel.countDocuments(filterQuery), // Count documents matching filter
+            productModel.countDocuments(filterQuery),
         ]);
 
-        // Calculate discounted prices if offers exist
         products.forEach((product) => {
             product.discountedPrice = product.price && !isNaN(product.price) ? product.price : 0;
             if (product.offer) {
@@ -420,14 +414,12 @@ const loadShop = async (req, res) => {
             }
         });
 
-        const totalPages = Math.ceil(totalProducts / limit); // Calculate total pages
+        const totalPages = Math.ceil(totalProducts / limit);
 
-        // If this is an AJAX request, return JSON response
         if (req.xhr) {
             return res.json({ products, totalPages });
         }
 
-        // Render the shop page
         res.render('user/shop', {
             products,
             categories: listedCategories,
@@ -438,7 +430,7 @@ const loadShop = async (req, res) => {
             maxPrice,
             currentPage,
             totalPages,
-            searchQuery: search,
+            searchQuery:search,
         });
     } catch (error) {
         console.error('Error fetching products:', error);

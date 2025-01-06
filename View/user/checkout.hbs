@@ -235,11 +235,11 @@
                                 <a href="/profile"><button class="search"><span>👤</span></a>
                             </li>
                             <li class="nav-item">
-								<a href="/wishlist" class="wishlist">
-									<button class="search">
-										<span class="ti-heart"></span></button>
-								</a>
-							</li>
+                                <a href="/wishlist" class="wishlist">
+                                    <button class="search">
+                                        <span class="ti-heart"></span></button>
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -339,17 +339,17 @@
                         <div class="mb-3">
                             <label for="editState" class="form-label">State</label>
                             <input type="text" class="form-control" id="editState" name="state">
-                             <span class="text-danger small" id="stateError"></span>
+                            <span class="text-danger small" id="stateError"></span>
                         </div>
                         <div class="mb-3">
                             <label for="editCountry" class="form-label">Country</label>
                             <input type="text" class="form-control" id="editCountry" name="country">
-                             <span class="text-danger small" id="countryError"></span>
+                            <span class="text-danger small" id="countryError"></span>
                         </div>
                         <div class="mb-3">
                             <label for="editPinCode" class="form-label">Pin Code</label>
                             <input type="text" class="form-control" id="editPinCode" name="pinCode">
-                             <span class="text-danger small" id="pinCodeError"></span>
+                            <span class="text-danger small" id="pinCodeError"></span>
                         </div>
                         <button type="submit" class="btn btn-primary">Save Changes</button>
                     </form>
@@ -456,9 +456,9 @@
                                             <span class="middle">x {{this.quantity}}</span>
                                             <span class="last">
                                                 ₹{{#if this.discountedPrice}}
-                                                    {{toFixed (multiply this.discountedPrice this.quantity) 2}}
+                                                {{toFixed (multiply this.discountedPrice this.quantity) 2}}
                                                 {{else}}
-                                                    {{toFixed (multiply this.price this.quantity) 2}}
+                                                {{toFixed (multiply this.price this.quantity) 2}}
                                                 {{/if}}
                                             </span>
                                         </a>
@@ -474,10 +474,11 @@
                                     </li>
                                     <li id="totalAfterDiscountRow" style="display:none;">
                                         <a>Total after Discount <span id="totalAfterDiscount">₹0.00</span></a>
-                                    </li>                
+                                    </li>
                                 </ul>
                                 <div id="messageContainer" style="color: red; display: none; font-size: 14px;">
-                                <strong>Note:</strong> The order total is greater than ₹10000, and Cash on Delivery is not available.
+                                    <strong>Note:</strong> The order total is greater than ₹10000, and Cash on Delivery
+                                    is not available.
                                 </div>
                                 <div class="payment_item">
                                     <div class="radion_btn">
@@ -608,175 +609,175 @@
 
     <!--==========add address validate==========-->
     <script>
-document.getElementById('addressForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    let isValid = true;
+        document.getElementById('addressForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            let isValid = true;
 
-    const firstName = document.getElementById('first');
-    if (firstName.value.trim() === '') {
-        document.getElementById('firstNameError1').textContent = 'First name is required.';
-        isValid = false;
-    } else {
-        document.getElementById('firstNameError1').textContent = '';
-    }
+            const firstName = document.getElementById('first');
+            if (firstName.value.trim() === '') {
+                document.getElementById('firstNameError1').textContent = 'First name is required.';
+                isValid = false;
+            } else {
+                document.getElementById('firstNameError1').textContent = '';
+            }
 
-    const lastName = document.getElementById('last');
-    if (lastName.value.trim() === '') {
-        document.getElementById('lastNameError1').textContent = 'Last name is required.';
-        isValid = false;
-    } else {
-        document.getElementById('lastNameError1').textContent = '';
-    }
+            const lastName = document.getElementById('last');
+            if (lastName.value.trim() === '') {
+                document.getElementById('lastNameError1').textContent = 'Last name is required.';
+                isValid = false;
+            } else {
+                document.getElementById('lastNameError1').textContent = '';
+            }
 
-    const mobile = document.getElementById('number');
-    const mobileRegex = /^[0-9]{10}$/;
-    if (!mobileRegex.test(mobile.value)) {
-        document.getElementById('mobileError1').textContent = 'Phone number must be 10 digits.';
-        isValid = false;
-    } else {
-        document.getElementById('mobileError1').textContent = '';
-    }
+            const mobile = document.getElementById('number');
+            const mobileRegex = /^[0-9]{10}$/;
+            if (!mobileRegex.test(mobile.value)) {
+                document.getElementById('mobileError1').textContent = 'Phone number must be 10 digits.';
+                isValid = false;
+            } else {
+                document.getElementById('mobileError1').textContent = '';
+            }
 
-    const email = document.getElementById('email');
-    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-    if (!emailRegex.test(email.value)) {
-        document.getElementById('emailError1').textContent = 'Please enter a valid email address.';
-        isValid = false;
-    } else {
-        document.getElementById('emailError1').textContent = '';
-    }
+            const email = document.getElementById('email');
+            const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+            if (!emailRegex.test(email.value)) {
+                document.getElementById('emailError1').textContent = 'Please enter a valid email address.';
+                isValid = false;
+            } else {
+                document.getElementById('emailError1').textContent = '';
+            }
 
-    const address = document.getElementById('address');
-    if (address.value.trim() === '') {
-        document.getElementById('addressError1').textContent = 'Address is required.';
-        isValid = false;
-    } else {
-        document.getElementById('addressError1').textContent = '';
-    }
+            const address = document.getElementById('address');
+            if (address.value.trim() === '') {
+                document.getElementById('addressError1').textContent = 'Address is required.';
+                isValid = false;
+            } else {
+                document.getElementById('addressError1').textContent = '';
+            }
 
-    const country = document.getElementById('country');
-    if (country.value.trim() === '') {
-        document.getElementById('countryError1').textContent = 'Country is required.';
-        isValid = false;
-    } else {
-        document.getElementById('countryError1').textContent = '';
-    }
+            const country = document.getElementById('country');
+            if (country.value.trim() === '') {
+                document.getElementById('countryError1').textContent = 'Country is required.';
+                isValid = false;
+            } else {
+                document.getElementById('countryError1').textContent = '';
+            }
 
-    const state = document.getElementById('state');
-    if (state.value.trim() === '') {
-        document.getElementById('stateError1').textContent = 'State is required.';
-        isValid = false;
-    } else {
-        document.getElementById('stateError1').textContent = '';
-    }
+            const state = document.getElementById('state');
+            if (state.value.trim() === '') {
+                document.getElementById('stateError1').textContent = 'State is required.';
+                isValid = false;
+            } else {
+                document.getElementById('stateError1').textContent = '';
+            }
 
-    const city = document.getElementById('city');
-    if (city.value.trim() === '') {
-        document.getElementById('cityError1').textContent = 'City is required.';
-        isValid = false;
-    } else {
-        document.getElementById('cityError1').textContent = '';
-    }
+            const city = document.getElementById('city');
+            if (city.value.trim() === '') {
+                document.getElementById('cityError1').textContent = 'City is required.';
+                isValid = false;
+            } else {
+                document.getElementById('cityError1').textContent = '';
+            }
 
-    const pinCode = document.getElementById('zip');
-    const pinCodeRegex = /^[0-9]{6}$/;
-    if (!pinCodeRegex.test(pinCode.value)) {
-        document.getElementById('pinCodeError1').textContent = 'Pin code must be 6 digits.';
-        isValid = false;
-    } else {
-        document.getElementById('pinCodeError1').textContent = '';
-    }
+            const pinCode = document.getElementById('zip');
+            const pinCodeRegex = /^[0-9]{6}$/;
+            if (!pinCodeRegex.test(pinCode.value)) {
+                document.getElementById('pinCodeError1').textContent = 'Pin code must be 6 digits.';
+                isValid = false;
+            } else {
+                document.getElementById('pinCodeError1').textContent = '';
+            }
 
-    if (isValid) {
-        document.getElementById('addressForm').submit();
-    }
-});
-</script>
+            if (isValid) {
+                document.getElementById('addressForm').submit();
+            }
+        });
+    </script>
 
     <!--==========edit address validate==========-->
     <script>
-    document.getElementById("editAddressForm").addEventListener("submit", function (e) {
-    let isValid = true;
+        document.getElementById("editAddressForm").addEventListener("submit", function (e) {
+            let isValid = true;
 
-    const errorFields = document.querySelectorAll(".text-danger");
-    errorFields.forEach((field) => (field.textContent = ""));
+            const errorFields = document.querySelectorAll(".text-danger");
+            errorFields.forEach((field) => (field.textContent = ""));
 
-    const firstName = document.getElementById("editFirstName").value.trim();
-    if (!firstName) {
-        document.getElementById("firstNameError").textContent = "First Name is required.";
-        isValid = false;
-    }
+            const firstName = document.getElementById("editFirstName").value.trim();
+            if (!firstName) {
+                document.getElementById("firstNameError").textContent = "First Name is required.";
+                isValid = false;
+            }
 
-    const lastName = document.getElementById("editLastName").value.trim();
-    if (!lastName) {
-        document.getElementById("lastNameError").textContent = "Last Name is required.";
-        isValid = false;
-    }
+            const lastName = document.getElementById("editLastName").value.trim();
+            if (!lastName) {
+                document.getElementById("lastNameError").textContent = "Last Name is required.";
+                isValid = false;
+            }
 
-    const mobile = document.getElementById("editMobile").value.trim();
-    if (!/^\d{10}$/.test(mobile)) {
-        document.getElementById("mobileError").textContent = "Enter a valid 10-digit mobile number.";
-        isValid = false;
-    }
+            const mobile = document.getElementById("editMobile").value.trim();
+            if (!/^\d{10}$/.test(mobile)) {
+                document.getElementById("mobileError").textContent = "Enter a valid 10-digit mobile number.";
+                isValid = false;
+            }
 
-    const email = document.getElementById("editEmail").value.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        document.getElementById("emailError").textContent = "Enter a valid email address.";
-        isValid = false;
-    }
+            const email = document.getElementById("editEmail").value.trim();
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                document.getElementById("emailError").textContent = "Enter a valid email address.";
+                isValid = false;
+            }
 
-    const address = document.getElementById("editAddress").value.trim();
-    if (!address) {
-        document.getElementById("addressError").textContent = "Address is required.";
-        isValid = false;
-    }
+            const address = document.getElementById("editAddress").value.trim();
+            if (!address) {
+                document.getElementById("addressError").textContent = "Address is required.";
+                isValid = false;
+            }
 
-    const city = document.getElementById("editCity").value.trim();
-    if (!city) {
-        document.getElementById("cityError").textContent = "City is required.";
-        isValid = false;
-    }
+            const city = document.getElementById("editCity").value.trim();
+            if (!city) {
+                document.getElementById("cityError").textContent = "City is required.";
+                isValid = false;
+            }
 
-    const state = document.getElementById("editState").value.trim();
-    if (!state) {
-        document.getElementById("stateError").textContent = "State is required.";
-        isValid = false;
-    }
+            const state = document.getElementById("editState").value.trim();
+            if (!state) {
+                document.getElementById("stateError").textContent = "State is required.";
+                isValid = false;
+            }
 
-    const country = document.getElementById("editCountry").value.trim();
-    if (!country) {
-        document.getElementById("countryError").textContent = "Country is required.";
-        isValid = false;
-    }
+            const country = document.getElementById("editCountry").value.trim();
+            if (!country) {
+                document.getElementById("countryError").textContent = "Country is required.";
+                isValid = false;
+            }
 
-    const pinCode = document.getElementById("editPinCode").value.trim();
-    if (!/^\d{6}$/.test(pinCode)) {
-        document.getElementById("pinCodeError").textContent = "Enter a valid 6-digit pin code.";
-        isValid = false;
-    }
+            const pinCode = document.getElementById("editPinCode").value.trim();
+            if (!/^\d{6}$/.test(pinCode)) {
+                document.getElementById("pinCodeError").textContent = "Enter a valid 6-digit pin code.";
+                isValid = false;
+            }
 
-    if (!isValid) {
-        e.preventDefault();
-    }
-});
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
 
     </script>
 
     <!--==============check cod greater than 10000 ==============-->
     <script>
-        const subtotalAmount={{subtotal}}
+        const subtotalAmount = {{ subtotal }}
         const codRadioButton = document.getElementById("f-option5");
-        const messageContainer=document.getElementById("messageContainer")
-        function checkSubtotal(){
-            if(subtotalAmount >=10000){
-                codRadioButton.disabled=true,
-                messageContainer.style.display="block"
-            }else{
-                codRadioButton.disabled=false,
-                messageContainer.style.display="none"
+        const messageContainer = document.getElementById("messageContainer")
+        function checkSubtotal() {
+            if (subtotalAmount >= 10000) {
+                codRadioButton.disabled = true,
+                    messageContainer.style.display = "block"
+            } else {
+                codRadioButton.disabled = false,
+                    messageContainer.style.display = "none"
             }
         }
-        document.addEventListener("DOMContentLoaded",checkSubtotal)
+        document.addEventListener("DOMContentLoaded", checkSubtotal)
     </script>
 
     <!---=======edit modal=======--->
@@ -840,7 +841,7 @@ document.getElementById('addressForm').addEventListener('submit', function(event
             const selectedAddressElement = document.querySelector('input[name="selectedAddress"]:checked');
             const paymentMethodElement = document.querySelector('input[name="paymentMethod"]:checked');
             const couponCodeElement = document.querySelector('#couponCodeInput');
-            const couponDiscountElement=document.getElementById("discount")
+            const couponDiscountElement = document.getElementById("discount")
 
 
             if (!paymentMethodElement) {
@@ -848,7 +849,7 @@ document.getElementById('addressForm').addEventListener('submit', function(event
                     title: 'Error!',
                     text: 'Please select a payment method.',
                     icon: 'error',
-                    confirmButtonText:"OK"
+                    confirmButtonText: "OK"
                 });
                 return;
             }
@@ -856,42 +857,42 @@ document.getElementById('addressForm').addEventListener('submit', function(event
             const selectedAddress = selectedAddressElement.value;
             const paymentMethod = paymentMethodElement.value;
             const couponCode = couponCodeElement ? couponCodeElement.value.trim() : '';
-            const couponDiscount = couponDiscountElement? couponDiscountElement.innerText.replace('₹', '').trim(): '';
+            const couponDiscount = couponDiscountElement ? couponDiscountElement.innerText.replace('₹', '').trim() : '';
 
 
             const cartItems = [];
-            {{#each cart.products}}
+            { { #each cart.products } }
             cartItems.push({
                 productId: "{{this.productId._id}}",
-                quantity: {{this.quantity}},
-                price: {{this.productId.price}},
-                name: "{{this.productId.name}}",
-                status: "Pending",
-                discountedPrice:"{{this.discountedPrice}}"
+                quantity: {{ this.quantity }},
+        price: { { this.productId.price } },
+        name: "{{this.productId.name}}",
+            status: "Pending",
+                discountedPrice: "{{this.discountedPrice}}"
          });
-        {{/each}}
-        
+        { {/each } }
+
         const totalAfterDiscount = parseFloat(
-        document.getElementById("totalAfterDiscount").textContent.replace('₹', '').trim()
+            document.getElementById("totalAfterDiscount").textContent.replace('₹', '').trim()
         );
         const orderData = {
             userId: "{{user._id}}",
             addressId: selectedAddress,
             cartItems: cartItems,
-            subtotal: {{subtotal}},
-            shippingCost: {{shippingCost}},
-            total: {{total}},
-            couponDiscount:couponDiscount,
-            totalAfterDiscount:totalAfterDiscount,
-            paymentMethod: paymentMethod,
-            couponCode: couponCode
+            subtotal: {{ subtotal }},
+        shippingCost: { { shippingCost } },
+        total: { { total } },
+        couponDiscount: couponDiscount,
+            totalAfterDiscount: totalAfterDiscount,
+                paymentMethod: paymentMethod,
+                    couponCode: couponCode
         };
 
         if (paymentMethod === "Razorpay") {
             createRazorpayOrder(orderData);
         } else if (paymentMethod === "CashOnDelivery") {
             submitOrderToBackend(orderData);
-        }else if(paymentMethod==="Wallet"){
+        } else if (paymentMethod === "Wallet") {
             createWalletOrder(orderData)
         }
 }
@@ -899,299 +900,299 @@ document.getElementById('addressForm').addEventListener('submit', function(event
 
         //------------------razorpay-------------------
         function createRazorpayOrder(orderData) {
-        fetch('/createRazorpayOrder', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.orderId && data.amount) {
-            const options = {
-                key: 'rzp_test_4rzZQ0EHL6muv5',
-                amount: data.amount,
-                currency: "INR",
-                name: "Cyclore",
-                description: "Order Payment",
-                order_id: data.orderId,
-                handler: function(response) {
-                    handlePaymentSuccess(response, orderData);
-                },
-                prefill: {
-                    name: "{{user.name}}",
-                    email: "{{user.email}}",
-                    contact: "{{user.mobile}}"
-                },
-                theme: {
-                    color: "#F37254"
-                },
-                modal: {
-                    ondismiss: function () {
-                        handlePaymentFailure(orderData, 'Failed');
+            fetch('/createRazorpayOrder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.orderId && data.amount) {
+                        const options = {
+                            key: 'rzp_test_4rzZQ0EHL6muv5',
+                            amount: data.amount,
+                            currency: "INR",
+                            name: "Cyclore",
+                            description: "Order Payment",
+                            order_id: data.orderId,
+                            handler: function (response) {
+                                handlePaymentSuccess(response, orderData);
+                            },
+                            prefill: {
+                                name: "{{user.name}}",
+                                email: "{{user.email}}",
+                                contact: "{{user.mobile}}"
+                            },
+                            theme: {
+                                color: "#F37254"
+                            },
+                            modal: {
+                                ondismiss: function () {
+                                    handlePaymentFailure(orderData, 'Failed');
+                                }
+                            }
+                        };
+                        const rzp = new Razorpay(options);
+                        rzp.on('payment.failed', function (response) {
+                            console.log("Payment failed:", response.error);
+                            handlePaymentFailure(orderData, 'Failed');
+                        });
+                        rzp.open();
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Failed to create Razorpay order. Please try again.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
                     }
-                }
+                })
+                .catch(error => {
+                    console.error('Error creating Razorpay order:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to create Razorpay order. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
+        }
+
+        function handlePaymentSuccess(response, orderData) {
+            orderData.paymentDetails = {
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature
             };
-            const rzp = new Razorpay(options);
-            rzp.on('payment.failed', function (response) {
-                console.log("Payment failed:", response.error);
-                handlePaymentFailure(orderData, 'Failed');
-            });
-            rzp.open();
-        } else {            
-            Swal.fire({
-                title: 'Error!',
-                text: 'Failed to create Razorpay order. Please try again.',
-                icon: 'error',
-                confirmButtonText: 'OK'
-            });
-        }
-    })
-    .catch(error => {
-        console.error('Error creating Razorpay order:', error);
-        Swal.fire({
-            title: 'Error!',
-            text: 'Failed to create Razorpay order. Please try again.',
-            icon: 'error',
-            confirmButtonText: 'OK'
-        });
-    });
-}
 
-function handlePaymentSuccess(response, orderData) {
-    orderData.paymentDetails = {
-        razorpay_payment_id: response.razorpay_payment_id,
-        razorpay_order_id: response.razorpay_order_id,
-        razorpay_signature: response.razorpay_signature
-    };
-
-    fetch('/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message) {
-            window.location.href = '/orderSuccess';
-        } else {
-            Swal.fire({
-                title: 'Error!',
-                text: 'Failed to place order. Please try again.',
-                icon: 'error',
-                confirmButtonText: 'OK'
-            });
+            fetch('/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        window.location.href = '/orderSuccess';
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Failed to place order. Please try again.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error submitting order:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to submit order. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
         }
-    })
-    .catch(error => {
-        console.error('Error submitting order:', error);
-        Swal.fire({
-            title: 'Error!',
-            text: 'Failed to submit order. Please try again.',
-            icon: 'error',
-            confirmButtonText: 'OK'
-        });
-    });
-}
 
-function handlePaymentFailure(orderData, paymentStatus) {
-    orderData.paymentStatus = paymentStatus || 'Failed';
-    fetch('/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message) {
-            window.location.href = '/profile/order';
-        } else {
-            Swal.fire({
-                title: 'Error!',
-                text: 'Failed to place order. Please try again.',
-                icon: 'error',
-                confirmButtonText: 'OK'
-            });
+        function handlePaymentFailure(orderData, paymentStatus) {
+            orderData.paymentStatus = paymentStatus || 'Failed';
+            fetch('/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        window.location.href = '/profile/order';
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Failed to place order. Please try again.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error submitting order:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to submit order. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
         }
-    })
-    .catch(error => {
-        console.error('Error submitting order:', error);
-        Swal.fire({
-            title: 'Error!',
-            text: 'Failed to submit order. Please try again.',
-            icon: 'error',
-            confirmButtonText: 'OK'
-        });
-    });
-}
 
         function submitOrderToBackend(orderData) {
-        fetch('/checkout', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(orderData)
-       })
-       .then(response => response.json())
-       .then(data => {
-        if (data.message) {
-            window.location.href = '/orderSuccess';
-        } else {
-            Swal.fire({
-                title: 'Error!',
-                text: 'Failed to place order. Please try again.',
-                icon: 'error',
-                confirmButtonText: 'OK'
-            });
-        }
-       })
-       .catch(error => {
-        console.error('Error submitting order:', error);
-        Swal.fire({
-            title: 'Error!',
-            text: 'Failed to submit order. Please try again.',
-            icon: 'error',
-            confirmButtonText: 'OK'
-                });
-            });
-        }
-
-        function createWalletOrder(orderData){
-            fetch("/checkout/createWalletOrder",{
-                method:"POST",
-                headers:{
+            fetch('/checkout', {
+                method: 'POST',
+                headers: {
                     'Content-Type': 'application/json'
                 },
-                body:JSON.stringify(orderData)
+                body: JSON.stringify(orderData)
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    window.location.href = '/orderSuccess';
-                }else if (data.error === 'Insufficient wallet balance') {
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        window.location.href = '/orderSuccess';
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Failed to place order. Please try again.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error submitting order:', error);
                     Swal.fire({
                         title: 'Error!',
-                        text: 'Your wallet balance is insufficient to place this order.',
+                        text: 'Failed to submit order. Please try again.',
                         icon: 'error',
                         confirmButtonText: 'OK'
                     });
-                 }else {
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Failed to place order. Please try again.',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
-                }
-               })
-            .catch(error => {
-                console.error('Error submitting order:', error);
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Failed to submit order. Please try again.',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
                 });
-            });
+        }
+
+        function createWalletOrder(orderData) {
+            fetch("/checkout/createWalletOrder", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(orderData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        window.location.href = '/orderSuccess';
+                    } else if (data.error === 'Insufficient wallet balance') {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Your wallet balance is insufficient to place this order.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Failed to place order. Please try again.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error submitting order:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to submit order. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
         }
     </script>
 
-<!--=======apply coupon & remove coupon===========-->
-<script>
-  function applyCoupon() {
-    const couponCode = document.getElementById("couponCodeInput").value.trim();
-    const subtotal = parseFloat(document.getElementById("subtotal").textContent.replace("₹", ""));
-    const total = parseFloat(document.getElementById("total").textContent.replace("₹", ""));
+    <!--=======apply coupon & remove coupon===========-->
+    <script>
+        function applyCoupon() {
+            const couponCode = document.getElementById("couponCodeInput").value.trim();
+            const subtotal = parseFloat(document.getElementById("subtotal").textContent.replace("₹", ""));
+            const total = parseFloat(document.getElementById("total").textContent.replace("₹", ""));
 
-    if (!couponCode) {
-        Swal.fire({
-            title: 'Error!',
-            text: 'Please enter a valid coupon code.',
-            icon: 'error',
-            confirmButtonText: 'OK'
-        });
-        return;
-    }
-
-    fetch('/applyCoupon', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ couponCode, subtotal }),
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const discount = parseFloat(data.discount);
-            const total = parseFloat(data.newTotal);
-            const newTotal = total+50;
-
-            if (isNaN(newTotal)) {
+            if (!couponCode) {
                 Swal.fire({
                     title: 'Error!',
-                    text: 'Error calculating the total.',
+                    text: 'Please enter a valid coupon code.',
                     icon: 'error',
                     confirmButtonText: 'OK'
                 });
                 return;
             }
 
-            document.getElementById("discountRow").style.display = 'block';
-            document.getElementById("discount").textContent = "₹" + discount.toFixed(2);
+            fetch('/applyCoupon', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ couponCode, subtotal }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const discount = parseFloat(data.discount);
+                        const total = parseFloat(data.newTotal);
+                        const newTotal = total + 50;
 
-            document.getElementById("totalAfterDiscountRow").style.display = 'block';
-            document.getElementById("totalAfterDiscount").textContent = "₹" + newTotal.toFixed(2);
+                        if (isNaN(newTotal)) {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Error calculating the total.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                            return;
+                        }
+
+                        document.getElementById("discountRow").style.display = 'block';
+                        document.getElementById("discount").textContent = "₹" + discount.toFixed(2);
+
+                        document.getElementById("totalAfterDiscountRow").style.display = 'block';
+                        document.getElementById("totalAfterDiscount").textContent = "₹" + newTotal.toFixed(2);
+
+                        Swal.fire({
+                            title: 'Success!',
+                            text: `Coupon applied: ₹${discount.toFixed(2)} discount`,
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: data.message,
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Error applying coupon. Please try again later.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
+        }
+
+
+        function removeCoupon() {
+            document.getElementById("discountRow").style.display = 'none';
+            document.getElementById("totalAfterDiscountRow").style.display = 'none';
+
+            const subtotal = parseFloat(document.getElementById("subtotal").textContent.replace("₹", ""));
+            const total = parseFloat(document.getElementById("total").textContent.replace("₹", ""));
+
+            document.getElementById("total").textContent = "₹" + total.toFixed(2);
 
             Swal.fire({
                 title: 'Success!',
-                text: `Coupon applied: ₹${discount.toFixed(2)} discount`,
+                text: 'Coupon removed. No discount applied.',
                 icon: 'success',
                 confirmButtonText: 'OK'
-            });
-        } else {
-            Swal.fire({
-                title: 'Error!',
-                text: data.message,
-                icon: 'error',
-                confirmButtonText: 'OK'
+            }).then(() => {
+                location.reload();
             });
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-            title: 'Error!',
-            text: 'Error applying coupon. Please try again later.',
-            icon: 'error',
-            confirmButtonText: 'OK'
-        });
-    });
-}
-
-
-function removeCoupon() {
-    document.getElementById("discountRow").style.display = 'none';
-    document.getElementById("totalAfterDiscountRow").style.display = 'none';
-
-    const subtotal = parseFloat(document.getElementById("subtotal").textContent.replace("₹", ""));
-    const total = parseFloat(document.getElementById("total").textContent.replace("₹", ""));
-    
-    document.getElementById("total").textContent = "₹" + total.toFixed(2); 
-    
-    Swal.fire({
-        title: 'Success!',
-        text: 'Coupon removed. No discount applied.',
-        icon: 'success',
-        confirmButtonText: 'OK'
-    }).then(() => {
-        location.reload();
-    });
-}
 
 
 
-</script>
+    </script>
 
 </body>
 

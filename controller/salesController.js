@@ -45,7 +45,7 @@ const loadCart = async (req, res) => {
         console.error("Error loading cart:", error);
         res.status(500).send("An error occurred while loading the cart.");
     }
-}
+};
 
 const addCart = async (req, res) => {
     const productId = req.params.id;
@@ -125,7 +125,7 @@ const addCart = async (req, res) => {
     }
 };
 
-const updateCartQuantity = async (req, res) => {
+const updateCartQuantity = async (req, res) => { 
     try {
         const { productId, quantity } = req.body;
 
@@ -157,21 +157,13 @@ const updateCartQuantity = async (req, res) => {
         const currentQuantity = cart.products[productIndex].quantity;
         const availableStock = product.stock
         const maxAllowedQuantity = availableStock;
-
-        console.log(currentQuantity,"currentQuantity");
         
-        const quantityDifference = quantity - currentQuantity;
-
-        console.log(quantityDifference,"quantityDifference");
-        console.log(maxAllowedQuantity,"maxAllowedQuantity");
-        
-
-        console.log(availableStock,"availableStock");
+        const quantityDifference = quantity - currentQuantity;        
         
         if (quantity >(maxAllowedQuantity + currentQuantity)) {
             return res.json({
                 success: false,
-                message: `Only ${maxAllowedQuantity + currentQuantity} units  backend available for this product`
+                message: `Only ${maxAllowedQuantity + currentQuantity} units available for this product`
             });
         }
 
@@ -191,7 +183,7 @@ const updateCartQuantity = async (req, res) => {
         console.error('Error updating cart quantity:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
-}
+};
 
 const cancelProduct = async (req, res) => {
     try {
@@ -234,7 +226,6 @@ const cancelProduct = async (req, res) => {
 
 const loadCheckout = async (req, res) => {
     const id = req.session.user;
-
     try {
         const coupons = await couponModel.find();
         const addresses = await addressModel.find({ user: id,isListed:true });
@@ -304,7 +295,7 @@ const updateAddress = async (req, res) => {
         console.error(error);
         res.status(500).send('Error updating address');
     }
-}
+};
 
 const saveAddress = async (req, res) => {
     try {
@@ -333,7 +324,7 @@ const saveAddress = async (req, res) => {
         console.error("Error saving address:", error);
         res.status(500).send("Failed to save address");
     }
-}
+};
 
 const loadOrderSuccess = async (req, res) => {
     try {
@@ -341,7 +332,7 @@ const loadOrderSuccess = async (req, res) => {
     } catch (error) {
         res.send(error)
     }
-}
+};
 
 const saveOrder = async (req, res) => {
     const userId = req.session.user;
@@ -512,7 +503,7 @@ const createWalletOrder=async(req,res)=>{
         console.error('Error saving order:', error);
         res.status(500).json({ error: 'Failed to place order' });
     }
-}
+};
 
 const instance = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
@@ -562,7 +553,7 @@ const paymentFailer = async (req, res) => {
         console.error('Error updating payment status:', error);
         res.status(500).json({ error: 'Failed to update payment status' });
     }
-}
+};
 
 const applyCoupon = async (req, res) => {
     const { couponCode, subtotal } = req.body;
@@ -651,4 +642,4 @@ module.exports = {
     applyCoupon,
     paymentFailer,
     createWalletOrder
-}
+};
