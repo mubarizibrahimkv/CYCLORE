@@ -129,69 +129,73 @@ const updateCartQuantity = async (req, res) => {
     try {
         const { productId, quantity } = req.body;
 
-
-        console.log(quantity,"quantity");
-        
-        const userId = req.session.user;
-
         if (quantity < 1) {
-            return res.status(400).json({ success: false, message: 'Quantity must be at least 1' });
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Quantity must be at least 1' 
+            });
         }
+
+        const userId = req.session.user;
 
         const cart = await cartModel.findOne({ userId }).populate('products.productId').exec();
 
         if (!cart) {
-            return res.status(404).json({ success: false, message: 'Cart not found' });
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Cart not found' 
+            });
         }
 
         const productIndex = cart.products.findIndex(item => item.productId._id.toString() === productId);
 
         if (productIndex === -1) {
-            return res.status(404).json({ success: false, message: 'Product not found in cart' });
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Product not found in cart' 
+            });
         }
 
         const product = cart.products[productIndex].productId;
 
-        const cartProduct=cart.products[productIndex];        
+        const cartProduct = cart.products[productIndex];        
 
         const currentQuantity = cart.products[productIndex].quantity;
-        const availableStock = product.stock
-        const maxAllowedQuantity = availableStock;
+        const availableStock = product.stock;
+        const maxAllowedQuantity = availableStock + currentQuantity;
 
-        console.log(currentQuantity,"currentQuantity");
-        
-        const quantityDifference = quantity - currentQuantity;
-
-        console.log(quantityDifference,"quantityDifference");
-        console.log(maxAllowedQuantity,"maxAllowedQuantity");
-        
-
-        console.log(availableStock,"availableStock");
-        
-        if (quantity >(maxAllowedQuantity + currentQuantity)) {
-            return res.json({
+        if (quantity > maxAllowedQuantity) {
+            return res.status(400).json({
                 success: false,
-                message: `Only ${maxAllowedQuantity + currentQuantity} units  b available for this product`
+                message: `Only ${maxAllowedQuantity} units are available for this product.`
             });
         }
 
+        // Update cart quantity and stock
+        const quantityDifference = quantity - currentQuantity;
         cart.products[productIndex].quantity = quantity;
+        product.stock -= quantityDifference;
 
-        const newStock = availableStock - quantityDifference;
-        await productModel.findByIdAndUpdate(productId, { stock: newStock });
-
+        await product.save();
         await cart.save();            
         
-        const price=cartProduct.discountedPrice?cartProduct.discountedPrice:product.price
+        const price = cartProduct.discountedPrice || product.price;
         const updatedPrice = price * quantity;
-        
-        res.json({ success: true, newPrice: updatedPrice });
+
+        res.json({ 
+            success: true, 
+            newPrice: updatedPrice 
+        });
 
     } catch (error) {
         console.error('Error updating cart quantity:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error' 
+        });
     }
-}
+};
+
 
 const cancelProduct = async (req, res) => {
     try {

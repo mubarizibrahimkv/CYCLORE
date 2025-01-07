@@ -405,87 +405,84 @@
     <!---update Quantity---->
     <script>
         function updateQuantity(action, productId) {
-    const input = document.querySelector(`input[data-product-id='${productId}']`);
-    const priceElement = document.querySelector(`#price-${productId}`);
-    const orderTotalElement = document.getElementById('order-total');
-    const maxStock = parseInt(input.getAttribute('data-stock'));
-    const productName = input.getAttribute('data-product-name');
-    let currentQty = parseInt(input.value);
+            const input = document.querySelector(`input[data-product-id='${productId}']`);
+            const priceElement = document.querySelector(`#price-${productId}`);
+            const orderTotalElement = document.getElementById('order-total');
+            const maxStock = parseInt(input.getAttribute('data-stock'));
+            const productName = input.getAttribute('data-product-name');
+            let currentQty = parseInt(input.value);
 
-    if (isNaN(currentQty) || currentQty < 0) {
-        swal.fire({
-            title: "Invalid Quantity",
-            text: "Quantity cannot be negative.",
-            icon: "warning",
-            button: "Okay",
-        });
-        input.value = 0;
-        return;
-    }
-
-    if (action === 'increase') {
-        if (currentQty < maxStock) {
-            currentQty++;
-        } else {
-            swal.fire({
-                title: "Stock Limit Reached",
-                text: `${productName} - Only ${maxStock} items available in stock.`,
-                icon: "warning",
-                button: "Okay",
-            });
-            return;
-        }
-    } else if (action === 'decrease' && currentQty > 0) {
-        currentQty--;
-    }
-
-    input.value = currentQty;
-
-    const data = {
-        productId: productId,
-        quantity: currentQty
-    };
-
-    fetch('/updateCart', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const oldPrice = parseFloat(priceElement.textContent.replace("₹", ""));
-                const newPrice = data.newPrice;
-
-                priceElement.textContent = `₹${data.newPrice}`;
-
-                const currentOrderTotal = parseFloat(orderTotalElement.textContent.replace("₹", ""));
-                const priceDifference = newPrice - oldPrice;
-                const updatedOrderTotal = currentOrderTotal + priceDifference;
-
-                orderTotalElement.textContent = `₹${updatedOrderTotal.toFixed(2)}`;
-            } else {
+            if (isNaN(currentQty) || currentQty < 0) {
                 swal.fire({
-                    title: "Error!",
-                    text: data.message,
-                    icon: "error",
+                    title: "Invalid Quantity",
+                    text: "Quantity cannot be negative.",
+                    icon: "warning",
                     button: "Okay",
                 });
+                input.value = 0;
+                return;
             }
-        })
-        .catch(error => {
-            swal.fire({
-                title: "Server Error!",
-                text: "Something went wrong while updating the cart. Please try again later.",
-                icon: "error",
-                button: "Okay",
-            });
-        });
-}
 
+            let newQty = currentQty;
+            if (action === 'increase') {
+                newQty = currentQty + 1;
+            } else if (action === 'decrease' && currentQty > 0) {
+                newQty = currentQty - 1;
+            }
+
+            if (newQty === currentQty) {
+                return;
+            }
+
+            const data = {
+                productId: productId,
+                quantity: newQty
+            };
+
+            fetch('/updateCart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        input.value = newQty;
+                        const oldPrice = parseFloat(priceElement.textContent.replace("₹", ""));
+                        const newPrice = data.newPrice;
+
+                        priceElement.textContent = `₹${newPrice}`;
+
+                        const currentOrderTotal = parseFloat(orderTotalElement.textContent.replace("₹", ""));
+                        const priceDifference = newPrice - oldPrice;
+                        const updatedOrderTotal = currentOrderTotal + priceDifference;
+
+                        orderTotalElement.textContent = `₹${updatedOrderTotal.toFixed(2)}`;
+                    } else {
+                        swal.fire({
+                            title: "Error!",
+                            text: data.message,
+                            icon: "error",
+                            button: "Okay",
+                        });
+                        input.value = currentQty;
+                    }
+                })
+                .catch(error => {
+                    swal.fire({
+                        title: "Server Error!",
+                        text: "Something went wrong while updating the cart. Please try again later.",
+                        icon: "error",
+                        button: "Okay",
+                    });
+                });
+        }
     </script>
+
+
+
 
 
 
