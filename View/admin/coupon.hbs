@@ -273,6 +273,7 @@
             const form = document.querySelector('#addCouponModal form');
             const discountTypeField = form.querySelector('#discountType');
             const maxDiscountField = form.querySelector('#maxDiscount');
+            const couponCodeField = form.querySelector('#code');
 
             const toggleMaxDiscountField = () => {
                 if (discountTypeField.value === 'fixed') {
@@ -287,9 +288,19 @@
 
             discountTypeField.addEventListener('change', toggleMaxDiscountField);
 
-            form.addEventListener('submit', (event) => {
+            couponCodeField.addEventListener('blur', async () => {
+                const code = couponCodeField.value.trim();
+                const isValid = await validateCouponCode(code);
+                if (!isValid) {
+                    showError('#code', 'Coupon code already exists or invalid format.');
+                } else {
+                    clearError('#code');
+                }
+            });
+
+            form.addEventListener('input', async () => {
                 let isValid = true;
-                const code = form.querySelector('#code').value.trim();
+                const code = couponCodeField.value.trim();
                 const discountType = form.querySelector('#discountType').value;
                 const discountValue = parseFloat(form.querySelector('#discountValue').value);
                 const minPurchase = parseFloat(form.querySelector('#minPurchase').value) || 0;
@@ -299,9 +310,16 @@
 
                 form.querySelectorAll('.text-danger').forEach((el) => el.remove());
 
-                if (!code) {
-                    showError('#code', 'Coupon code is required.');
+                const codeRegex = /^[A-Z0-9]{3,10}$/;
+                if (!codeRegex.test(code)) {
+                    showError('#code', 'Coupon code must be 3-10 characters long and alphanumeric.');
                     isValid = false;
+                } else {
+                    const isUnique = await checkCouponCodeUniqueness(code);
+                    if (!isUnique) {
+                        showError('#code', 'Coupon code already exists.');
+                        isValid = false;
+                    }
                 }
 
                 if (!discountValue || discountValue <= 0) {
@@ -332,6 +350,20 @@
                 }
             });
 
+            async function checkCouponCodeUniqueness(code) {
+                try {
+                    const response = await fetch(`/admin/coupons/check-code?code=${encodeURIComponent(code)}`);
+                    if (response.ok) {
+                        const result = await response.json();
+                        return result.isUnique;
+                    }
+                    return false;
+                } catch (error) {
+                    console.error('Error checking coupon code uniqueness:', error);
+                    return false;
+                }
+            }
+
             function showError(fieldSelector, message) {
                 const field = form.querySelector(fieldSelector);
                 const errorDiv = document.createElement('div');
@@ -340,6 +372,14 @@
 
                 if (!field.parentElement.querySelector('.text-danger')) {
                     field.parentElement.appendChild(errorDiv);
+                }
+            }
+
+            function clearError(fieldSelector) {
+                const field = form.querySelector(fieldSelector);
+                const errorDiv = field.parentElement.querySelector('.text-danger');
+                if (errorDiv) {
+                    field.parentElement.removeChild(errorDiv);
                 }
             }
         });
@@ -355,6 +395,10 @@
                 const formId = form.getAttribute('action').split('/').pop();
                 const discountTypeField = form.querySelector(`#discountType-${formId}`);
                 const maxDiscountField = form.querySelector(`#maxDiscount-${formId}`);
+                const couponCodeField = form.querySelector(`#code-${formId}`);
+                const discountValueField = form.querySelector(`#discountValue-${formId}`);
+                const minPurchaseField = form.querySelector(`#minPurchase-${formId}`);
+                const expiryDateField = form.querySelector(`#expiryDate-${formId}`);
 
                 const toggleMaxDiscountField = () => {
                     if (discountTypeField.value === 'fixed') {
@@ -369,43 +413,51 @@
 
                 discountTypeField.addEventListener('change', toggleMaxDiscountField);
 
-                form.addEventListener('submit', (event) => {
-                    const discountType = discountTypeField.value;
-                    const code = form.querySelector(`#code-${formId}`).value.trim();
-                    const discountValue = parseFloat(form.querySelector(`#discountValue-${formId}`).value) || 0;
-                    const minPurchase = parseFloat(form.querySelector(`#minPurchase-${formId}`).value) || 0;
-                    const maxDiscount = parseFloat(maxDiscountField.value) || 0;
-                    const expiryDate = form.querySelector(`#expiryDate-${formId}`).value;
+                couponCodeField.addEventListener('blur', async () => {
+                    const code = couponCodeField.value.trim();
+                    const isValid = await validateCouponCode(code, formId);
+                    if (!isValid) {
+                        showError(form, `#code-${formId}`, 'Coupon code already exists or invalid format.');
+                    } else {
+                        clearError(form, `#code-${formId}`);
+                    }
+                });
 
-                    form.querySelectorAll('.text-danger').forEach((el) => el.remove());
+                discountValueField.addEventListener('input', () => {
+                    validateDiscountValue(form, discountValueField, discountTypeField, formId);
+                });
 
+                form.addEventListener('input', async () => {
                     let isValid = true;
 
+                    const code = couponCodeField.value.trim();
                     if (code === '') {
                         showError(form, `#code-${formId}`, 'Coupon code is required.');
                         isValid = false;
                     }
 
+                    const discountValue = parseFloat(discountValueField.value) || 0;
                     if (discountValue <= 0) {
                         showError(form, `#discountValue-${formId}`, 'Discount value must be a positive number.');
                         isValid = false;
-                    }
-
-                    if (discountType === 'percentage' && discountValue >= 50) {
+                    } else if (discountTypeField.value === 'percentage' && discountValue >= 50) {
                         showError(form, `#discountValue-${formId}`, 'Discount value must be less than 50 for percentage type.');
                         isValid = false;
                     }
 
+                    const minPurchase = parseFloat(minPurchaseField.value) || 0;
                     if (minPurchase < 1000) {
                         showError(form, `#minPurchase-${formId}`, 'Minimum purchase must be greater than 1000.');
                         isValid = false;
                     }
 
-                    if (discountType !== 'fixed' && maxDiscount < 500) {
+                    const maxDiscount = parseFloat(maxDiscountField.value) || 0;
+                    if (discountTypeField.value !== 'fixed' && maxDiscount < 500) {
                         showError(form, `#maxDiscount-${formId}`, 'Maximum discount must be greater than 500.');
                         isValid = false;
                     }
 
+                    const expiryDate = expiryDateField.value;
                     const today = new Date();
                     const selectedDate = new Date(expiryDate);
                     if (!expiryDate || selectedDate <= today) {
@@ -417,15 +469,51 @@
                         event.preventDefault();
                     }
                 });
-            });
 
-            function showError(form, selector, message) {
-                const field = form.querySelector(selector);
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'text-danger mt-1';
-                errorDiv.textContent = message;
-                field.parentElement.appendChild(errorDiv);
-            }
+                function validateDiscountValue(form, field, discountTypeField, formId) {
+                    const discountValue = parseFloat(field.value) || 0;
+                    const discountType = discountTypeField.value;
+                    if (discountValue <= 0) {
+                        showError(form, `#discountValue-${formId}`, 'Discount value must be a positive number.');
+                    } else if (discountType === 'percentage' && discountValue >= 50) {
+                        showError(form, `#discountValue-${formId}`, 'Discount value must be less than 50 for percentage type.');
+                    } else {
+                        clearError(form, `#discountValue-${formId}`);
+                    }
+                }
+
+                async function validateCouponCode(code, formId) {
+                    try {
+                        const response = await fetch(`/admin/coupons/check-code?code=${encodeURIComponent(code)}`);
+                        if (response.ok) {
+                            const result = await response.json();
+                            if (result.isUnique || code === form.querySelector(`#code-${formId}`).dataset.originalCode) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    } catch (error) {
+                        console.error('Error checking coupon code uniqueness:', error);
+                        return false;
+                    }
+                }
+
+                function showError(form, selector, message) {
+                    const field = form.querySelector(selector);
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'text-danger mt-1';
+                    errorDiv.textContent = message;
+                    field.parentElement.appendChild(errorDiv);
+                }
+
+                function clearError(form, selector) {
+                    const field = form.querySelector(selector);
+                    const errorDiv = field.parentElement.querySelector('.text-danger');
+                    if (errorDiv) {
+                        field.parentElement.removeChild(errorDiv);
+                    }
+                }
+            });
         });
     </script>
 

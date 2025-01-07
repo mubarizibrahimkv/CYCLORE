@@ -53,8 +53,8 @@ const loadUserManagement = async (req, res) => {
 
         const searchFilter = {
             $or: [
-                { username: { $regex: searchQuery, $options: 'i' } }, 
-                { email: { $regex: searchQuery, $options: 'i' } } 
+                { username: { $regex: searchQuery, $options: 'i' } },
+                { email: { $regex: searchQuery, $options: 'i' } }
             ]
         };
 
@@ -69,7 +69,7 @@ const loadUserManagement = async (req, res) => {
             users,
             currentPage: page,
             totalPages,
-            query: searchQuery 
+            query: searchQuery
         });
     } catch (error) {
         console.error(error);
@@ -307,8 +307,24 @@ const addProduct = async (req, res) => {
     }
 };
 
+const checkProductName = async (req, res) => {
+    console.log("shariyaan");
+    
+    const productName = req.query.name;
+
+    const existingProduct = await productModel.findOne({
+        name: { $regex: new RegExp(`^${productName}$`, 'i') }
+    });
+
+    if (existingProduct) {
+        return res.json({ isUnique: false });
+    } else {
+        return res.json({ isUnique: true });
+    }
+}
+
 const editProduct = async (req, res) => {
-    const { id, name, category, price, stock, description  } = req.body;
+    const { id, name, category, price, stock, description } = req.body;
 
     const images = req.files;
 
@@ -452,5 +468,6 @@ module.exports = {
     loadProfile,
     logout,
     duplicateProductName,
-    searchUsers
+    searchUsers,
+    checkProductName
 }

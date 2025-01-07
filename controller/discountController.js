@@ -15,19 +15,16 @@ const loadCoupon = async (req, res) => {
 }
 
 const addCoupon = async (req, res) => {
-    try {
-        const { code, discountType, discountValue, minPurchase, maxDiscount, expiryDate } = req.body;
+    const { code, discountType, discountValue, minPurchase, maxDiscount, expiryDate } = req.body;
 
+    try {
         if (!code || !discountType || !discountValue || !minPurchase || !expiryDate) {
             return res.status(400).send('All fields are required');
         }
 
-        if (discountType === "percentage") {
-            if (discountValue > 100) {
-                return res.status(400).send('Discount values must be below 100');
-            }
+        if (discountType === "percentage" && discountValue > 100) {
+            return res.status(400).send('Discount value must be below 100');
         }
-
 
         const currentDate = new Date();
         const parsedExpiryDate = new Date(expiryDate);
@@ -47,10 +44,16 @@ const addCoupon = async (req, res) => {
         await newCoupon.save();
         res.redirect('/admin/coupon');
     } catch (error) {
-        console.error(error);
+        // Handle duplicate key error
+        if (error.code === 11000) {
+            return res.status(400).send('Coupon code already exists. Please use a unique code.');
+        }
+
+        console.error('Error adding coupon:', error);
         res.status(500).send('Error adding coupon');
     }
 };
+
 
 const deleteCoupon = async (req, res) => {
     const couponId = req.params.id
@@ -303,6 +306,17 @@ const deleteOffer = async (req, res) => {
     }
 }
 
+const checkCouponCode = async (req, res) => {
+    const { code } = req.query;
+    try {
+        const existingCoupon = await couponModel.findOne({ code });
+        res.json({ isUnique: !existingCoupon });
+    } catch (error) {
+        console.error('Error while checking coupon code uniqueness:', error);
+        res.status(500).json({ error: 'Internal server error. Please try again.' });
+    }
+};
+
 
 module.exports = {
     loadCoupon,
@@ -313,4 +327,5 @@ module.exports = {
     addOffer,
     editOffer,
     deleteOffer,
+    checkCouponCode
 }

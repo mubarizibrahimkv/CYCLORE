@@ -11,7 +11,7 @@ router.get("/offer",adminAuth.checkSession,discountController.loadOffer)
 router.post("/offers/add",discountController.addOffer)
 router.post("/offers/edit/:id",discountController.editOffer)
 router.post("/offers/delete/:id",discountController.deleteOffer)
-
+router.get('/coupons/check-code',discountController.checkCouponCode);
 
 
 
