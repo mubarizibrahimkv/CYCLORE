@@ -8,7 +8,6 @@ const upload = require("../controller/imageController")
 const path = require('path');
 
 
-//---------login--------//
 const loadLogin = async (req, res) => {
     res.render("admin/login");
 }
@@ -102,7 +101,7 @@ const blockUser = async (req, res) => {
     } catch (error) {
         res.send(error);
     }
-}
+};
 
 const unblockUser = async (req, res) => {
     const userId = req.params.id;
@@ -307,9 +306,7 @@ const addProduct = async (req, res) => {
     }
 };
 
-const checkProductName = async (req, res) => {
-    console.log("shariyaan");
-    
+const checkProductName = async (req, res) => {    
     const productName = req.query.name;
 
     const existingProduct = await productModel.findOne({
@@ -321,7 +318,7 @@ const checkProductName = async (req, res) => {
     } else {
         return res.json({ isUnique: true });
     }
-}
+};
 
 const editProduct = async (req, res) => {
     const { id, name, category, price, stock, description } = req.body;
@@ -416,7 +413,7 @@ const duplicateProductName = async (req, res) => {
     } catch (err) {
         return res.status(500).json({ error: "Server error" });
     }
-}
+};
 
 const toggleProductStatus = async (req, res) => {
     const productId = req.params.id;
@@ -441,13 +438,13 @@ const loadProfile = async (req, res) => {
     } catch (error) {
         res.send(error)
     }
-}
+};
 
 const logout = async (req, res) => {
     delete req.session.admin
 
     res.redirect('/admin/login');
-}
+};
 
 module.exports = {
     loadLogin,

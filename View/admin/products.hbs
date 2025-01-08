@@ -509,86 +509,85 @@
 
     <!--========form validation edit product======-->
     <script>
-     document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("editProductForm");
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("editProductForm");
 
-    const nameInput = document.getElementById("editProductName");
-    const categoryInput = document.getElementById("editProductCategory");
-    const priceInput = document.getElementById("editProductPrice");
-    const stockInput = document.getElementById("editProductStock");
-    const descriptionInput = document.getElementById("editProductDescription");
+            const nameInput = document.getElementById("editProductName");
+            const categoryInput = document.getElementById("editProductCategory");
+            const priceInput = document.getElementById("editProductPrice");
+            const stockInput = document.getElementById("editProductStock");
+            const descriptionInput = document.getElementById("editProductDescription");
 
-    const nameError = document.getElementById("editProductNameError");
-    const categoryError = document.getElementById("editProductCategoryError");
-    const priceError = document.getElementById("editProductPriceError");
-    const stockError = document.getElementById("editProductStockError");
-    const descriptionError = document.getElementById("editProductDescriptionError");
+            const nameError = document.getElementById("editProductNameError");
+            const categoryError = document.getElementById("editProductCategoryError");
+            const priceError = document.getElementById("editProductPriceError");
+            const stockError = document.getElementById("editProductStockError");
+            const descriptionError = document.getElementById("editProductDescriptionError");
 
-    const productId = document.getElementById("editProductId").value;
+            const productId = document.getElementById("editProductId").value;
 
-    function resetErrors() {
-        nameError.textContent = "";
-        categoryError.textContent = "";
-        priceError.textContent = "";
-        stockError.textContent = "";
-        descriptionError.textContent = "";
-    }
-
-    form.addEventListener("submit", async function (event) {
-        let formValid = true;
-
-        resetErrors();
-
-        if (nameInput.value.trim() === "") {
-            nameError.textContent = "Product name is required.";
-            formValid = false;
-        } else {
-            const isUnique = await checkProductNameUniqueness(nameInput.value.trim(), productId);
-            if (!isUnique) {
-                nameError.textContent = "Product name already exists."; // Inline error for duplicate name
-                formValid = false;
+            function resetErrors() {
+                nameError.textContent = "";
+                categoryError.textContent = "";
+                priceError.textContent = "";
+                stockError.textContent = "";
+                descriptionError.textContent = "";
             }
-        }
 
-        if (categoryInput.value === "") {
-            categoryError.textContent = "Please select a category.";
-            formValid = false;
-        }
+            form.addEventListener("submit", async function (event) {
+                let formValid = true;
 
-        if (priceInput.value <= 0) {
-            priceError.textContent = "Price must be greater than 0.";
-            formValid = false;
-        }
+                resetErrors();
 
-        if (stockInput.value <= 0) {
-            stockError.textContent = "Stock must be greater than 0.";
-            formValid = false;
-        }
+                if (nameInput.value.trim() === "") {
+                    nameError.textContent = "Product name is required.";
+                    formValid = false;
+                } else {
+                    const isUnique = await checkProductNameUniqueness(nameInput.value.trim(), productId);
+                    if (!isUnique) {
+                        nameError.textContent = "Product name already exists.";
+                        formValid = false;
+                    }
+                }
 
-        if (descriptionInput.value.trim() === "") {
-            descriptionError.textContent = "Description is required.";
-            formValid = false;
-        }
+                if (categoryInput.value === "") {
+                    categoryError.textContent = "Please select a category.";
+                    formValid = false;
+                }
 
-        if (!formValid) {
-            event.preventDefault(); // Prevent form submission if validation fails
-        }
-    });
+                if (priceInput.value <= 0) {
+                    priceError.textContent = "Price must be greater than 0.";
+                    formValid = false;
+                }
 
-    async function checkProductNameUniqueness(productName, currentProductId) {
-        try {
-            const response = await fetch(`/admin/products/check-name?name=${encodeURIComponent(productName)}&excludeId=${currentProductId}`);
-            const result = await response.json();
-            return result.isUnique;
-        } catch (error) {
-            console.error("Error checking product name uniqueness:", error);
-            return false;
-        }
-    }
-});
+                if (stockInput.value <= 0) {
+                    stockError.textContent = "Stock must be greater than 0.";
+                    formValid = false;
+                }
 
- </script>
+                if (descriptionInput.value.trim() === "") {
+                    descriptionError.textContent = "Description is required.";
+                    formValid = false;
+                }
 
+                if (!formValid) {
+                    event.preventDefault();
+                }
+            });
+
+            async function checkProductNameUniqueness(productName, currentProductId) {
+                try {
+                    const response = await fetch(`/admin/products/check-name?name=${encodeURIComponent(productName)}&excludeId=${currentProductId}`);
+                    const result = await response.json();
+                    return result.isUnique;
+                } catch (error) {
+                    console.error("Error checking product name uniqueness:", error);
+                    return false;
+                }
+            }
+        });
+
+    </script>
 
     <!--============================product image ================-->
     <script>
@@ -842,5 +841,4 @@
         });
     </script>
 </body>
-
 </html>
