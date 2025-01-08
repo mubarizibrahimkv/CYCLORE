@@ -372,8 +372,6 @@
                                 rows="3"></textarea>
                             <small class="text-danger" id="editProductDescriptionError"></small>
                         </div>
-                        <input type="file" id="editProductImage" name="images" accept="image/*" multiple />
-                        <label for="editProductImage" class="file-upload-label">Update Images:</label>
                         <div id="image-preview-container">
                             <p>Existing Images:</p>
                             <div id="existingImages" style="display: flex; flex-wrap: wrap;"></div>
@@ -785,7 +783,6 @@
 
                         if (!imagesToReplace.includes(index)) {
                             imagesToReplace.push(index);
-                            console.log(`Image at index ${index} added to imagesToReplace. Current array: `, imagesToReplace);
                         }
                     };
 
@@ -837,15 +834,11 @@
 
                     if (!imagesToReplace.includes(imageIndex)) {
                         imagesToReplace.push(imageIndex);
-                        console.log(`Image at index ${imageIndex} added to imagesToReplace. Current array:`, imagesToReplace);
                     }
 
                     const dataTransfer = new DataTransfer();
                     dataTransfer.items.add(new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' }));
                     currentReplaceInput.files = dataTransfer.files;
-
-                    console.log("Cropped image successfully replaced.");
-                    console.log("Images to replace after cropping:", imagesToReplace);
 
                     document.getElementById('cropper-container').style.display = 'none';
                     imageToCrop.style.display = 'none';
@@ -855,7 +848,6 @@
                 });
             }
         });
-
         document.getElementById('editProductForm').addEventListener('submit', (e) => {
             e.preventDefault();
             document.getElementById('imagesToReplaceInput').value = JSON.stringify(imagesToReplace);
