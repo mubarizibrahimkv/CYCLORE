@@ -345,6 +345,7 @@
                     <form action="/admin/products/edit" method="POST" enctype="multipart/form-data"
                         id="editProductForm">
                         <input type="hidden" name="id" id="editProductId">
+                        <input type="hidden" id="imagesToReplaceInput" name="imagesToReplace">
                         <div class="form-group">
                             <label for="editProductName">Product Name</label>
                             <input type="text" class="form-control" id="editProductName" name="name">
@@ -730,6 +731,7 @@
         }
 
         let cropper, currentReplaceInput;
+        let imagesToReplace = [];
 
         function openEditModal(id, name, category, price, stock, description, imagesJson) {
             document.getElementById('editProductId').value = id;
@@ -748,7 +750,7 @@
             }
 
             const existingImagesContainer = document.getElementById('existingImages');
-            existingImagesContainer.innerHTML = '';
+            existingImagesContainer.innerHTML = ''; 
 
             if (images && images.length > 0) {
                 images.forEach((image, index) => {
@@ -780,6 +782,11 @@
                     changeButton.onclick = (event) => {
                         event.preventDefault();
                         replaceInput.click();
+
+                        if (!imagesToReplace.includes(index)) {
+                            imagesToReplace.push(index);
+                            console.log(`Image at index ${index} added to imagesToReplace. Current array: `, imagesToReplace);
+                        }
                     };
 
                     imageContainer.appendChild(changeButton);
@@ -791,7 +798,6 @@
 
             $('#editProductModal').modal('show');
         }
-
 
         function openCropper(input, index) {
             const file = input.files[0];
@@ -824,12 +830,22 @@
                 cropper.getCroppedCanvas().toBlob((blob) => {
                     const url = URL.createObjectURL(blob);
 
-                    const previewImage = document.getElementById(`preview-image-${Array.from(document.querySelectorAll(".replace-image-input")).indexOf(currentReplaceInput)}`);
+                    const imageIndex = Array.from(document.querySelectorAll(".replace-image-input")).indexOf(currentReplaceInput);
+
+                    const previewImage = document.getElementById(`preview-image-${imageIndex}`);
                     previewImage.src = url;
+
+                    if (!imagesToReplace.includes(imageIndex)) {
+                        imagesToReplace.push(imageIndex);
+                        console.log(`Image at index ${imageIndex} added to imagesToReplace. Current array:`, imagesToReplace);
+                    }
 
                     const dataTransfer = new DataTransfer();
                     dataTransfer.items.add(new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' }));
                     currentReplaceInput.files = dataTransfer.files;
+
+                    console.log("Cropped image successfully replaced.");
+                    console.log("Images to replace after cropping:", imagesToReplace);
 
                     document.getElementById('cropper-container').style.display = 'none';
                     imageToCrop.style.display = 'none';
@@ -839,6 +855,14 @@
                 });
             }
         });
+
+        document.getElementById('editProductForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            document.getElementById('imagesToReplaceInput').value = JSON.stringify(imagesToReplace);
+            e.target.submit(); 
+        });
+
     </script>
 </body>
+
 </html>

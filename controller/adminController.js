@@ -321,10 +321,8 @@ const checkProductName = async (req, res) => {
 };
 
 const editProduct = async (req, res) => {
-    const { id, name, category, price, stock, description } = req.body;
-
-    const images = req.files;
-
+    const { id, name, category, price, stock, description, imagesToReplace } = req.body;
+    const images = req.files; 
     let updateData = {};
 
     try {
@@ -358,7 +356,6 @@ const editProduct = async (req, res) => {
             }
         }
 
-
         if (price) {
             if (isNaN(price) || price <= 0) {
                 validationErrors.push("Price must be a positive number.");
@@ -382,8 +379,26 @@ const editProduct = async (req, res) => {
 
         if (images && images.length > 0) {
             const newImages = images.map(file => `uploads/${file.filename}`);
-            updateData.images = newImages;
-        } else {
+
+            let parsedImagesToReplace = [];
+            try {
+                parsedImagesToReplace = JSON.parse(imagesToReplace);
+                if (!Array.isArray(parsedImagesToReplace)) {
+                    parsedImagesToReplace = [];
+                }
+            } catch (err) {
+                console.error('Error parsing imagesToReplace:', err);
+                parsedImagesToReplace = [];
+            }
+
+            if (parsedImagesToReplace.length > 0) {
+                parsedImagesToReplace.forEach((index, i) => {
+                    if (product.images[index]) {
+                        product.images[index] = newImages[i]; 
+                    }
+                });
+            }
+
             updateData.images = product.images;
         }
 
